@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(content=~{::content}, showSidebar=true)}">
+
+<div th:fragment="content">
+    <div class="book-detail-container" th:if="${book != null}">
+        <div class="book-detail-image">
+            <img th:src="@{${book.imageUrl}}" alt="Book Cover" class="book-cover-placeholder">
+        </div>
+        <div class="book-detail-info">
+            <h2 th:text="${book.title}">Book Title</h2>
+            <p class="author">by <span th:text="${book.author}">Author Name</span></p>
+            <p class="price" th:text="'$' + ${book.price}">$19.99</p>
+            
+            <div class="actions">
+                <form th:action="@{/cart/add}" method="post" style="display: inline;">
+                    <input type="hidden" name="bookId" th:value="${book.id}" />
+                    <button type="submit" class="btn-add-to-cart">Add to Cart</button>
+                </form>
+                <form th:action="@{/wishlist/add}" method="post" style="display: inline;">
+                    <input type="hidden" name="bookId" th:value="${book.id}" />
+                    <button type="submit" class="btn-add-to-wishlist">&#10084; Add to Wishlist</button>
+                </form>
+            </div>
+
+            <div class="description">
+                <h3>Description</h3>
+                <p th:text="${book.description}">Book description goes here...</p>
+            </div>
+
+            <div class="tags">
+                <h3>Tags</h3>
+                <span th:each="tag : ${book.tags}" class="tag">
+                    <a th:href="@{/books/tag/{id}(id=${tag.id})}" th:text="${tag.name}">Tag</a>
+                </span>
+            </div>
+        </div>
+    </div>
+    <div th:if="${book == null}">
+        <h2>Book not found</h2>
+    </div>
+</div>
+
+</html>

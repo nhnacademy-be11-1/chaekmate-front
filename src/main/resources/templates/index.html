@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(content=~{::content}, showSidebar=true)}">
+
+<div th:fragment="content">
+<div class="homepage-search-container">
+        <h2>Find Your Next Book</h2>
+        <form action="/search" method="get" class="search-form-large">
+            <input type="text" name="query" placeholder="Search by title, author, or keyword...">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    <div class="book-section">
+        <h3>Bestsellers</h3>
+        <div class="book-grid">
+            <!-- Loop through books -->
+            <div class="book-item" th:each="book : ${bestSellers}">
+                <a th:href="@{/book/{id}(id=${book.id})}">
+                    <img th:src="@{${book.imageUrl}}" alt="Book Cover" class="book-cover-placeholder">
+                    <h4 th:text="${book.title}">Book Title</h4>
+                </a>
+                <p th:text="${book.author}">Author Name</p>
+                <p class="price" th:text="'$' + ${book.price}">$19.99</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
