@@ -1,7 +1,7 @@
 package shop.chaekmate.front;
 
-import com.nhnacademy.templateexample.dto.Book;
-import com.nhnacademy.templateexample.dto.Category;
+import shop.chaekmate.front.dto.Book;
+import shop.chaekmate.front.dto.Category;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

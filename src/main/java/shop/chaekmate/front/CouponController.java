@@ -1,7 +1,7 @@
 package shop.chaekmate.front;
 
-import com.nhnacademy.templateexample.dto.Category;
-import com.nhnacademy.templateexample.dto.Coupon;
+import shop.chaekmate.front.dto.Category;
+import shop.chaekmate.front.dto.Coupon;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
