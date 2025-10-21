@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="html(content, showSidebar)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookShop</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div th:replace="~{layout/header :: header}"></div>
+
+    <div class="main-container">
+        <div th:if="${showSidebar}" th:replace="~{layout/sidebar :: sidebar}"></div>
+
+        <main id="content" th:class="${showSidebar} ? 'main-content' : 'main-content-full-width'">
+            <div th:replace="${content}"></div>
+        </main>
+    </div>
+
+    <div th:replace="~{layout/footer :: footer}"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>
