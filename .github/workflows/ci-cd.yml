@@ -12,8 +12,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DOMAIN: ${{ vars.DOMAIN_NAME }}
-      PORT: ${{ vars.PORT_NUMBER }}
+      DOMAIN: ${{ secrets.DOMAIN_NAME }}
+      PORT: ${{ secrets.PORT_NUMBER }}
 
     steps:
       # Step.1 코드 체크아웃
@@ -81,6 +81,4 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            export DOMAIN=${{ env.DOMAIN }}
-            export PORT=${{ env.PORT }}
             bash -lc ./startup.sh
