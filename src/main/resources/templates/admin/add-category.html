@@ -49,8 +49,8 @@
                         <a href="#" data-id="" data-name="선택된 카테고리 없음">없음 (최상위 카테고리)</a>
                     </div>
                     <hr class="my-1">
-                    <ul class="list-unstyled" th:if="${categories != null and not #lists.isEmpty(categories)}">
-                        <th:block th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${categories})}"></th:block>
+                    <ul class="list-unstyled" th:if="${allCategories != null and not #lists.isEmpty(allCategories)}">
+                        <th:block th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${allCategories})}"></th:block>
                     </ul>
                 </div>
             </div>

@@ -3,7 +3,6 @@ package shop.chaekmate.front;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,9 +11,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import shop.chaekmate.front.client.CoreClient;
 import shop.chaekmate.front.dto.request.CategoryCreateRequest;
 import shop.chaekmate.front.dto.response.CategoryCreateResponse;
-import shop.chaekmate.front.dto.response.CategoryResponse;
-
-import java.util.List;
 
 @Controller
 @RequestMapping("/admin/categories")
@@ -24,9 +20,7 @@ public class CategoryAdminController {
     private final CoreClient coreClient;
 
     @GetMapping("/add")
-    public String addCategoryForm(Model model) {
-        List<CategoryResponse> categories = coreClient.getAllCategories();
-        model.addAttribute("categories", categories);
+    public String addCategoryForm() {
         return "admin/add-category";
     }
 
