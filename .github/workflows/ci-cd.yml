@@ -59,7 +59,7 @@ jobs:
           mv target/*.jar target/$NEW_JAR_NAME
           echo "NEW_JAR_NAME=$NEW_JAR_NAME" >> $GITHUB_ENV
 
-      # Step.7 서버 temp/ 폴더로 JAR 파일 업로드
+      # Step.7 서버 도메인별 폴더로 JAR 파일 업로드
       - name: Upload file to Server temp Folder
         uses: appleboy/scp-action@v0.1.7
         with:
