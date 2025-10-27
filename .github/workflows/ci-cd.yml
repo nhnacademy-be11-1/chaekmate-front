@@ -47,7 +47,7 @@ jobs:
       - name: Build and Analyze with SonarQube
         run: |
           mvn -B verify sonar:sonar \
-            -Dsonar.projectKey=sonar-test \
+            -Dsonar.projectKey=chaekmate-front \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
