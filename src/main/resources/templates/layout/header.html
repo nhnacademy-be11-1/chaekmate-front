@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <header th:fragment="header">
+        <h1><a href="/" style="text-decoration: none; color: inherit;">BookShop</a></h1>
+        <nav class="main-nav">
+            <ul>
+                <li><a href="/">Home</a></li>
+                <li><a href="/books">All Books</a></li>
+                <li><a href="/contact">Contact</a></li>
+                <li><a href="/coupons">Coupons</a></li>
+            </ul>
+        </nav>
+        <div class="header-actions">
+            <div class="user-links">
+                <a href="/login">Login</a>
+                <a href="/signup">Sign Up</a>
+                <a href="/admin/login">Admin Login</a>
+                <a href="/wishlist" class="wishlist-link">Wishlist (<span th:text="${wishlistItemCount}">0</span>)</a>
+                <a href="/cart" class="cart-link">Cart (<span th:text="${cartItemCount}">0</span>)</a>
+            </div>
+        </div>
+    </header>
+
+
+</body>
+</html>

@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(content=~{::content}, showSidebar=false)}">
+
+<div th:fragment="content">
+    <div class="coupon-container">
+        <h2>Available Coupons</h2>
+        <div th:if="${coupons.isEmpty()}">
+            <p>No coupons available at the moment.</p>
+        </div>
+        <div th:if="${!coupons.isEmpty()}" class="coupon-grid">
+            <div class="coupon-item" th:each="coupon : ${coupons}">
+                <h3 th:text="${coupon.code}">COUPONCODE</h3>
+                <p th:text="${coupon.description}">Description of the coupon.</p>
+                <p>Discount: <span th:text="${coupon.discountAmount}"></span></p>
+                <p>Expires: <span th:text="${coupon.expiryDate}"></span></p>
+                <button class="btn-copy-coupon">Copy Code</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</html>
