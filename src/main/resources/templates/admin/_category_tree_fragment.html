@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <!-- 
+        This file contains a reusable fragment for displaying a category tree.
+        It is not meant to be rendered directly.
+    -->
+
+    <th:block th:fragment="categoryItems(categories)">
+        <li th:each="category : ${categories}" class="category-tree-item">
+            <a href="#" th:data-id="${category.id}" th:data-name="${category.name}" th:text="${category.name}"></a>
+            <ul class="list-unstyled ps-3" th:if="${category.children != null and not #lists.isEmpty(category.children)}">
+                <th:block th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${category.children})}"></th:block>
+            </ul>
+        </li>
+    </th:block>
+
+</body>
+</html>
