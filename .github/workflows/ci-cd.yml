@@ -48,6 +48,7 @@ jobs:
         run: |
           mvn -B verify sonar:sonar \
             -Dsonar.projectKey=chaekmate-front \
+            -Dsonar.projectName="chaekmate-front" \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
