@@ -11,6 +11,7 @@ import shop.chaekmate.front.dto.request.CategoryCreateRequest;
 import shop.chaekmate.front.dto.request.TagCreateRequest;
 import shop.chaekmate.front.dto.response.CategoryCreateResponse;
 import shop.chaekmate.front.dto.response.CategoryResponse;
+import shop.chaekmate.front.dto.Tag;
 import shop.chaekmate.front.dto.response.TagCreateResponse;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,4 +41,13 @@ public interface CoreClient {
 
     @DeleteMapping("/admin/categories/{categoryId}")
     void deleteCategory(@PathVariable("categoryId") Long categoryId);
+
+    @GetMapping("/tags")
+    List<Tag> getAllTags();
+
+    @DeleteMapping("/admin/tags/{tagId}")
+    void deleteTag(@PathVariable("tagId") Long tagId);
+
+    @PutMapping("/admin/tags/{tagId}")
+    void updateTag(@PathVariable("tagId") Long tagId, TagCreateRequest tagCreateRequest);
 }
