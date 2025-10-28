@@ -21,7 +21,7 @@ public class BookAdminController {
         return "admin/add-book";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/admin/books/add")
     public String addBook(BookCreateRequest bookCreateRequest, @RequestPart("image") MultipartFile image) {
         coreClient.createBook(bookCreateRequest, image);
         return "redirect:/";
