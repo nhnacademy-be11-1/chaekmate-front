@@ -13,18 +13,16 @@ import shop.chaekmate.front.dto.request.CategoryCreateRequest;
 import shop.chaekmate.front.dto.response.CategoryCreateResponse;
 
 @Controller
-@RequestMapping("/admin/categories")
 @RequiredArgsConstructor
 public class CategoryAdminController {
-
     private final CoreClient coreClient;
 
-    @GetMapping("/add")
+    @GetMapping("/admin/categories/add")
     public String addCategoryForm() {
         return "admin/add-category";
     }
 
-    @PostMapping("/add")
+    @PostMapping("/admin/categories/add")
     public String addCategory(@Valid CategoryCreateRequest categoryCreateRequest, BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             // For simplicity, just redirecting with a generic error message.
