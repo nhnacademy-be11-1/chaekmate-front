@@ -11,7 +11,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookCreateRequest {
+public class BookUpdateRequest {
+    private Long id;
     private String title;
     private String author;
     private String publisher;
@@ -24,7 +25,7 @@ public class BookCreateRequest {
     private Integer stock;
     private Boolean isWrappeable;
     private Boolean isSaleEnd;
-    private String imageUrl; // Added
-    private List<TagRequest> tags;
-    private List<CategoryRequest> categories;
+    private String imageUrl;
+    private List<Long> tagIds;
+    private List<Long> categoryIds;
 }

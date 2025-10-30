@@ -4,7 +4,14 @@ spring:
 
 chaekmate:
   core:
-    url: http://localhost:8080
+    url: http://localhost:9100
 
 server:
   port: 5173
+
+minio:
+  url: ${MINIO_URL}
+  accessKey: 3P0frMluG9VWCtYH9I7e
+  secretKey: 97xkODbuUyRx6NOAUbQGCuxJdXmfC83UqVKFDFrj
+  bucketName: chaekmate-image-server
+  path-style-enabled: true

@@ -24,5 +24,21 @@
         </li>
     </th:block>
 
+    <th:block th:fragment="categorySelectionItems(categories, level)">
+        <div th:each="category : ${categories}">
+            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                <span th:style="'padding-left: ' + (15 * ${level}) + 'px;'">
+                    <span th:text="${category.name}">Category Name</span>
+                </span>
+                <button type="button" class="btn btn-sm btn-outline-primary select-category-btn"
+                        th:data-category-id="${category.id}"
+                        th:data-category-name="${category.name}">선택</button>
+            </div>
+            <th:block th:if="${category.children != null and not #lists.isEmpty(category.children)}">
+                <th:block th:insert="~{admin/_category_tree_fragment :: categorySelectionItems(categories=${category.children}, level=${level + 1})}"></th:block>
+            </th:block>
+        </div>
+    </th:block>
+
 </body>
 </html>

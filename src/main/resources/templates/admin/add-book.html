@@ -4,7 +4,7 @@
 <div th:fragment="content">
     <div class="container">
         <h2>도서 추가</h2>
-        <form th:action="@{/admin/books/add}" method="post" enctype="multipart/form-data">
+        <form th:action="@{/admin/books}" method="post">
             <div class="mb-3">
                 <label for="title" class="form-label">제목</label>
                 <input type="text" class="form-control" id="title" name="title" required>
@@ -38,12 +38,22 @@
                 <input type="number" class="form-control" id="stock" name="stock">
             </div>
             <div class="mb-3">
-                <label for="image" class="form-label">이미지</label>
-                <input type="file" class="form-control" id="image" name="image" accept="image/*" required>
+                <label for="imageUpload" class="form-label">이미지 업로드</label>
+                <input type="file" class="form-control" id="imageUpload" accept="image/*">
+                <button type="button" class="btn btn-secondary mt-2" id="uploadImageBtn">이미지 업로드</button>
+                <span id="uploadStatus" class="ms-2"></span> <!-- Added upload status span -->
+                <input type="hidden" id="imageUrlHidden" name="imageUrl">
+                <div class="mt-2" id="imagePreviewContainer">
+                    <img id="imagePreview" src="" alt="Image Preview" style="max-width: 200px; display: none;">
+                </div>
             </div>
             <button type="submit" class="btn btn-primary">도서 추가</button>
         </form>
     </div>
 </div>
+
+<th:block th:fragment="scripts">
+    <script th:src="@{/js/admin-add-book.js}"></script>
+</th:block>
 
 </html>

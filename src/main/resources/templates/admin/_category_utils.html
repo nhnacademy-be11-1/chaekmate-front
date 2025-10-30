@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <th:block th:fragment="findCategoryNameById(categories, categoryId)">
+        <th:block th:each="category : ${categories}">
+            <th:block th:if="${category.id == categoryId}">
+                <span th:text="${category.name}"></span>
+            </th:block>
+            <th:block th:if="${category.children != null and not #lists.isEmpty(category.children)}">
+                <th:block th:insert="~{admin/_category_utils :: findCategoryNameById(categories=${category.children}, categoryId=${categoryId})}"></th:block>
+            </th:block>
+        </th:block>
+    </th:block>
+
+</body>
+</html>

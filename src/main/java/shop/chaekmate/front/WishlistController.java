@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -54,8 +55,8 @@ public class WishlistController {
     public String viewWishlist(Model model) {
         // Mock wishlist items
         List<Book> wishlistItems = new ArrayList<>();
-        wishlistItems.add(new Book(1L, "The Lord of the Rings", "J.R.R. Tolkien", 22.99, "/images/book1.jpg", "Description", 3L, new ArrayList<>()));
-        wishlistItems.add(new Book(5L, "A Brief History of Time", "Stephen Hawking", 18.99, "/images/book5.jpg", "Description", 6L, new ArrayList<>()));
+        wishlistItems.add(new Book(1L, "The Lord of the Rings", "The Fellowship of the Ring", "The first part of Tolkien's epic masterpiece.", "J.R.R. Tolkien", "Allen & Unwin", LocalDateTime.of(1954, 7, 29, 0, 0), "978-0618053267", 25000, 22990, "/images/book1.jpg", true, false, 100, 1200L, Arrays.asList(3L), Arrays.asList(1L, 4L)));
+        wishlistItems.add(new Book(5L, "A Brief History of Time", "From the Big Bang to Black Holes", "A landmark volume in science writing by one of the great minds of our time.", "Stephen Hawking", "Bantam Books", LocalDateTime.of(1988, 4, 1, 0, 0), "978-0553380163", 20000, 18990, "/images/book5.jpg", true, false, 120, 900L, Arrays.asList(6L), new ArrayList<>()));
 
         model.addAttribute("wishlistItems", wishlistItems);
         return "wishlist";

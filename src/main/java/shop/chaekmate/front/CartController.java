@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,8 +56,8 @@ public class CartController {
     public String viewCart(Model model) {
         // Mock cart items
         List<CartItem> cartItems = new ArrayList<>();
-        cartItems.add(new CartItem(new Book(1L, "The Lord of the Rings", "J.R.R. Tolkien", 22.99, "/images/book1.jpg", "Description", 3L, new ArrayList<>()), 1));
-        cartItems.add(new CartItem(new Book(2L, "Pride and Prejudice", "Jane Austen", 15.99, "/images/book2.jpg", "Description", 1L, new ArrayList<>()), 2));
+        cartItems.add(new CartItem(new Book(1L, "The Lord of the Rings", "The Fellowship of the Ring", "The first part of Tolkien's epic masterpiece.", "J.R.R. Tolkien", "Allen & Unwin", LocalDateTime.of(1954, 7, 29, 0, 0), "978-0618053267", 25000, 22990, "/images/book1.jpg", true, false, 100, 1200L, Arrays.asList(3L), Arrays.asList(1L, 4L)), 1));
+        cartItems.add(new CartItem(new Book(2L, "Pride and Prejudice", "A classic of English literature", "A classic novel by Jane Austen.", "Jane Austen", "T. Egerton, Whitehall", LocalDateTime.of(1813, 1, 28, 0, 0), "978-0141439518", 18000, 15990, "/images/book2.jpg", false, false, 150, 800L, Arrays.asList(1L), Arrays.asList(1L, 2L)), 2));
 
         model.addAttribute("cartItems", cartItems);
         model.addAttribute("cartTotal", cartItems.stream().mapToDouble(CartItem::getSubtotal).sum());
