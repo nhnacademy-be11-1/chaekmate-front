@@ -4,7 +4,7 @@
 
 <aside th:fragment="sidebar" class="sidebar">
     <h3>Categories</h3>
-    <ul th:replace="~{:: category_tree(categories=${topLevelCategories})}"></ul>
+    <ul th:replace="~{:: category_tree(categories=${allCategories})}"></ul>
 </aside>
 
 <!-- Recursive fragment for categories -->

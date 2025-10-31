@@ -1,7 +1,6 @@
 package shop.chaekmate.front;
 
 import shop.chaekmate.front.dto.Book;
-import shop.chaekmate.front.dto.Category;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,25 +12,6 @@ import java.util.List;
 
 @Controller
 public class IndexController {
-
-    @ModelAttribute("topLevelCategories")
-    public List<Category> populateCategories() {
-        // Mock hierarchical categories
-        Category fiction = new Category(1L, "Fiction");
-        Category nonFiction = new Category(2L, "Non-Fiction");
-
-        Category fantasy = new Category(3L, "Fantasy");
-        Category scienceFiction = new Category(4L, "Science Fiction");
-        fiction.addChild(fantasy);
-        fiction.addChild(scienceFiction);
-
-        Category biography = new Category(5L, "Biography");
-        Category history = new Category(6L, "History");
-        nonFiction.addChild(biography);
-        nonFiction.addChild(history);
-
-        return Arrays.asList(fiction, nonFiction);
-    }
 
     @ModelAttribute("cartItemCount")
     public int populateCartItemCount() {
