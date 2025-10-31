@@ -126,9 +126,9 @@ public class AdminBookController {
             return;
         }
         for (CategoryResponse category : categories) {
-            map.put(category.getId(), category.getName());
-            if (category.getChildren() != null && !category.getChildren().isEmpty()) {
-                flattenCategoriesToMap(category.getChildren(), map);
+            map.put(category.id(), category.name());
+            if (category.children() != null && !category.children().isEmpty()) {
+                flattenCategoriesToMap(category.children(), map);
             }
         }
     }

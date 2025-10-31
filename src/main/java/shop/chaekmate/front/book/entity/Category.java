@@ -2,7 +2,9 @@ package shop.chaekmate.front.book.entity;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
 
+@Getter
 public class Category {
     private long id;
     private String name;
@@ -12,10 +14,6 @@ public class Category {
         this.id = id;
         this.name = name;
     }
-
-    public long getId() { return id; }
-    public String getName() { return name; }
-    public List<Category> getChildren() { return children; }
 
     public void addChild(Category child) {
         this.children.add(child);
