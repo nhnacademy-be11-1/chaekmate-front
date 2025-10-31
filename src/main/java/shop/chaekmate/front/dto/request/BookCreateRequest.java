@@ -22,7 +22,7 @@ public class BookCreateRequest {
     private Integer price;
     private Integer salesPrice;
     private Integer stock;
-    private Boolean isWrappeable;
+    private Boolean isWrappable;
     private Boolean isSaleEnd;
     private String imageUrl; // Added
     private List<TagRequest> tags;

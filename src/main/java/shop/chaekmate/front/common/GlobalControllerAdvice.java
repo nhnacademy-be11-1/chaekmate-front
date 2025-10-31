@@ -1,4 +1,4 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.common;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -19,4 +19,5 @@ public class GlobalControllerAdvice {
     public List<CategoryResponse> populateCategories() {
         return coreClient.getAllCategories();
     }
+
 }

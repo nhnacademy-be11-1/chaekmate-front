@@ -54,10 +54,10 @@ public interface CoreClient {
     @PutMapping("/admin/tags/{tagId}")
     void updateTag(@PathVariable("tagId") Long tagId, TagCreateRequest tagCreateRequest);
 
-    @PutMapping(value = "/admin/books/{bookId}")
-    void updateBook(@PathVariable("bookId") Long bookId, @RequestBody BookUpdateRequest bookUpdateRequest);
+    @PutMapping(value = "/books/{bookId}")
+    void updateBook(@PathVariable("bookId") Long bookId, BookUpdateRequest bookUpdateRequest);
 
-    @DeleteMapping("/admin/books/{bookId}")
+    @DeleteMapping("/books/{bookId}")
     void deleteBook(@PathVariable("bookId") Long bookId);
 
     @GetMapping("/admin/books/recent")

@@ -12,7 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookUpdateRequest {
-    private Long id;
     private String title;
     private String author;
     private String publisher;
@@ -23,7 +22,7 @@ public class BookUpdateRequest {
     private Integer price;
     private Integer salesPrice;
     private Integer stock;
-    private Boolean isWrappeable;
+    private Boolean isWrappable;
     private Boolean isSaleEnd;
     private String imageUrl;
     private List<Long> tagIds;

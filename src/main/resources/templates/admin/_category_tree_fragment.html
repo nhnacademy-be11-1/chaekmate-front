@@ -14,7 +14,7 @@
                         수정
                     </button>
                     <form th:action="@{/admin/categories/{categoryId}/delete(categoryId=${category.id})}" method="post" onsubmit="return confirm('정말로 이 카테고리를 삭제하시겠습니까?');" style="display: inline;">
-                        <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
+                            <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
                     </form>
                 </div>
             </div>

@@ -1,4 +1,4 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.common;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

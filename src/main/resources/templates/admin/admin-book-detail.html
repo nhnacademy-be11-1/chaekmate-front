@@ -13,7 +13,7 @@
         </div>
 
         <form th:action="@{/admin/books/{bookId}(bookId=${book.id})}" th:object="${bookUpdateRequest}" method="post">
-            <input type="hidden" th:field="*{id}">
+            <input type="hidden" name="_method" value="put" />
 
             <!-- Title -->
             <div class="mb-3">
@@ -96,8 +96,8 @@
 
             <!-- Is Wrappeable -->
             <div class="mb-3 form-check">
-                <input type="checkbox" class="form-check-input" id="isWrappeable" th:field="*{isWrappeable}">
-                <label class="form-check-label" for="isWrappeable">포장 가능 여부</label>
+                <input type="checkbox" class="form-check-input" id="isWrappable" th:field="*{isWrappable}">
+                <label class="form-check-label" for="isWrappable">포장 가능 여부</label>
             </div>
 
             <!-- Is Sale End -->

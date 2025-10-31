@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const form = document.querySelector('form');
-    const selectedTagsDisplay = document.getElementById('selected-tags-display');
-    const hiddenTagsInput = document.getElementById('hidden-tags-input');
-    const selectedCategoriesDisplay = document.getElementById('selected-categories-display');
-    const hiddenCategoriesInput = document.getElementById('hidden-categories-input');
+    // Helper functions
+    function updateHiddenInputNames(container, namePrefix) {
+        Array.from(container.querySelectorAll('input[type="hidden"]')).forEach((input, index) => {
+            input.name = `${namePrefix}[${index}]`;
+        });
+    }
 
-    // Function to add a tag to the display and hidden input
     function addTag(tagId, tagName) {
         if (!document.getElementById(`selected-tag-${tagId}`)) {
             // Add to display
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to add a category to the display and hidden input
     function addCategory(categoryId, categoryName) {
         if (!document.getElementById(`selected-category-${categoryId}`)) {
             // Add to display
@@ -47,12 +46,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to update hidden input names to maintain correct indexing
-     function updateHiddenInputNames(container, namePrefix) {
-        Array.from(container.querySelectorAll('input[type="hidden"]')).forEach((input, index) => {
-            input.name = `${namePrefix}[${index}]`;
-        });
-    }
+    // Variable declarations
+    const form = document.querySelector('form');
+    const selectedTagsDisplay = document.getElementById('selected-tags-display');
+    const hiddenTagsInput = document.getElementById('hidden-tags-input');
+    const selectedCategoriesDisplay = document.getElementById('selected-categories-display');
+    const hiddenCategoriesInput = document.getElementById('hidden-categories-input');
+
+    // On initial load, ensure hidden inputs for existing tags/categories are correctly named/indexed
+    updateHiddenInputNames(hiddenTagsInput, 'tagIds');
+    updateHiddenInputNames(hiddenCategoriesInput, 'categoryIds');
 
     // Tag Selection Modal Logic (Event Delegation)
     document.getElementById('tagSelectionModal').addEventListener('click', function(event) {
@@ -111,11 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
             updateHiddenInputNames(hiddenCategoriesInput, 'categoryIds'); // Re-index
         }
     });
-
-    // On initial load, ensure hidden inputs for existing tags/categories are correctly named/indexed
-    updateHiddenInputNames(hiddenTagsInput, 'tagIds');
-    updateHiddenInputNames(hiddenCategoriesInput, 'categoryIds');
-
 
     // Image upload logic
     const imageUpload = document.getElementById('imageUpload');
