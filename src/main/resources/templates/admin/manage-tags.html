@@ -1,4 +1,5 @@
-<th:block th:replace="~{layout :: html(content=~{::content}, scripts=~{::scripts}, showSidebar=true)}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::content}, scripts=~{::scripts}, showSidebar=false)}">
 
 <div th:fragment="content">
     <div class="container">
@@ -24,8 +25,12 @@
                         <td th:text="${tag.id}"></td>
                         <td th:text="${tag.name}"></td>
                         <td>
-                            <button type="button" class="btn btn-primary btn-sm edit-tag-btn" th:data-id="${tag.id}" th:data-name="${tag.name}">수정</button>
-                            <form th:action="@{/admin/tags/{tagId}/delete(tagId=${tag.id})}" method="post" onsubmit="return confirm('정말로 이 태그를 삭제하시겠습니까?');" style="display: inline-block; margin-left: 5px;">
+                            <button type="button" class="btn btn-primary btn-sm edit-tag-btn" th:data-id="${tag.id}"
+                                    th:data-name="${tag.name}">수정
+                            </button>
+                            <form th:action="@{/admin/tags/{tagId}/delete(tagId=${tag.id})}" method="post"
+                                  onsubmit="return confirm('정말로 이 태그를 삭제하시겠습니까?');"
+                                  style="display: inline-block; margin-left: 5px;">
                                 <button type="submit" class="btn btn-danger btn-sm">삭제</button>
                             </form>
                         </td>

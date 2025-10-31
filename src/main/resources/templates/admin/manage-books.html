@@ -1,72 +1,45 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(content=~{::content}, scripts=~{::scripts}, showSidebar=true)}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::content}, scripts=~{::scripts}, showSidebar=false)}">
 
 <div th:fragment="content">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-8">
-                <h2>최근 추가된 도서 목록</h2>
-                <div th:if="${successMessage}" class="alert alert-success" role="alert">
-                    <p th:text="${successMessage}"></p>
-                </div>
-                <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
-                    <p th:text="${errorMessage}"></p>
-                </div>
-                <table class="table table-striped">
-                    <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>이미지</th>
-                        <th>제목</th>
-                        <th>저자</th>
-                        <th>동작</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr th:each="book : ${books}">
-                        <td th:text="${book.id}"></td>
-                        <td><img th:src="${book.imageUrl}" alt="Book Image" style="width: 50px; height: auto;"></td>
-                        <td><a th:href="@{/admin/books/{bookId}(bookId=${book.id})}" th:utext="${book.title}"></a></td>
-                        <td th:utext="${book.author}"></td>
-                        <td>
-                            <a th:href="@{/admin/books/{bookId}(bookId=${book.id})}" class="btn btn-primary btn-sm">수정</a>
-                            <form th:action="@{/admin/books/{bookId}/delete(bookId=${book.id})}" method="post" onsubmit="return confirm('정말로 이 도서를 삭제하시겠습니까?');" style="display: inline-block; margin-left: 5px;">
-                                <button type="submit" class="btn btn-danger btn-sm">삭제</button>
-                            </form>
-                        </td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="col-md-4">
-                <h2>도서 추가</h2>
-                <form th:action="@{/admin/books}" method="post" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">제목</label>
-                        <input type="text" class="form-control" id="title" name="bookCreateRequest.title" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="author" class="form-label">저자</label>
-                        <input type="text" class="form-control" id="author" name="bookCreateRequest.author" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="price" class="form-label">가격</label>
-                        <input type="number" class="form-control" id="price" name="bookCreateRequest.price" required step="0.01">
-                    </div>
-                    <div class="mb-3">
-                        <label for="description" class="form-label">설명</label>
-                        <textarea class="form-control" id="description" name="bookCreateRequest.description" rows="3"></textarea>
-                    </div>
-                    <div class="mb-3">
-                        <label for="image" class="form-label">이미지</label>
-                        <input type="file" class="form-control" id="image" name="image">
-                    </div>
-                    <!-- Category and Tags will be added later if needed -->
-                    <button type="submit" class="btn btn-primary">도서 추가</button>
-                </form>
-            </div>
-        </div>
+    <h2>최근 추가된 도서 목록 <a th:href="@{/admin/books/add}" class="btn btn-primary btn-sm">도서 추가</a></h2>
+    <div th:if="${successMessage}" class="alert alert-success" role="alert">
+        <p th:text="${successMessage}"></p>
     </div>
+    <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>이미지</th>
+            <th>제목</th>
+            <th>저자</th>
+            <th>동작</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="book : ${books}">
+            <td th:text="${book.id}"></td>
+            <td><img th:src="${book.imageUrl}" alt="Book" style="width: 50px; height: auto;">
+            </td>
+            <td><a th:href="@{/admin/books/{bookId}(bookId=${book.id})}"
+                   th:utext="${book.title}"></a></td>
+            <td th:utext="${book.author}"></td>
+            <td>
+                <a th:href="@{/admin/books/{bookId}(bookId=${book.id})}"
+                   class="btn btn-primary btn-sm">수정</a>
+                <form th:action="@{/admin/books/{bookId}/delete(bookId=${book.id})}" method="post"
+                      onsubmit="return confirm('정말로 이 도서를 삭제하시겠습니까?');"
+                      style="display: inline-block; margin-left: 5px;">
+                    <button type="submit" class="btn btn-danger btn-sm">삭제</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>
 
 <th:block th:fragment="scripts">

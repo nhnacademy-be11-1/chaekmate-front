@@ -1,4 +1,4 @@
-package shop.chaekmate.front.dto;
+package shop.chaekmate.front.book.entity;
 
 public class Tag {
     private long id;

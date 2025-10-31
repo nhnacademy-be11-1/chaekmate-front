@@ -1,4 +1,4 @@
-package shop.chaekmate.front.dto;
+package shop.chaekmate.front.book.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;

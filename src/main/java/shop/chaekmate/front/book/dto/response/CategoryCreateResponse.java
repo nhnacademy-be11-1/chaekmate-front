@@ -1,4 +1,4 @@
-package shop.chaekmate.front.admin.category;
+package shop.chaekmate.front.book.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

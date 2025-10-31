@@ -1,4 +1,4 @@
-package shop.chaekmate.front.admin.book;
+package shop.chaekmate.front.book.dto.request;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BookUpdateRequest {
+public class BookCreateRequest {
     private String title;
     private String author;
     private String publisher;
@@ -24,7 +24,7 @@ public class BookUpdateRequest {
     private Integer stock;
     private Boolean isWrappable;
     private Boolean isSaleEnd;
-    private String imageUrl;
-    private List<Long> tagIds;
-    private List<Long> categoryIds;
+    private String imageUrl; // Added
+    private List<TagRequest> tags;
+    private List<CategoryRequest> categories;
 }

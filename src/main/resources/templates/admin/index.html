@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(content=~{::content}, scripts=~{}, showSidebar=false)}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::content}, scripts=~{}, showSidebar=false)}">
+<head>
+    <title>관리자 대시보드</title>
+</head>
 
 <div th:fragment="content">
     <div class="container">

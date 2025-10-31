@@ -1,16 +1,15 @@
-package shop.chaekmate.front.admin.category;
+package shop.chaekmate.front.book.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse {
+public class TagRequest {
     private Long id;
     private String name;
-    private List<CategoryResponse> children;
 }

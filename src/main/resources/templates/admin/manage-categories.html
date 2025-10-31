@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout :: html(~{::content}, ~{::scripts}, true)}">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout :: html(content=~{::content}, scripts=~{::scripts}, showSidebar=false)}">
 
 <div th:fragment="content">
     <div class="container">
@@ -23,9 +24,12 @@
                     <div class="mb-3">
                         <label for="parentCategoryName" class="form-label">부모 카테고리</label>
                         <div class="input-group">
-                            <input type="text" class="form-control" id="parentCategoryName" placeholder="선택된 카테고리 없음" readonly>
+                            <input type="text" class="form-control" id="parentCategoryName" placeholder="선택된 카테고리 없음"
+                                   readonly>
                             <input type="hidden" id="parentCategoryId" name="parentCategoryId" value="">
-                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#categoryModal">선택</button>
+                            <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#categoryModal">선택
+                            </button>
                             <button class="btn btn-outline-danger" type="button" id="clearParentCategory">초기화</button>
                         </div>
                     </div>
@@ -51,7 +55,8 @@
                     </div>
                     <hr class="my-1">
                     <ul class="list-unstyled" th:if="${allCategories != null and not #lists.isEmpty(allCategories)}">
-                        <th:block th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${allCategories}, parentId=null)}"></th:block>
+                        <th:block
+                                th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${allCategories}, parentId=null)}"></th:block>
                     </ul>
                 </div>
             </div>

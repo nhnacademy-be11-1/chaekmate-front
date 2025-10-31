@@ -16,6 +16,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ImageUploadController {
 
+    // MINIO 이미지 등록을 위한 Controller
     private final MinioService minioService;
 
     @PostMapping("/upload")

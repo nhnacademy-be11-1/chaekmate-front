@@ -1,4 +1,4 @@
-package shop.chaekmate.front.admin.category;
+package shop.chaekmate.front.book.dto.request;
 
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;

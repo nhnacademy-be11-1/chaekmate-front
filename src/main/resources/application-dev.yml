@@ -4,7 +4,7 @@ spring:
 
 chaekmate:
   core:
-    url: http://localhost:9100
+    url: ${CORE_SERVER:http://localhost:9100}
 
 server:
   port: 5173
