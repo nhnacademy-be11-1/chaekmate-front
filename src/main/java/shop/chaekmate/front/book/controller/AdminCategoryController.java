@@ -22,7 +22,6 @@ public class AdminCategoryController {
     @GetMapping("/admin/categories")
     public String categoryManagementForm(Model model) {
         model.addAttribute("allCategories", coreClient.getAllCategories());
-        model.addAttribute("categoryCreateRequest", new CategoryCreateRequest());
         return "admin/manage-categories";
     }
 

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
-import shop.chaekmate.front.book.dto.request.BookUpdateRequest;
 import shop.chaekmate.front.book.dto.response.CategoryResponse;
 import shop.chaekmate.front.book.entity.Book;
 import shop.chaekmate.front.book.entity.Tag;
@@ -30,13 +29,22 @@ public class AdminBookController {
     @GetMapping("/admin/books")
     public String manageBooks(Model model) {
         model.addAttribute("books", coreClient.getRecentBooks(5));
-        model.addAttribute("bookCreateRequest", new BookCreateRequest());
         return "admin/manage-books";
     }
 
     @GetMapping("/admin/books/add")
     public String addBookForm(Model model) {
-        model.addAttribute("bookCreateRequest", new BookCreateRequest());
+        // Tag 들을 가져옴
+        List<Tag> allTags = coreClient.getAllTags();
+
+        // 카테고리 ID들을 name으로 바꿈
+        Map<Long, String> categoryIdToNameMap = new HashMap<>();
+        List<CategoryResponse> allCategories = coreClient.getAllCategories();
+        flattenCategoriesToMap(allCategories, categoryIdToNameMap);
+
+        model.addAttribute("allTags", allTags); // For selection in form
+        model.addAttribute("categoryIdToNameMap", categoryIdToNameMap); // For displaying selected categories
+        model.addAttribute("allCategories", allCategories);
         return "admin/add-book";
     }
 
@@ -57,11 +65,11 @@ public class AdminBookController {
     }
 
     @PutMapping("/admin/books/{bookId}")
-    public String updateBook(@PathVariable Long bookId, @Valid BookUpdateRequest bookUpdateRequest,
+    public String updateBook(@PathVariable Long bookId, @Valid BookCreateRequest bookUpdateRequest,
                              BindingResult bindingResult, RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "입력값이 유효하지 않습니다. " + bindingResult.getFieldError().getDefaultMessage());
+                    "입력값이 유효하지 않습니다. " + bindingResult.getFieldError());
             return "redirect:/admin/books/" + bookId;
         }
         try {
@@ -89,34 +97,16 @@ public class AdminBookController {
         Book book = coreClient.getBookById(bookId);
         // Fetch all tags
         List<Tag> allTags = coreClient.getAllTags();
+        List<CategoryResponse> allCategories = coreClient.getAllCategories();
 
         // Create a map for category ID to name for easier lookup in Thymeleaf
         Map<Long, String> categoryIdToNameMap = new HashMap<>();
-        flattenCategoriesToMap((List<CategoryResponse>) model.getAttribute("allCategories"), categoryIdToNameMap);
-
-        // Create a BookUpdateRequest from the Book object and its tag/category IDs
-        BookUpdateRequest bookUpdateRequest = new BookUpdateRequest(
-                book.title(),
-                book.author(),
-                book.publisher(),
-                book.publishedAt(),
-                book.isbn(),
-                book.description(),
-                book.index(),
-                book.price(),
-                book.salesPrice(),
-                book.stock(),
-                book.isWrappable(),
-                book.isSaleEnd(),
-                book.imageUrl(),
-                book.tagIds(),
-                book.categoryIds()
-        );
+        flattenCategoriesToMap(allCategories, categoryIdToNameMap);
 
         model.addAttribute("book", book); // Keep original book for display if needed
-        model.addAttribute("bookUpdateRequest", bookUpdateRequest); // For the form
         model.addAttribute("allTags", allTags); // For selection in form
         model.addAttribute("categoryIdToNameMap", categoryIdToNameMap); // For displaying selected categories
+        model.addAttribute("allCategories", allCategories);
         return "admin/admin-book-detail";
     }
 

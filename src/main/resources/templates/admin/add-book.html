@@ -97,14 +97,40 @@
 
             <!-- Tags -->
             <div class="mb-3">
-                <label for="tags" class="form-label">태그 (쉼표로 구분)</label>
-                <input type="text" class="form-control" id="tags" name="tags">
+                <label class="form-label">태그</label>
+                <div id="selected-tags-display" class="d-flex flex-wrap align-items-center">
+                    <!-- Display existing assigned tags -->
+                    <th:block th:each="tagId : ${book.tagIds}">
+                        <span th:with="selectedTag=${#lists.stream(allTags).filter(t -> t.id == tagId).findFirst().orElse(null)}" th:if="${selectedTag != null}" class="badge bg-primary me-1 mb-1" th:id="${'selected-tag-' + selectedTag.id}">
+                            <span th:text="${selectedTag.name}"></span>
+                            <button type="button" class="btn-close btn-close-white ms-1" aria-label="Remove" th:data-tag-id="${selectedTag.id}"></button>
+                        </span>
+                    </th:block>
+                </div>
+                <!-- Hidden inputs for form submission - current selected tags -->
+                <div id="hidden-tags-input">
+                    <input type="hidden" th:each="tagId, stat : ${book.tagIds}" th:name="'tagIds[' + ${stat.index} + ']'" th:value="${tagId}" />
+                </div>
+                <button type="button" class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#tagSelectionModal">태그 추가</button>
             </div>
 
             <!-- Categories -->
             <div class="mb-3">
-                <label for="categories" class="form-label">카테고리 (쉼표로 구분)</label>
-                <input type="text" class="form-control" id="categories" name="categories">
+                <label class="form-label">카테고리</label>
+                <div id="selected-categories-display" class="d-flex flex-wrap align-items-center">
+                    <!-- Display existing assigned categories -->
+                    <th:block th:each="categoryId : ${book.categoryIds}">
+                        <span th:if="${categoryIdToNameMap.containsKey(categoryId)}" class="badge bg-secondary me-1 mb-1" th:id="${'selected-category-' + categoryId}">
+                            <span th:text="${categoryIdToNameMap.get(categoryId)}"></span>
+                            <button type="button" class="btn-close btn-close-white ms-1" aria-label="Remove" th:data-category-id="${categoryId}"></button>
+                        </span>
+                    </th:block>
+                </div>
+                <!-- Hidden inputs for form submission - current selected categories -->
+                <div id="hidden-categories-input">
+                    <input type="hidden" th:each="categoryId, stat : ${book.categoryIds}" th:name="'categoryIds[' + ${stat.index} + ']'" th:value="${categoryId}" />
+                </div>
+                <button type="button" class="btn btn-outline-primary mt-2" data-bs-toggle="modal" data-bs-target="#categorySelectionModal">카테고리 추가</button>
             </div>
 
             <button type="submit" class="btn btn-primary">도서 추가</button>

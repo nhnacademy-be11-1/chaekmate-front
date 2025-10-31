@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.GetMapping;
 import shop.chaekmate.front.book.entity.Book;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
-import shop.chaekmate.front.book.dto.request.BookUpdateRequest;
 import shop.chaekmate.front.book.dto.request.CategoryCreateRequest;
 import shop.chaekmate.front.book.dto.request.TagCreateRequest;
 import shop.chaekmate.front.book.dto.response.CategoryCreateResponse;
@@ -52,7 +51,7 @@ public interface CoreClient {
     void updateTag(@PathVariable("tagId") Long tagId, TagCreateRequest tagCreateRequest);
 
     @PutMapping(value = "/books/{bookId}")
-    void updateBook(@PathVariable("bookId") Long bookId, BookUpdateRequest bookUpdateRequest);
+    void updateBook(@PathVariable("bookId") Long bookId, BookCreateRequest bookUpdateRequest);
 
     @DeleteMapping("/books/{bookId}")
     void deleteBook(@PathVariable("bookId") Long bookId);
