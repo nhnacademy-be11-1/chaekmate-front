@@ -1,4 +1,4 @@
-package shop.chaekmate.front.dto.response;
+package shop.chaekmate.front.admin.category;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagCreateResponse {
-    Long id;
-    String name;
+public class CategoryRequest {
+    private Long id;
+    private String name;
 }

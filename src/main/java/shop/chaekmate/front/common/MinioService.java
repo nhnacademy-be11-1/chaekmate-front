@@ -1,4 +1,4 @@
-package shop.chaekmate.front.service;
+package shop.chaekmate.front.common;
 
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;

@@ -1,4 +1,4 @@
-package shop.chaekmate.front.config;
+package shop.chaekmate.front.common;
 
 import io.minio.BucketExistsArgs;
 import io.minio.MakeBucketArgs;

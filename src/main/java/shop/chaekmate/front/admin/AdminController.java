@@ -10,11 +10,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import shop.chaekmate.front.client.CoreClient;
 import shop.chaekmate.front.dto.Book;
 import shop.chaekmate.front.dto.Tag;
-import shop.chaekmate.front.dto.request.BookCreateRequest;
-import shop.chaekmate.front.dto.request.BookUpdateRequest;
-import shop.chaekmate.front.dto.request.CategoryCreateRequest;
-import shop.chaekmate.front.dto.request.TagCreateRequest;
-import shop.chaekmate.front.dto.response.CategoryResponse;
+import shop.chaekmate.front.admin.book.BookCreateRequest;
+import shop.chaekmate.front.admin.book.BookUpdateRequest;
+import shop.chaekmate.front.admin.category.CategoryCreateRequest;
+import shop.chaekmate.front.admin.tag.TagCreateRequest;
+import shop.chaekmate.front.admin.category.CategoryResponse;
 
 import java.util.HashMap;
 import java.util.List;

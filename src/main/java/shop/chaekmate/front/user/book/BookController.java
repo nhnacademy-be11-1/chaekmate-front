@@ -1,4 +1,4 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.user.book;
 
 import shop.chaekmate.front.dto.Book;
 import shop.chaekmate.front.dto.Category;

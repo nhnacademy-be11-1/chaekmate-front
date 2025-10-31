@@ -1,16 +1,14 @@
-package shop.chaekmate.front.dto.response;
+package shop.chaekmate.front.admin.tag;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.util.List;
+import lombok.Setter;
 
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class CategoryResponse {
-    private Long id;
+public class TagCreateRequest {
     private String name;
-    private List<CategoryResponse> children;
 }

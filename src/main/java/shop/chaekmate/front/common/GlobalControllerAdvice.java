@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import shop.chaekmate.front.client.CoreClient;
-import shop.chaekmate.front.dto.response.CategoryResponse;
+import shop.chaekmate.front.admin.category.CategoryResponse;
 
 import java.util.List;
 

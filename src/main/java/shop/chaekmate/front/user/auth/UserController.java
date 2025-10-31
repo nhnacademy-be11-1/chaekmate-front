@@ -1,4 +1,4 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.user.auth;
 
 import shop.chaekmate.front.dto.Category;
 import org.springframework.stereotype.Controller;

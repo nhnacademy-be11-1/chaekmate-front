@@ -1,22 +1,20 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.user.coupon;
 
-import shop.chaekmate.front.dto.Book;
 import shop.chaekmate.front.dto.Category;
+import shop.chaekmate.front.dto.Coupon;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Controller
-public class WishlistController {
+public class CouponController {
 
     private List<Category> mockCategories() {
         // Mock hierarchical categories
@@ -48,23 +46,17 @@ public class WishlistController {
 
     @ModelAttribute("wishlistItemCount")
     public int populateWishlistItemCount() {
-        return 2; // Mock count
+        return 0; // Mock count
     }
 
-    @GetMapping("/wishlist")
-    public String viewWishlist(Model model) {
-        // Mock wishlist items
-        List<Book> wishlistItems = new ArrayList<>();
-        wishlistItems.add(new Book(1L, "The Lord of the Rings", "The Fellowship of the Ring", "The first part of Tolkien's epic masterpiece.", "J.R.R. Tolkien", "Allen & Unwin", LocalDateTime.of(1954, 7, 29, 0, 0), "978-0618053267", 25000, 22990, "/images/book1.jpg", true, false, 100, 1200L, Arrays.asList(3L), Arrays.asList(1L, 4L)));
-        wishlistItems.add(new Book(5L, "A Brief History of Time", "From the Big Bang to Black Holes", "A landmark volume in science writing by one of the great minds of our time.", "Stephen Hawking", "Bantam Books", LocalDateTime.of(1988, 4, 1, 0, 0), "978-0553380163", 20000, 18990, "/images/book5.jpg", true, false, 120, 900L, Arrays.asList(6L), new ArrayList<>()));
+    @GetMapping("/coupons")
+    public String viewCoupons(Model model) {
+        // Mock coupons
+        List<Coupon> coupons = new ArrayList<>();
+        coupons.add(new Coupon("WELCOME10", "10% off your first order", 0.10, LocalDate.now().plusMonths(1)));
+        coupons.add(new Coupon("BOOKLOVER5", "$5 off any book over $50", 5.00, LocalDate.now().plusMonths(2)));
 
-        model.addAttribute("wishlistItems", wishlistItems);
-        return "wishlist";
-    }
-
-    @PostMapping("/wishlist/add")
-    public String addToWishlist(@RequestParam long bookId) {
-        System.out.println("Adding book " + bookId + " to wishlist (mock)");
-        return "redirect:/wishlist";
+        model.addAttribute("coupons", coupons);
+        return "coupons";
     }
 }

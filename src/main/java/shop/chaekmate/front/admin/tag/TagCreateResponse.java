@@ -1,4 +1,4 @@
-package shop.chaekmate.front.dto.request;
+package shop.chaekmate.front.admin.tag;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TagCreateRequest {
-    private String name;
+public class TagCreateResponse {
+    Long id;
+    String name;
 }

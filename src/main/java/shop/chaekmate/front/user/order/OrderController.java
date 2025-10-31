@@ -1,4 +1,4 @@
-package shop.chaekmate.front;
+package shop.chaekmate.front.user.order;
 
 import shop.chaekmate.front.dto.Book;
 import shop.chaekmate.front.dto.CartItem;
