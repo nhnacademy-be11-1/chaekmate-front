@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org" th:fragment="html(content, scripts, showSidebar)">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" th:fragment="html(content, scripts, showSidebar)">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +8,24 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-    <div th:replace="~{layout/header :: header}"></div>
+<div th:replace="~{layout/header :: header}"></div>
 
-    <div class="main-container">
-        <div th:if="${showSidebar}" th:replace="~{layout/sidebar :: sidebar}"></div>
-
-        <main id="content" th:class="${showSidebar} ? 'main-content' : 'main-content-full-width'">
-            <div th:replace="${content}"></div>
-        </main>
+<div class="main-container">
+    <div th:if="${showSidebar}">
+        <div th:replace="~{layout/sidebar :: sidebar}">
+        </div>
     </div>
 
-    <div th:replace="~{layout/footer :: footer}"></div>
+    <main id="content" th:class="${showSidebar} ? 'main-content' : 'main-content-full-width'">
+        <div th:replace="${content}"></div>
+    </main>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script th:src="@{/js/main.js}"></script>
-    <!--/* Per-page scripts */-->
-    <th:block th:replace="${scripts} ?: ~{}"></th:block>
+<div th:replace="~{layout/footer :: footer}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/main.js}"></script>
+<!--/* Per-page scripts */-->
+<th:block th:replace="${scripts} ?: ~{}"></th:block>
 </body>
 </html>
