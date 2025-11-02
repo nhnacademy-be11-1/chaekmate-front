@@ -1,6 +1,8 @@
+# Front Server Port
 server:
   port: 5173
 
+# Target Server (Gateway Server) Port
 chaekmate:
   gateway:
-    url: ${GATEWAY_URL:http://localhost:8080}
+    url: http://localhost:8080
