@@ -1,3 +1,3 @@
 spring:
   application:
-    name: chaekmate-front
+    name: front
