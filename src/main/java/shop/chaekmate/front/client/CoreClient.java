@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.List;
 
-@FeignClient(name = "core-server", url = "${chaekmate.core.url}")
+@FeignClient(name = "core-server", url = "${chaekmate.gateway.url}")
 public interface CoreClient {
 
     @PostMapping(value = "/admin/books", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)

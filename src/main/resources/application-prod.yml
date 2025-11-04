@@ -1,0 +1,10 @@
+# Front/Target Server Port (prod) : "배포설명" 확인
+
+# Front Server Port
+server:
+  port: ${PORT_NUMBER}
+
+# Target Server (Gateway Server) Port
+chaekmate:
+  gateway:
+    url: ${GATEWAY_URL}

@@ -1,10 +1,8 @@
-#spring:
-#  application:
-#    name: front
-#
-#chaekmate:
-#  core:
-#    url: http://localhost:8080
-#
-#server:
-#  port: 5173
+# Front Server Port
+server:
+  port: 5173
+
+# Target Server (Gateway Server) Port
+chaekmate:
+  gateway:
+    url: http://localhost:8080
