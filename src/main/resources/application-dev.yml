@@ -1,8 +1,16 @@
-# Front Server Port
+spring:
+  application:
+    name: front
+
+chaekmate:
+  core:
+    url: ${CORE_SERVER:http://localhost:9100}
+
 server:
   port: 5173
 
-# Target Server (Gateway Server) Port
-chaekmate:
-  gateway:
-    url: http://localhost:8080
+minio:
+  url: ${MINIO_URL:http://storage.java21.net:8000}
+  accessKey: ${MINIO_ACCESS_KEY:3P0frMluG9VWCtYH9I7e}
+  secretKey: ${MINIO_SECRET_KEY:97xkODbuUyRx6NOAUbQGCuxJdXmfC83UqVKFDFrj}
+  bucketName: ${MINIO_BUCKET_NAME:chaekmate-image-server}
