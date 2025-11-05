@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <h2 class="h2 font-weight-bold text-dark mb-4">Category Management</h2>
+                <table class="table table-bordered">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Hierarchy</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="category : ${pagedCategories}">
+                        <td th:text="${category.id}"></td>
+                        <td th:utext="${category.hierarchy}"></td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center">
+                        <!-- Previous 버튼 -->
+                        <li class="page-item" th:classappend="${!hasPrevious} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/categories(page=${pageNumber - 1}, size=${pageSize})}">Previous</a>
+                        </li>
+
+                        <!-- 페이지 번호 동적 생성 -->
+                        <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                            th:classappend="${i == pageNumber} ? 'active'">
+                            <a class="page-link" th:href="@{/admin/categories(page=${i}, size=${pageSize})}" th:text="${i + 1}"></a>
+                        </li>
+
+                        <!-- Next 버튼 -->
+                        <li class="page-item" th:classappend="${!hasNext} ? 'disabled'">
+                            <a class="page-link" th:href="@{/admin/categories(page=${pageNumber + 1}, size=${pageSize})}">Next</a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

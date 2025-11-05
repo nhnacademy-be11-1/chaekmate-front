@@ -1,10 +1,31 @@
 package shop.chaekmate.front.category.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import shop.chaekmate.front.category.dto.response.CategoryHierarchyResponse;
+import shop.chaekmate.front.category.service.CategoryService;
+import shop.chaekmate.front.category.dto.response.CategoryPageResponse;
 
 @Controller
 @RequiredArgsConstructor
 public class CategoryController {
 
+    private final CategoryService categoryService;
+
+    @GetMapping("/admin/categories")
+    public String adminCategories(@PageableDefault(page = 0, size = 10) Pageable pageable, Model model) {
+        CategoryPageResponse<CategoryHierarchyResponse> response = categoryService.getPagedCategories(pageable.getPageNumber(), pageable.getPageSize());
+
+        model.addAttribute("pagedCategories", response.content());
+        model.addAttribute("totalPages", response.totalPages());
+        model.addAttribute("pageNumber",response.pageNumber());
+        model.addAttribute("pageSize",response.pageSize());
+        model.addAttribute("hasPrevious", response.hasPrevious());
+        model.addAttribute("hasNext", response.hasNext());
+        return "admin/category/category-management";
+    }
 }
