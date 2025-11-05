@@ -19,7 +19,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/admin/categories")
-    public String categoryManagementView(@PageableDefault(page = 0, size = 10) Pageable pageable, Model model) {
+    public String categoryManagementView(@PageableDefault Pageable pageable, Model model) {
         CategoryPageResponse<CategoryHierarchyResponse> response = categoryService.getPagedCategories(pageable.getPageNumber(), pageable.getPageSize());
 
         model.addAttribute("pagedCategories", response.content());

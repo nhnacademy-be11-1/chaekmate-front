@@ -9,24 +9,29 @@
                 <form th:action="@{/admin/categories}" method="post">
                     <div class="form-group">
                         <label for="categoryName">카테고리 이름</label>
-                        <input type="text" class="form-control" id="categoryName" name="name" placeholder="Enter category name" required>
+                        <input type="text" class="form-control" id="categoryName" name="name" placeholder="카테고리 이름을 입력하세요" required>
                     </div>
                     <div class="form-group">
                         <label for="parentCategory">상위 카테고리 설정</label>
                         <select class="form-control" id="parentCategory" name="parentId">
                             <option value="">-- 없음 (최상위 카테고리) --</option>
-                            <th:block th:each="category : ${categories}">
 
-                                <!-- Display top-level category as a selectable option -->
-                                <option th:value="${category.id}" th:text="${category.name}"></option>
+                            <!-- 상위 카테고리 -->
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}"
+                                    th:if="${category.children.isEmpty()}">
+                            </option>
 
-                                <!-- If it has children, create an optgroup for them -->
-                                <th:block th:if="${!category.children.isEmpty()}">
-                                    <optgroup th:label="${category.name}">
-                                        <option th:each="child : ${category.children}" th:value="${child.id}" th:text="${child.name}"></option>
-                                    </optgroup>
-                                </th:block>
-                            </th:block>
+                            <!-- 자식 카테고리가 있는 경우 optgroup 사용 -->
+                            <optgroup th:each="category : ${categories}"
+                                      th:if="${!category.children.isEmpty()}"
+                                      th:label="${category.name}">
+                                <option th:each="child : ${category.children}"
+                                        th:value="${child.id}"
+                                        th:text="${child.name}">
+                                </option>
+                            </optgroup>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary">추가하기</button>
