@@ -2,5 +2,6 @@ package shop.chaekmate.front.common;
 
 import java.time.LocalDateTime;
 
+// 공통 응답 포맷 적용
 public record CommonResponse<T>(LocalDateTime timestamp, String code, T data) {
 }
