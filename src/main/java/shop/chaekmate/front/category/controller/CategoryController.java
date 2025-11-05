@@ -19,7 +19,7 @@ public class CategoryController {
     private final CategoryService categoryService;
 
     @GetMapping("/admin/categories")
-    public String adminCategories(@PageableDefault(page = 0, size = 10) Pageable pageable, Model model) {
+    public String categoryManagementView(@PageableDefault(page = 0, size = 10) Pageable pageable, Model model) {
         CategoryPageResponse<CategoryHierarchyResponse> response = categoryService.getPagedCategories(pageable.getPageNumber(), pageable.getPageSize());
 
         model.addAttribute("pagedCategories", response.content());
@@ -31,6 +31,11 @@ public class CategoryController {
         return "admin/category/category-management";
     }
 
+    @GetMapping("/admin/categories/new")
+    public String categoryManagementAddView(){
+        return "admin/category/category-management-add";
+    }
+
     @DeleteMapping("/admin/categories/{id}")
     public String deleteCategory(@PathVariable("id") Long id) {
 
@@ -38,4 +43,5 @@ public class CategoryController {
 
         return "redirect:/admin/categories/";
     }
+
 }
