@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
+import shop.chaekmate.front.category.cache.CategoryCache;
 import shop.chaekmate.front.category.dto.response.CategoryHierarchyResponse;
 import shop.chaekmate.front.category.dto.response.CategoryResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -14,6 +15,7 @@ import shop.chaekmate.front.category.dto.response.CategoryPageResponse;
 public class CategoryService {
 
     private final CategoryAdaptor categoryAdaptor;
+    private final CategoryCache categoryCache;
 
     public List<CategoryResponse> getCategories() {
 
@@ -32,5 +34,6 @@ public class CategoryService {
     public void deleteCategoryById(Long id){
 
         categoryAdaptor.deleteCategory(id);
+        categoryCache.reload(); // 캐시 리로드
     }
 }
