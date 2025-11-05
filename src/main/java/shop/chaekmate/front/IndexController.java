@@ -10,12 +10,8 @@ import shop.chaekmate.front.category.cache.CategoryCache;
 @RequiredArgsConstructor
 public class IndexController {
 
-    private final CategoryCache categoryCache;
-
     @GetMapping("/")
     public String index(Model model) {
-
-        model.addAttribute("categories", categoryCache.getCachedCategories());
 
         return "index";
     }
