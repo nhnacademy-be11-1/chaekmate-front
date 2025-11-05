@@ -1,7 +1,7 @@
 package shop.chaekmate.front.category.service;
 
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
 import shop.chaekmate.front.category.cache.CategoryCache;
@@ -11,11 +11,16 @@ import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.category.dto.response.CategoryPageResponse;
 
 @Service
-@RequiredArgsConstructor
 public class CategoryService {
 
     private final CategoryAdaptor categoryAdaptor;
     private final CategoryCache categoryCache;
+
+    public CategoryService(CategoryAdaptor categoryAdaptor,
+                           @Lazy CategoryCache categoryCache) { // 순환 의존성 해결
+        this.categoryAdaptor = categoryAdaptor;
+        this.categoryCache = categoryCache;
+    }
 
     public List<CategoryResponse> getCategories() {
 
