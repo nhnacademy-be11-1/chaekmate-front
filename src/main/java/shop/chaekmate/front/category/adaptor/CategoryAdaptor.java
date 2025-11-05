@@ -21,5 +21,5 @@ public interface CategoryAdaptor {
     CommonResponse<CategoryPageResponse<CategoryHierarchyResponse>> getPagedCategories(@RequestParam("page") int page, @RequestParam("size") int size);
 
     @DeleteMapping(value ="/admin/categories/{id}")
-    CommonResponse<Void> deleteCategory(@PathVariable("id") int id);
+    CommonResponse<Void> deleteCategory(@PathVariable("id") Long id);
 }

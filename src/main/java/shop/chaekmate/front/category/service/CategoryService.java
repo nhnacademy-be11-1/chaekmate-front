@@ -23,8 +23,14 @@ public class CategoryService {
     }
 
     public CategoryPageResponse<CategoryHierarchyResponse> getPagedCategories(int page, int size) {
+
         CommonResponse<CategoryPageResponse<CategoryHierarchyResponse>> wrappedResponse = categoryAdaptor.getPagedCategories(page, size);
 
         return wrappedResponse.data();
+    }
+
+    public void deleteCategoryById(Long id){
+
+        categoryAdaptor.deleteCategory(id);
     }
 }
