@@ -31,33 +31,27 @@
                    data-toggle="collapse" href="#navbar-vertical"
                    style="height: 65px; padding: 0 30px;">
                     <h6 class="text-dark m-0">
-                        <i class="fa fa-bars mr-2"></i>Categories
+                        <i class="fa fa-bars mr-2"></i>카테고리
                     </h6>
                     <i class="fa fa-angle-down text-dark"></i>
                 </a>
 
-<!--                TODO: 카테고리 참고 -->
 
                 <nav id="navbar-vertical"
                      class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
                      style="width: calc(100% - 30px); z-index: 999;">
                     <div class="navbar-nav w-100">
-                        <div class="nav-item dropdown dropright">
-                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                                Literature <i class="fa fa-angle-right float-right mt-1"></i>
-                            </a>
-                            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                <a href="#" class="dropdown-item">Novel</a>
-                                <a href="#" class="dropdown-item">Poetry</a>
-                                <a href="#" class="dropdown-item">Essay</a>
+                        <th:block th:each="category : ${categories}">
+                            <div th:if="${!category.children.isEmpty()}" class="nav-item dropdown dropright">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                                    <span th:text="${category.name}"></span> <i class="fa fa-angle-right float-right mt-1"></i>
+                                </a>
+                                <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
+                                    <a th:each="child : ${category.children}" th:href="@{/categories/{id}(id=${child.id})}" class="dropdown-item" th:text="${child.name}"></a>
+                                </div>
                             </div>
-                        </div>
-                        <a href="#" class="nav-item nav-link">Education</a>
-                        <a href="#" class="nav-item nav-link">Science</a>
-                        <a href="#" class="nav-item nav-link">Technology</a>
-                        <a href="#" class="nav-item nav-link">Children</a>
-                        <a href="#" class="nav-item nav-link">Comics</a>
-                        <a href="#" class="nav-item nav-link">Magazines</a>
+                            <a th:if="${category.children.isEmpty()}" th:href="@{/categories/{id}(id=${category.id})}" class="nav-item nav-link" th:text="${category.name}"></a>
+                        </th:block>
                     </div>
                 </nav>
             </div>

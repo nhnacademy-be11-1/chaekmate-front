@@ -3,8 +3,8 @@ spring:
     name: front
 
 chaekmate:
-  core:
-    url: ${CORE_SERVER:http://localhost:9100}
+  gateway:
+    url: ${GATEWAY_URL:http://localhost:8080}
 
 server:
   port: 5173
