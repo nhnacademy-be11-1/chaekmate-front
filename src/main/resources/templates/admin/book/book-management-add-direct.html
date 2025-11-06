@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <h2 class="h2 font-weight-bold text-dark mb-4">새 도서 추가</h2>
+                <form th:action="@{/admin/books}" th:object="${bookCreateRequest}" method="post" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="title">제목</label>
+                            <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="author">저자</label>
+                            <input type="text" class="form-control" id="author" th:field="*{author}" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label for="isbn">ISBN</label>
+                            <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="price">가격</label>
+                            <input type="number" class="form-control" id="price" th:field="*{price}" required>
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label for="stock">재고</label>
+                            <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="publishedDate">출판일</label>
+                        <input type="date" class="form-control" id="publishedDate" th:field="*{publishedDate}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">설명</label>
+                        <textarea class="form-control" id="description" rows="5" th:field="*{description}" required></textarea>
+                    </div>
+
+                    <!-- Category Selector -->
+                    <div class="form-group">
+                        <label>카테고리 선택 (다중 선택 가능)</label>
+                        <div class="border p-2 mb-2 bg-light">
+                            <strong>선택된 카테고리:</strong>
+                            <span id="selected-category-names">없음</span>
+                        </div>
+                        <input type="hidden" id="categoryIds" name="categoryIds" value="">
+
+                        <div class="border p-3" style="max-height: 400px; overflow-y: auto;" id="category-tree-container">
+                            <ul class="list-unstyled">
+                                <th:block th:replace="~{::categoryTree(categories=${categories})}"></th:block>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="thumbnailUrl">썸네일 이미지 URL</label>
+                        <input type="text" class="form-control" id="thumbnailUrl" th:field="*{thumbnailUrl}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="detailImageUrls">상세 이미지 URL (쉼표로 구분)</label>
+                        <input type="text" class="form-control" id="detailImageUrls" th:field="*{detailImageUrls}" placeholder="URL1, URL2, URL3" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">도서 등록</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Recursive Fragment for the Category Tree -->
+    <th:block th:fragment="categoryTree(categories)">
+        <li th:each="category : ${categories}">
+            <div class="d-flex align-items-center my-1">
+                <button th:if="${!category.children.isEmpty()}" type="button" class="btn btn-sm py-0 px-2 mr-2 toggle-btn">+</button>
+                <div th:unless="${!category.children.isEmpty()}" style="width: 28px;" class="mr-2"></div>
+                <span class="category-item" th:data-id="${category.id}" th:text="${category.name}" style="cursor: pointer;"></span>
+            </div>
+            <ul th:if="${!category.children.isEmpty()}" class="list-unstyled ml-4" style="display: none;">
+                <th:block th:replace="~{::categoryTree(categories=${category.children})}"></th:block>
+            </ul>
+        </li>
+    </th:block>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('category-tree-container');
+        const categoryIdsInput = document.getElementById('categoryIds');
+        const selectedNamesSpan = document.getElementById('selected-category-names');
+        let selectedCategories = new Map();
+
+        container.addEventListener('click', function(e) {
+            // Toggle button
+            if (e.target.classList.contains('toggle-btn')) {
+                const sublist = e.target.closest('li').querySelector('ul');
+                if (sublist) {
+                    sublist.style.display = (sublist.style.display === 'none') ? 'block' : 'none';
+                    e.target.textContent = (sublist.style.display === 'none') ? '+' : '-';
+                }
+            }
+
+            // Category item selection (multi-select)
+            if (e.target.classList.contains('category-item')) {
+                const id = e.target.dataset.id;
+                const name = e.target.textContent;
+
+                if (selectedCategories.has(id)) {
+                    selectedCategories.delete(id);
+                    e.target.classList.remove('font-weight-bold', 'text-primary');
+                } else {
+                    selectedCategories.set(id, name);
+                    e.target.classList.add('font-weight-bold', 'text-primary');
+                }
+
+                // Update display and hidden input
+                const names = Array.from(selectedCategories.values());
+                const ids = Array.from(selectedCategories.keys());
+                selectedNamesSpan.textContent = names.length > 0 ? names.join(', ') : '없음';
+                categoryIdsInput.value = ids.join(',');
+            }
+        });
+    });
+    </script>
+</section>
+</html>
