@@ -99,6 +99,20 @@
         }
         button.parent().parent().find('input').val(newVal);
     });
+
+    // New, non-interfering hover dropdown logic
+    // Targets any dropdown with the .dropdown-hover class
+    $('.dropdown-hover').hover(function() {
+        // On mouse enter, add the 'show' class to make the menu visible
+        $(this).addClass('show');
+        $(this).children('.dropdown-menu').addClass('show');
+        $(this).find('.dropdown-toggle').attr('aria-expanded', 'true');
+    }, function() {
+        // On mouse leave, remove the 'show' class to hide it
+        $(this).removeClass('show');
+        $(this).children('.dropdown-menu').removeClass('show');
+        $(this).find('.dropdown-toggle').attr('aria-expanded', 'false');
+    });
     
 })(jQuery);
 
