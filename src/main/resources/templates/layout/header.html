@@ -8,9 +8,10 @@
             </a>
         </div>
         <div class="col-lg-4 col-6 text-left">
+            <label for="searchBook">SearchBook</label>
             <form action="#">
                 <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search for books...">
+                    <input id="searchBook" type="text" class="form-control" placeholder="Search for books...">
                     <div class="input-group-append">
                             <span class="input-group-text bg-transparent text-primary">
                                 <i class="fa fa-search"></i>
@@ -36,22 +37,11 @@
                     <i class="fa fa-angle-down text-dark"></i>
                 </a>
 
-
                 <nav id="navbar-vertical"
                      class="collapse position-absolute navbar navbar-vertical navbar-light align-items-start p-0 bg-light"
                      style="width: calc(100% - 30px); z-index: 999;">
                     <div class="navbar-nav w-100">
-                        <th:block th:each="category : ${categories}">
-                            <div th:if="${!category.children.isEmpty()}" class="nav-item dropdown dropright">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                                    <span th:text="${category.name}"></span> <i class="fa fa-angle-right float-right mt-1"></i>
-                                </a>
-                                <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
-                                    <a th:each="child : ${category.children}" th:href="@{/categories/{id}(id=${child.id})}" class="dropdown-item" th:text="${child.name}"></a>
-                                </div>
-                            </div>
-                            <a th:if="${category.children.isEmpty()}" th:href="@{/categories/{id}(id=${category.id})}" class="nav-item nav-link" th:text="${category.name}"></a>
-                        </th:block>
+                        <div th:replace="~{fragments/category-menu :: categoryMenu(${categories})}"></div>
                     </div>
                 </nav>
             </div>

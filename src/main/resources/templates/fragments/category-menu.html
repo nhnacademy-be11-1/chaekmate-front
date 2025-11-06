@@ -1,0 +1,23 @@
+<div th:fragment="categoryMenu(categories)">
+    <div th:each="category : ${categories}">
+        <!-- 자식이 있는 경우: dropright -->
+        <div th:if="${!category.children.isEmpty()}" class="nav-item dropdown dropright dropdown-hover">
+            <a th:href="@{/categories/{id}(id=${category.id})}" class="nav-link dropdown-toggle">
+                <span th:text="${category.name}"></span>
+                <i class="fa fa-angle-right float-right mt-1"></i>
+            </a>
+
+            <!-- dropdown-menu 안에서 재귀 호출 -->
+            <div class="dropdown-menu position-absolute rounded-0 border-0 m-0">
+                <div th:replace="~{fragments/category-menu :: categoryMenu(${category.children})}"></div>
+            </div>
+        </div>
+
+        <!-- 자식이 없는 경우: 일반 링크 -->
+        <a th:if="${category.children.isEmpty()}"
+           th:href="@{/categories/{id}(id=${category.id})}"
+           class="nav-item nav-link"
+           th:text="${category.name}">
+        </a>
+    </div>
+</div>
