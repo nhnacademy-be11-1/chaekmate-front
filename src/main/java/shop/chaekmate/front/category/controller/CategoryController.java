@@ -8,6 +8,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.category.dto.response.CategoryHierarchyResponse;
 import shop.chaekmate.front.category.service.CategoryService;
 import shop.chaekmate.front.category.dto.response.CategoryPageResponse;
@@ -41,7 +43,16 @@ public class CategoryController {
 
         categoryService.deleteCategoryById(id);
 
-        return "redirect:/admin/categories/";
+        return "redirect:/admin/categories";
+    }
+
+    @PostMapping("/admin/categories")
+    public String createCategory(@RequestParam(required = false) Long parentId,
+                                 @RequestParam String name){
+
+        categoryService.createCategory(parentId, name);
+
+        return "redirect:/admin/categories";
     }
 
 }
