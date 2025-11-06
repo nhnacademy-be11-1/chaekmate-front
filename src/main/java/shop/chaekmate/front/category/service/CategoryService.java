@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
 import shop.chaekmate.front.category.cache.CategoryCache;
 import shop.chaekmate.front.category.dto.request.CategoryCreateRequest;
-import shop.chaekmate.front.category.dto.response.CategoryCreateResponse;
 import shop.chaekmate.front.category.dto.response.CategoryHierarchyResponse;
 import shop.chaekmate.front.category.dto.response.CategoryResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -44,12 +43,11 @@ public class CategoryService {
         categoryCache.reload(); // 캐시 리로드
     }
 
-    public CategoryCreateResponse createCategory(Long parentCategoryId, String name){
+    public void createCategory(Long parentCategoryId, String name){
 
         CategoryCreateRequest request = new CategoryCreateRequest(parentCategoryId, name);
-        CommonResponse<CategoryCreateResponse> wrappedResponse = categoryAdaptor.createCategory(request);
+        categoryAdaptor.createCategory(request);
         categoryCache.reload(); // 캐시 리로드
 
-        return wrappedResponse.data();
     }
 }
