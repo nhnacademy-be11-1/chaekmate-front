@@ -1,0 +1,13 @@
+<!-- Recursive Fragment for the Category Tree (Moved to end of section) -->
+<ul th:fragment="categoryTree(categories)" class="list-unstyled">
+    <li th:each="category : ${categories}">
+        <div class="d-flex align-items-center my-1">
+            <button th:if="${!category.children.isEmpty()}" type="button" class="btn btn-sm py-0 px-2 mr-2 toggle-btn">+</button>
+            <div th:unless="${!category.children.isEmpty()}" style="width: 28px;" class="mr-2"></div>
+            <span class="category-item" th:data-id="${category.id}" th:text="${category.name}" style="cursor: pointer;"></span>
+        </div>
+        <ul th:if="${!category.children.isEmpty()}" class="list-unstyled ml-4" style="display: none;">
+            <th:block th:replace="~{::categoryTree(categories=${category.children})}"></th:block>
+        </ul>
+    </li>
+</ul>
