@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+    <th:block th:fragment="categoryItems(categories, parentId)">
+        <li th:each="category : ${categories}" class="category-tree-item my-1">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="#" class="category-link" th:data-id="${category.id}" th:data-name="${category.name}" th:text="${category.name}"></a>
+                <div class="btn-group btn-group-sm">
+                    <button type="button" class="btn btn-outline-primary btn-sm edit-btn"
+                            th:data-id="${category.id}"
+                            th:data-name="${category.name}"
+                            th:data-parent-id="${parentId}">
+                        수정
+                    </button>
+                    <form th:action="@{/admin/categories/{categoryId}/delete(categoryId=${category.id})}" method="post" onsubmit="return confirm('정말로 이 카테고리를 삭제하시겠습니까?');" style="display: inline;">
+                        <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
+                    </form>
+                </div>
+            </div>
+            <ul class="list-unstyled ps-3" th:if="${category.children != null and not #lists.isEmpty(category.children)}">
+                <th:block th:insert="~{admin/_category_tree_fragment :: categoryItems(categories=${category.children}, parentId=${category.id})}"></th:block>
+            </ul>
+        </li>
+    </th:block>
+
+</body>
+</html>

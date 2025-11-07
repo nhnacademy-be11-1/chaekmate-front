@@ -1,4 +1,4 @@
-name: Front CI-CD with Maven
+name: Core CI-CD with Maven
 
 on:
   push:
