@@ -5,43 +5,37 @@
     <div class="container-fluid">
         <div class="row px-xl-5">
             <div class="col-12">
-                <h2 class="h2 font-weight-bold text-dark mb-4">도서 관리</h2>
+                <h2 class="h2 font-weight-bold text-dark mb-4">도서 관리 대시보드</h2>
 
                 <!-- Action Buttons -->
                 <div class="mb-4">
-                    <a href="/admin/books/add-direct" class="btn btn-primary">도서 직접 추가</a>
-                    <a href="/admin/books/add-aladin" class="btn btn-info">알라딘으로 추가</a>
+                    <a href="/admin/books/new" class="btn btn-primary mr-2">도서 직접 추가</a>
+                    <a href="/admin/books/aladin" class="btn btn-info">알라딘 도서 검색</a>
                 </div>
 
-                <!-- Search Bar -->
-                <div class="mb-4">
-                    <form class="form-inline">
-                        <input class="form-control mr-sm-2 w-50" type="search" placeholder="도서명, 저자, ISBN 등으로 검색" aria-label="Search">
-                        <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
-                    </form>
-                </div>
-
-                <h4 class="h4 font-weight-bold text-dark mb-3">최근 등록된 도서</h4>
-                <table class="table table-bordered text-center">
+                <!-- Recent Books List -->
+                <h4 class="h4 font-weight-bold text-dark mb-3">최근 추가된 도서 (최대 5개)</h4>
+                <div th:if="${#lists.isEmpty(recentBooks)}" class="alert alert-info">최근 추가된 도서가 없습니다.</div>
+                <table class="table table-bordered text-center" th:unless="${#lists.isEmpty(recentBooks)}">
                     <thead class="thead-dark">
                     <tr>
                         <th>ID</th>
+                        <th>이미지</th>
                         <th>제목</th>
                         <th>저자</th>
                         <th>가격</th>
-                        <th>재고</th>
                         <th>출판일</th>
                         <th>관리</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="book : ${books.content}">
+                    <tr th:each="book : ${recentBooks}">
                         <td th:text="${book.id}"></td>
+                        <td><img th:src="${book.imageUrl()}" alt="도서 표지" style="width: 50px; height: auto;"></td>
                         <td th:text="${book.title}" class="text-left"></td>
                         <td th:text="${book.author}"></td>
                         <td th:text="${#numbers.formatInteger(book.price, 3, 'COMMA')}"></td>
-                        <td th:text="${book.stock}"></td>
-                        <td th:text="${book.publishedDate}"></td>
+                        <td th:text="${book.publishedAt}"></td>
                         <td>
                             <a th:href="@{/admin/books/{id}(id=${book.id})}" class="btn btn-sm btn-secondary">상세</a>
                             <a th:href="@{/admin/books/{id}/modify(id=${book.id})}" class="btn btn-sm btn-success">수정</a>
@@ -50,21 +44,6 @@
                     </tr>
                     </tbody>
                 </table>
-
-                <!-- Pagination -->
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item" th:classappend="${books.first} ? 'disabled' : ''">
-                            <a class="page-link" th:href="@{/admin/books(page=${books.number - 1})}">Previous</a>
-                        </li>
-                        <li class="page-item" th:each="i : ${#numbers.sequence(0, books.totalPages - 1)}" th:classappend="${i == books.number} ? 'active' : ''">
-                            <a class="page-link" th:href="@{/admin/books(page=${i})}" th:text="${i + 1}"></a>
-                        </li>
-                        <li class="page-item" th:classappend="${books.last} ? 'disabled' : ''">
-                            <a class="page-link" th:href="@{/admin/books(page=${books.number + 1})}">Next</a>
-                        </li>
-                    </ul>
-                </nav>
             </div>
         </div>
     </div>

@@ -14,8 +14,8 @@ public class AdminBookService {
 
     private final AdminBookAdaptor adminBookAdaptor;
 
-    public List<AdminBookResponse> getRecentCreatedBooks(){
-        CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(5);
+    public List<AdminBookResponse> getRecentCreatedBooks(int limit){
+        CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(limit);
 
         return wrappedResponse.data();
     }

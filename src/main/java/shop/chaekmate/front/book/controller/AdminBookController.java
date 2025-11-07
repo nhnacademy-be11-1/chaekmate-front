@@ -1,5 +1,6 @@
 package shop.chaekmate.front.book.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -8,6 +9,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
+import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
 
 @Controller
@@ -19,7 +21,8 @@ public class AdminBookController {
     @GetMapping("/admin/books")
     public String bookManagementView(Model model) {
 
-
+        List<AdminBookResponse> recentBooks = bookService.getRecentCreatedBooks(5);
+        model.addAttribute("recentBooks",recentBooks);
 
         return "admin/book/book-management";
     }
