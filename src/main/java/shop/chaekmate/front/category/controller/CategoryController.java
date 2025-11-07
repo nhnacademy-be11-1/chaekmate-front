@@ -54,5 +54,4 @@ public class CategoryController {
 
         return "redirect:/admin/categories";
     }
-
 }
