@@ -1,5 +1,6 @@
 package shop.chaekmate.front.tag.service;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.tag.dto.request.TagCreateRequest;
@@ -31,5 +32,13 @@ public class TagService {
         TagCreateRequest request = new TagCreateRequest(name);
         tagAdaptor.createTag(request);
 
+    }
+
+    // 태그 아이디로 태그 이름들 찾아주는 메소드
+    public List<String> findNamesByIds(List<Long> ids){
+        CommonResponse<List<TagResponse>> wrappedResponse = tagAdaptor.getAllTags();
+        List<TagResponse> tags = wrappedResponse.data();
+
+        return tags.stream().filter(t->ids.contains(t.id())).map(TagResponse::name).toList();
     }
 }

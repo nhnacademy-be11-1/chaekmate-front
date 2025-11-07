@@ -50,4 +50,13 @@ public class CategoryService {
         categoryCache.reload(); // 캐시 리로드
 
     }
+
+    // 카테고리 Id 들의 이름 찾아주는 메소드
+    public List<String> findNamesByIds(List<Long> ids){
+
+        // 캐시된걸 사용
+        List<CategoryResponse> cachedCategories = categoryCache.getCachedCategories();
+
+        return cachedCategories.stream().filter(c -> ids.contains(c.id())).map(CategoryResponse::name).toList();
+    }
 }
