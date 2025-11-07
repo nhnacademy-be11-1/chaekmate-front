@@ -7,7 +7,7 @@ import shop.chaekmate.front.book.adaptor.AdminBookAdaptor;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
-import shop.chaekmate.front.book.dto.response.BookDetail;
+import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.category.service.CategoryService;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.tag.service.TagService;
@@ -27,10 +27,10 @@ public class AdminBookService {
     }
 
     // 도서 상세 조회 메소드
-    public BookDetail getBookById(Long bookId){
+    public AdminBookDetail getBookById(Long bookId){
         CommonResponse<AdminBookResponse> wrappedResponse = adminBookAdaptor.getBookById(bookId);
 
-        return BookDetail.of(wrappedResponse.data(), categoryService, tagService);
+        return AdminBookDetail.of(wrappedResponse.data(), categoryService, tagService);
     }
 
     // 도서 추가
@@ -39,11 +39,11 @@ public class AdminBookService {
     }
 
     // 도서 수정
-    public void modifyBookByBookDetail(BookDetail bookDetail){
+    public void modifyBookByBookDetail(AdminBookDetail adminBookDetail){
 
-        BookModifyRequest request = BookModifyRequest.of(bookDetail);
+        BookModifyRequest request = BookModifyRequest.of(adminBookDetail);
 
-        adminBookAdaptor.modifyBookById(bookDetail.id(), request);
+        adminBookAdaptor.modifyBookById(adminBookDetail.id(), request);
 
     }
 

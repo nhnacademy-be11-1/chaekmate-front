@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Builder
-public record BookDetail(
+public record AdminBookDetail(
         Long id,
         String title,
         String index,
@@ -20,8 +20,8 @@ public record BookDetail(
         Long price,
         Long salesPrice,
         String imageUrl,
-        boolean isWrappable,
-        boolean isSaleEnd,
+        Boolean isWrappable,
+        Boolean isSaleEnd,
         Long stock,
         Long views,
         List<Long> categoryIds,
@@ -30,11 +30,11 @@ public record BookDetail(
         List<String> tagNames
 ) {
 
-    public static BookDetail of(AdminBookResponse book, CategoryService categoryService, TagService tagService) {
+    public static AdminBookDetail of(AdminBookResponse book, CategoryService categoryService, TagService tagService) {
         List<String> categoryNames = categoryService.findNamesByIds(book.categoryIds());
         List<String> tagNames = tagService.findNamesByIds(book.tagIds());
 
-        return BookDetail.builder()
+        return AdminBookDetail.builder()
                 .id(book.id())
                 .title(book.title())
                 .index(book.index())

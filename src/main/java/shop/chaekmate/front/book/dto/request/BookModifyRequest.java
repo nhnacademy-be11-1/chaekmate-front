@@ -3,7 +3,7 @@ package shop.chaekmate.front.book.dto.request;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
-import shop.chaekmate.front.book.dto.response.BookDetail;
+import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 
 @Builder
 public record BookModifyRequest(
@@ -24,24 +24,24 @@ public record BookModifyRequest(
         List<Long> tagIds
 ) {
 
-    public static BookModifyRequest of(BookDetail bookDetail){
+    public static BookModifyRequest of(AdminBookDetail adminBookDetail){
 
         return BookModifyRequest.builder()
-                .title(bookDetail.title())
-                .index(bookDetail.index())
-                .description(bookDetail.description())
-                .author(bookDetail.author())
-                .publisher(bookDetail.publisher())
-                .publishedAt(bookDetail.publishedAt())
-                .isbn(bookDetail.isbn())
-                .price(bookDetail.price())
-                .salesPrice(bookDetail.salesPrice())
-                .imageUrl(bookDetail.imageUrl())
-                .isWrappable(bookDetail.isWrappable())
-                .isSaleEnd(bookDetail.isSaleEnd())
-                .stock(bookDetail.stock())
-                .categoryIds(bookDetail.categoryIds())
-                .tagIds(bookDetail.tagIds())
+                .title(adminBookDetail.title())
+                .index(adminBookDetail.index())
+                .description(adminBookDetail.description())
+                .author(adminBookDetail.author())
+                .publisher(adminBookDetail.publisher())
+                .publishedAt(adminBookDetail.publishedAt())
+                .isbn(adminBookDetail.isbn())
+                .price(adminBookDetail.price())
+                .salesPrice(adminBookDetail.salesPrice())
+                .imageUrl(adminBookDetail.imageUrl())
+                .isWrappable(adminBookDetail.isWrappable())
+                .isSaleEnd(adminBookDetail.isSaleEnd())
+                .stock(adminBookDetail.stock())
+                .categoryIds(adminBookDetail.categoryIds())
+                .tagIds(adminBookDetail.tagIds())
                 .build();
     }
 
