@@ -9710,3 +9710,17 @@ a.text-dark:hover, a.text-dark:focus {
     transform: translateY(-15px);
   }
 }
+
+/* From admin-category.css */
+.category-tree-item a {
+    display: block;
+    padding: 0.3rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 0.25rem;
+}
+
+.category-tree-item a:hover {
+    background-color: #e9ecef;
+}
+
