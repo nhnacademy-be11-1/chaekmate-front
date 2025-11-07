@@ -3,7 +3,7 @@ spring:
     name: front
 
 chaekmate:
-  core:
+  gateway:
     url: http://localhost:8080
 
 server:
