@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
-import shop.chaekmate.front.book.dto.response.BookDetail;
+import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.service.AdminBookService;
 
 @Controller
@@ -54,7 +54,7 @@ public class AdminBookController {
     @GetMapping("/admin/books/{bookId}")
     public String bookManagementDetailView(@PathVariable Long bookId, Model model) {
 
-        BookDetail book = adminBookService.getBookById(bookId);
+        AdminBookDetail book = adminBookService.getBookById(bookId);
         model.addAttribute("book", book);
 
         return "admin/book/book-management-detail";
@@ -64,7 +64,7 @@ public class AdminBookController {
     @GetMapping("/admin/books/{bookId}/modify")
     public String bookManagementModifyView(@PathVariable Long bookId, Model model) {
 
-        BookDetail book = adminBookService.getBookById(bookId);
+        AdminBookDetail book = adminBookService.getBookById(bookId);
         model.addAttribute("book", book);
 
         return "admin/book/book-management-modify";
@@ -72,9 +72,9 @@ public class AdminBookController {
 
     // 관리자 도서 수정 요청
     @PutMapping("/admin/books/{bookId}/modify")
-    public String modifyBook(@ModelAttribute BookDetail bookDetail){
+    public String modifyBook(@PathVariable Long bookId, @ModelAttribute AdminBookDetail adminBookDetail){
 
-        adminBookService.modifyBookByBookDetail(bookDetail);
+        adminBookService.modifyBookByBookDetail(bookId, adminBookDetail);
 
         return "redirect:/admin/books";
     }

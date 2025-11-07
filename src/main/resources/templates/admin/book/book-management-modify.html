@@ -8,6 +8,12 @@
                 <h2 class="h2 font-weight-bold text-dark mb-4" th:text="${book.title} + ' 정보 수정'">도서 정보 수정</h2>
                 <div class="card">
                     <form th:action="@{/admin/books/{id}/modify(id=${book.id})}" th:object="${book}" method="post">
+                        <!-- 타임리프 전용 HTTP 메소드 form 에서 바꾸는법 -->
+                        <input type="hidden" name="_method" value="put"/>
+                        <input type="hidden" name="views" th:value="${book.views}"/>
+                        <input type="hidden" name="id" th:value="${book.id}"/>
+                        <input type="hidden" name="categoryIds" th:each="id : ${book.categoryIds}" th:value="${id}" />
+                        <input type="hidden" name="tagIds" th:each="id : ${book.tagIds}" th:value="${id}" />
                         <div class="card-body">
                             <div class="row">
                                 <div class="col-md-4">
@@ -21,6 +27,10 @@
                                     <div class="form-group">
                                         <label for="author">저자</label>
                                         <input type="text" id="author" name="author" class="form-control" th:value="${book.author}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publisher">출판사</label>
+                                        <input type="text" id="publisher" name="publisher" class="form-control" th:value="${book.publisher}">
                                     </div>
                                     <div class="form-group">
                                         <label for="isbn">ISBN</label>
@@ -43,23 +53,32 @@
                                         <input type="number" id="stock" name="stock" class="form-control" th:value="${book.stock}">
                                     </div>
                                     <div class="form-group">
+                                        <label for="imageUrl">이미지 URL</label>
+                                        <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${book.imageUrl}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="index">목차</label>
+                                        <textarea id="index" name="index" class="form-control" rows="5" th:text="${book.index}"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">설명</label>
+                                        <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="${book.isWrappable}">
+                                        <label class="form-check-label" for="isWrappable">포장 가능</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="${book.isSaleEnd}">
+                                        <label class="form-check-label" for="isSaleEnd">판매 종료</label>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="categories">카테고리</label>
                                         <input type="text" id="categories" name="categories" class="form-control" th:value="${#strings.listJoin(book.categoryNames, ', ')}" readonly>
                                     </div>
                                     <div class="form-group">
                                         <label for="tags">태그</label>
                                         <input type="text" id="tags" name="tags" class="form-control" th:value="${#strings.listJoin(book.tagNames, ', ')}" readonly>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="description">설명</label>
-                                        <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
-                                    </div>
-                                </div>
-                                <hr>
-                                <h4 class="h4">상세 이미지</h4>
-                                <div class="row">
-                                    <div class="col-md-3 mb-3" th:each="imageUrl : ${book.imageUrl}">
-                                        <img th:src="${imageUrl}" class="img-fluid" alt="Detail">
                                     </div>
                                 </div>
                             </div>
