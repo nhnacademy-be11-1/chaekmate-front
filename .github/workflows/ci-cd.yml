@@ -89,4 +89,7 @@ jobs:
           script: |
             export DOMAIN="${{ env.DOMAIN }}"
             export PORT_NUMBER="${{ env.PORT_NUMBER }}"
+            export MINIO_ID="${{ secrets.MINIO_ID }}"
+            export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
+            export GATEWAY_URL="${{ secrets.GATEWAY_URL }}"
             bash -lc ./startup.sh
