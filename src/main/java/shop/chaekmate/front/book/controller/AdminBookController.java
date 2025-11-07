@@ -8,21 +8,23 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
+import shop.chaekmate.front.book.dto.response.BookDetail;
 import shop.chaekmate.front.book.service.AdminBookService;
 
 @Controller
 @RequiredArgsConstructor
 public class AdminBookController {
 
-    private final AdminBookService bookService;
+    private final AdminBookService adminBookService;
 
     // 도서 관리자 페이지
     @GetMapping("/admin/books")
     public String bookManagementView(Model model) {
 
-        List<AdminBookResponse> recentBooks = bookService.getRecentCreatedBooks(5);
+        List<AdminBookResponse> recentBooks = adminBookService.getRecentCreatedBooks(5);
         model.addAttribute("recentBooks",recentBooks);
 
         return "admin/book/book-management";
@@ -44,7 +46,7 @@ public class AdminBookController {
     @PostMapping("/admin/books")
     public String createBook(@ModelAttribute BookCreateRequest request) {
 
-        bookService.createBook(request);
+        adminBookService.createBook(request);
         return "redirect:/admin/books";
     }
 
@@ -52,6 +54,8 @@ public class AdminBookController {
     @GetMapping("/admin/books/{bookId}")
     public String bookManagementDetailView(@PathVariable Long bookId, Model model) {
 
+        BookDetail book = adminBookService.getBookById(bookId);
+        model.addAttribute("book", book);
 
         return "admin/book/book-management-detail";
     }
@@ -59,7 +63,20 @@ public class AdminBookController {
     // 관리자 도서 수정 페이지
     @GetMapping("/admin/books/{bookId}/modify")
     public String bookManagementModifyView(@PathVariable Long bookId, Model model) {
+
+        BookDetail book = adminBookService.getBookById(bookId);
+        model.addAttribute("book", book);
+
         return "admin/book/book-management-modify";
+    }
+
+    // 관리자 도서 수정 요청
+    @PutMapping("/admin/books/{bookId}/modify")
+    public String modifyBook(@ModelAttribute BookDetail bookDetail){
+
+        adminBookService.modifyBookByBookDetail(bookDetail);
+
+        return "redirect:/admin/books";
     }
 
 }

@@ -24,6 +24,8 @@ public record BookDetail(
         boolean isSaleEnd,
         Long stock,
         Long views,
+        List<Long> categoryIds,
+        List<Long> tagIds,
         List<String> categoryNames,
         List<String> tagNames
 ) {
@@ -48,6 +50,8 @@ public record BookDetail(
                 .isSaleEnd(book.isSaleEnd())
                 .stock(book.stock())
                 .views(book.views())
+                .categoryIds(book.categoryIds())
+                .tagIds(book.tagIds())
                 .categoryNames(categoryNames)
                 .tagNames(tagNames)
                 .build();
