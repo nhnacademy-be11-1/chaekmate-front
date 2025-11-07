@@ -1,3 +1,4 @@
+
 spring:
   application:
     name: front
@@ -11,3 +12,6 @@ minio:
   accessKey: ${MINIO_ACCESS_KEY:3P0frMluG9VWCtYH9I7e}
   secretKey: ${MINIO_SECRET_KEY:97xkODbuUyRx6NOAUbQGCuxJdXmfC83UqVKFDFrj}
   bucketName: ${MINIO_BUCKET_NAME:chaekmate-image-server}
+
+server:
+  port: ${PORT_NUMBER}
