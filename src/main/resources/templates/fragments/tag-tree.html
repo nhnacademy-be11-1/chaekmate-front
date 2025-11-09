@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<body>
+    <!--
+        Fragment for rendering a flat list of tags.
+        Assumes 'tags' is a flat list of objects with 'id' and 'name'.
+    -->
+    <ul th:fragment="tagTree(tags)" class="list-unstyled">
+        <li th:each="tag : ${tags}" class="tree-node">
+            <div class="d-flex align-items-center my-1">
+                <span class="tree-item" th:data-id="${tag.id}" th:text="${tag.name}" style="cursor: pointer;"></span>
+            </div>
+        </li>
+    </ul>
+</body>
+</html>
