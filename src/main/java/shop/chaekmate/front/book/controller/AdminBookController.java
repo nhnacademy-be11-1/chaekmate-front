@@ -28,7 +28,7 @@ public class AdminBookController {
     public String bookManagementView(Model model) {
 
         List<AdminBookResponse> recentBooks = adminBookService.getRecentCreatedBooks(5);
-        model.addAttribute("recentBooks",recentBooks);
+        model.addAttribute("recentBooks", recentBooks);
 
         return "admin/book/book-management";
     }
@@ -39,7 +39,7 @@ public class AdminBookController {
 
         List<TagResponse> tags = tagService.getAllTags();
 
-        model.addAttribute("tags",tags);
+        model.addAttribute("tags", tags);
         model.addAttribute("bookCreateRequest", bookCreateRequest);
 
         return "admin/book/book-management-add-direct";
@@ -77,7 +77,7 @@ public class AdminBookController {
         AdminBookDetail book = adminBookService.getBookById(bookId);
         List<TagResponse> tags = tagService.getAllTags();
 
-        model.addAttribute("tags",tags);
+        model.addAttribute("tags", tags);
         model.addAttribute("book", book);
 
         return "admin/book/book-management-modify";
@@ -86,11 +86,17 @@ public class AdminBookController {
     // 관리자 도서 수정 요청
     @PutMapping("/admin/books/{bookId}/modify")
     public String modifyBook(@PathVariable Long bookId,
-                             @ModelAttribute AdminBookDetail adminBookDetail){ // @RequestParam 과 비슷
+                             @ModelAttribute AdminBookDetail adminBookDetail) { // @RequestParam 과 비슷
 
         adminBookService.modifyBookByBookDetail(bookId, adminBookDetail);
 
         return "redirect:/admin/books";
     }
 
+    // 도서 삭제 요청 - 바로 리다이렉트 반환
+    @GetMapping("/admin/books/{bookId}/delete")
+    public String deleteBook(@PathVariable Long bookId){
+        adminBookService.deleteBookByBookId(bookId);
+        return "redirect:/admin/books";
+    }
 }

@@ -49,4 +49,11 @@ public class AdminBookService {
 
     }
 
+    // 도서 삭제
+    public void deleteBookByBookId(Long bookId){
+
+        adminBookAdaptor.deleteBookById(bookId);
+
+    }
+
 }
