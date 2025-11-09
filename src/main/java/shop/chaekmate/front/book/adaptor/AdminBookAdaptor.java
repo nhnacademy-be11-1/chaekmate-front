@@ -3,6 +3,7 @@ package shop.chaekmate.front.book.adaptor;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
+import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -22,4 +23,7 @@ public interface AdminBookAdaptor {
     @PutMapping("/books/{bookId}")
     CommonResponse<Void> modifyBookById(@PathVariable(value = "bookId") Long bookId, @RequestBody BookModifyRequest request);
 
+    // 도서 생성 요청
+    @PostMapping("/books")
+    CommonResponse<Void> createBook(@RequestBody BookCreateRequest bookCreateRequest);
 }
