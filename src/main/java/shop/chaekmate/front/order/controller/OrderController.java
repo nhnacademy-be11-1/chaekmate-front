@@ -1,5 +1,6 @@
 package shop.chaekmate.front.order.controller;
 
+import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import java.time.LocalDate;
 import java.util.List;
 import org.springframework.stereotype.Controller;
@@ -11,6 +12,10 @@ public class OrderController {
     @GetMapping("/order")
     public String orderPage(Model model) {
 
+        // 주문 번호 생성
+        String orderNumber = NanoIdUtils.randomNanoId();
+        model.addAttribute("orderNumber", orderNumber);
+
         // 🧩 1. 주문 상품 더미
         var orderItems = List.of(
                 new OrderItem(
@@ -19,7 +24,7 @@ public class OrderController {
                         38000,
                         1,
                         38000,
-                        "/img/sample_book1.jpg"
+                        "/static/img/cat-1.jpg"
                 ),
                 new OrderItem(
                         "스프링 인 액션 6판",
@@ -27,14 +32,14 @@ public class OrderController {
                         42000,
                         2,
                         84000,
-                        "/img/sample_book2.jpg"
+                        "/static/img/cat-2.jpg"
                 )
         );
         model.addAttribute("orderItems", orderItems);
 
         // 🎁 2. 포장지 더미
         var wraps = List.of(
-                new Wrap(1L, "기본 포장", 0, "/img/wrap_basic.jpg"),
+                new Wrap(1L, "기본 포장", 0, "/static/img/wrap_basic.jpg"),
                 new Wrap(2L, "선물 포장", 1500, "/img/wrap_gift.jpg")
         );
         model.addAttribute("wraps", wraps);
