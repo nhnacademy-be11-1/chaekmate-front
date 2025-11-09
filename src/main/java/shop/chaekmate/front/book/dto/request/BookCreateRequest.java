@@ -1,26 +1,23 @@
 package shop.chaekmate.front.book.dto.request;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-public class BookCreateRequest {
-    private String title;
-    private String author;
-    private Integer price;
-    private Integer stock;
-    private String description;
-    private String publishedDate;
-    private String isbn;
-    private List<Long> categoryIds;
-    private String thumbnailUrl;
-    private List<String> detailImageUrls;
-}
+
+public record BookCreateRequest (
+    String title,
+    String index,
+    String description,
+    String author,
+    String publisher,
+    LocalDateTime publishedAt,
+    String isbn,
+    Long price,
+    Long salesPrice,
+    String imageUrl,
+    Boolean isWrappable,
+    Boolean isSaleEnd,
+    Long stock,
+    List<Long> categoryIds,
+    List<Long> tagIds
+){}

@@ -35,7 +35,9 @@ public class AdminBookService {
 
     // 도서 추가
     public void createBook(BookCreateRequest request){
-        // 구현 예정
+
+        adminBookAdaptor.createBook(request);
+
     }
 
     // 도서 수정

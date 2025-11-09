@@ -6,62 +6,80 @@
         <div class="row px-xl-5">
             <div class="col-12">
                 <h2 class="h2 font-weight-bold text-dark mb-4">새 도서 추가</h2>
-                <form th:action="@{/admin/books}" th:object="${bookCreateRequest}" method="post" enctype="multipart/form-data">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label for="title">제목</label>
-                            <input type="text" class="form-control" id="title" th:field="*{title}" required>
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="author">저자</label>
-                            <input type="text" class="form-control" id="author" th:field="*{author}" required>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-4">
-                            <label for="isbn">ISBN</label>
-                            <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label for="price">가격</label>
-                            <input type="number" class="form-control" id="price" th:field="*{price}" required>
-                        </div>
-                        <div class="form-group col-md-4">
-                            <label for="stock">재고</label>
-                            <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
-                        </div>
+                <form th:action="@{/admin/books}" th:object="${bookCreateRequest}" method="post">
+                    <div class="form-group">
+                        <label for="title">제목</label>
+                        <input type="text" class="form-control" id="title" th:field="*{title}" required>
                     </div>
                     <div class="form-group">
-                        <label for="publishedDate">출판일</label>
-                        <input type="date" class="form-control" id="publishedDate" th:field="*{publishedDate}" required>
+                        <label for="author">저자</label>
+                        <input type="text" class="form-control" id="author" th:field="*{author}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="publisher">출판사</label>
+                        <input type="text" class="form-control" id="publisher" th:field="*{publisher}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="isbn">ISBN</label>
+                        <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="publishedAt">출판일</label>
+                        <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="price">정가</label>
+                        <input type="number" class="form-control" id="price" th:field="*{price}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="salesPrice">판매가</label>
+                        <input type="number" class="form-control" id="salesPrice" th:field="*{salesPrice}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stock">재고</label>
+                        <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="imageUrl">이미지 URL</label>
+                        <input type="text" class="form-control" id="imageUrl" th:field="*{imageUrl}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="index">목차</label>
+                        <textarea class="form-control" id="index" rows="5" th:field="*{index}" required></textarea>
                     </div>
                     <div class="form-group">
                         <label for="description">설명</label>
                         <textarea class="form-control" id="description" rows="5" th:field="*{description}" required></textarea>
                     </div>
+                    <div class="form-check">
+                        <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
+                        <label class="form-check-label" for="isWrappable">포장 가능</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="*{isSaleEnd}">
+                        <label class="form-check-label" for="isSaleEnd">판매 종료</label>
+                    </div>
 
                     <!-- Category Selector -->
                     <div class="form-group">
-                        <label> 카테고리 선택 (다중 선택 가능)
+                        <label for="categoryIds">카테고리</label>
                         <div class="border p-2 mb-2 bg-light">
                             <strong>선택된 카테고리:</strong>
                             <span id="selected-category-names">없음</span>
                         </div>
-                        <input type="hidden" id="categoryIds" name="categoryIds" value="">
-                        <div id="category-tree-container" class="category-selector border p-3" style="max-height: 400px; overflow-y: auto;">
-                           <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
+                        <input type="hidden" id="categoryIds" name="categoryIds">
+                        <div id="category-tree-container"
+                             class="category-selector border p-3"
+                             style="max-height: 400px; overflow-y: auto;"
+                             th:attr="data-initial-ids='', data-initial-names=''">
+                            <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
                         </div>
-                        </label>
                     </div>
 
+                    <!-- Tag Selector (Simple) -->
                     <div class="form-group">
-                        <label for="thumbnailUrl">썸네일 이미지 URL</label>
-                        <input type="text" class="form-control" id="thumbnailUrl" th:field="*{thumbnailUrl}" required>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="detailImageUrls">상세 이미지 URL (쉼표로 구분)</label>
-                        <input type="text" class="form-control" id="detailImageUrls" th:field="*{detailImageUrls}" placeholder="URL1, URL2, URL3" required>
+                        <label for="tagIds">태그 ID (쉼표로 구분)</label>
+                        <input type="text" class="form-control" id="tagIds" name="tagIds" placeholder="1,2,3">
                     </div>
 
                     <button type="submit" class="btn btn-primary">도서 등록</button>

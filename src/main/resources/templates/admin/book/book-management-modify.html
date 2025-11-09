@@ -14,82 +14,75 @@
                         <input type="hidden" name="id" th:value="${book.id}"/>
                         <input type="hidden" name="tagIds" th:each="id : ${book.tagIds}" th:value="${id}" />
                         <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <img th:src="${book.imageUrl}" class="img-fluid" alt="Thumbnail">
+                            <div class="form-group">
+                                <label for="title">제목</label>
+                                <input type="text" id="title" name="title" class="form-control" th:value="${book.title}">
+                            </div>
+                            <div class="form-group">
+                                <label for="author">저자</label>
+                                <input type="text" id="author" name="author" class="form-control" th:value="${book.author}">
+                            </div>
+                            <div class="form-group">
+                                <label for="publisher">출판사</label>
+                                <input type="text" id="publisher" name="publisher" class="form-control" th:value="${book.publisher}">
+                            </div>
+                            <div class="form-group">
+                                <label for="isbn">ISBN</label>
+                                <input type="text" id="isbn" name="isbn" class="form-control" th:value="${book.isbn}">
+                            </div>
+                            <div class="form-group">
+                                <label for="publishedAt">출판일</label>
+                                <input type="text" id="publishedAt" name="publishedAt" class="form-control" th:value="${book.publishedAt}">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">정가</label>
+                                <input type="number" id="price" name="price" class="form-control" th:value="${book.price}">
+                            </div>
+                            <div class="form-group">
+                                <label for="salesPrice">판매가</label>
+                                <input type="number" id="salesPrice" name="salesPrice" class="form-control" th:value="${book.salesPrice}">
+                            </div>
+                            <div class="form-group">
+                                <label for="stock">재고</label>
+                                <input type="number" id="stock" name="stock" class="form-control" th:value="${book.stock}">
+                            </div>
+                            <div class="form-group">
+                                <label for="imageUrl">이미지 URL</label>
+                                <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${book.imageUrl}">
+                            </div>
+                            <div class="form-group">
+                                <label for="index">목차</label>
+                                <textarea id="index" name="index" class="form-control" rows="5" th:text="${book.index}"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">설명</label>
+                                <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
+                                <label class="form-check-label" for="isWrappable">포장 가능</label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="*{isSaleEnd}">
+                                <label class="form-check-label" for="isSaleEnd">판매 종료</label>
+                            </div>
+                            <div class="form-group">
+                                <label for="categoryIds">카테고리</label>
+                                <div class="border p-2 mb-2 bg-light">
+                                    <strong>선택된 카테고리:</strong>
+                                    <span id="selected-category-names" th:text="${#strings.isEmpty(book.categoryNames)} ? '없음' : ${#strings.listJoin(book.categoryNames, ', ')}">없음</span>
                                 </div>
-                                <div class="col-md-8">
-                                    <div class="form-group">
-                                        <label for="title">제목</label>
-                                        <input type="text" id="title" name="title" class="form-control" th:value="${book.title}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="author">저자</label>
-                                        <input type="text" id="author" name="author" class="form-control" th:value="${book.author}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="publisher">출판사</label>
-                                        <input type="text" id="publisher" name="publisher" class="form-control" th:value="${book.publisher}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="isbn">ISBN</label>
-                                        <input type="text" id="isbn" name="isbn" class="form-control" th:value="${book.isbn}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="publishedAt">출판일</label>
-                                        <input type="text" id="publishedAt" name="publishedAt" class="form-control" th:value="${book.publishedAt}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="price">정가</label>
-                                        <input type="number" id="price" name="price" class="form-control" th:value="${book.price}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="salesPrice">판매가</label>
-                                        <input type="number" id="salesPrice" name="salesPrice" class="form-control" th:value="${book.salesPrice}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="stock">재고</label>
-                                        <input type="number" id="stock" name="stock" class="form-control" th:value="${book.stock}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="imageUrl">이미지 URL</label>
-                                        <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${book.imageUrl}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="index">목차</label>
-                                        <textarea id="index" name="index" class="form-control" rows="5" th:text="${book.index}"></textarea>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="description">설명</label>
-                                        <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="${book.isWrappable}">
-                                        <label class="form-check-label" for="isWrappable">포장 가능</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="${book.isSaleEnd}">
-                                        <label class="form-check-label" for="isSaleEnd">판매 종료</label>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="categoryIds">카테고리</label>
-                                        <div class="border p-2 mb-2 bg-light">
-                                            <strong>선택된 카테고리:</strong>
-                                            <span id="selected-category-names" th:text="${#strings.isEmpty(book.categoryNames)} ? '없음' : ${#strings.listJoin(book.categoryNames, ', ')}">없음</span>
-                                        </div>
-                                        <input type="hidden" id="categoryIds" name="categoryIds" th:value="${#strings.listJoin(book.categoryIds, ',')}">
-                                        <div id="category-tree-container"
-                                             class="category-selector border p-3"
-                                             style="max-height: 400px; overflow-y: auto;"
-                                             th:attr="data-initial-ids=${#strings.listJoin(book.categoryIds, ',')}, data-initial-names=${#strings.listJoin(book.categoryNames, ',')}">
-                                            <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="tags">태그</label>
-                                        <input type="text" id="tags" name="tags" class="form-control" th:value="${#strings.listJoin(book.tagNames, ', ')}" readonly>
-                                    </div>
+                                <input type="hidden" id="categoryIds" name="categoryIds" th:value="${#strings.listJoin(book.categoryIds, ',')}">
+                                <div id="category-tree-container"
+                                     class="category-selector border p-3"
+                                     style="max-height: 400px; overflow-y: auto;"
+                                     th:attr="data-initial-ids=${#strings.listJoin(book.categoryIds, ',')}, data-initial-names=${#strings.listJoin(book.categoryNames, ',')}">
+                                    <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
                                 </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="tags">태그</label>
+                                <input type="text" id="tags" name="tags" class="form-control" th:value="${#strings.listJoin(book.tagNames, ', ')}" readonly>
                             </div>
                         </div>
                         <div class="card-footer">

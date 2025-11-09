@@ -13,12 +13,14 @@ import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.service.AdminBookService;
+import shop.chaekmate.front.tag.service.TagService;
 
 @Controller
 @RequiredArgsConstructor
 public class AdminBookController {
 
     private final AdminBookService adminBookService;
+    private final TagService tagService;
 
     // 도서 관리자 페이지 뷰
     @GetMapping("/admin/books")
@@ -33,6 +35,7 @@ public class AdminBookController {
     // 도서 직접 추가 페이지 뷰
     @GetMapping("/admin/books/new")
     public String bookManagementAddDirectView(@ModelAttribute BookCreateRequest bookCreateRequest, Model model) {
+
         model.addAttribute("bookCreateRequest", bookCreateRequest);
 
         return "admin/book/book-management-add-direct";
