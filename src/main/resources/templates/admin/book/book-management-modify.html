@@ -80,9 +80,20 @@
                                     <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
                                 </div>
                             </div>
+                            <!-- Tag Selector -->
                             <div class="form-group">
-                                <label for="tags">태그</label>
-                                <input type="text" id="tags" name="tags" class="form-control" th:value="${#strings.listJoin(book.tagNames, ', ')}" readonly>
+                                <label for="tagIds">태그</label>
+                                <div class="border p-2 mb-2 bg-light">
+                                    <strong>선택된 태그:</strong>
+                                    <span id="selected-tag-names" th:text="${#strings.isEmpty(book.tagNames)} ? '없음' : ${#strings.listJoin(book.tagNames, ', ')}">없음</span>
+                                </div>
+                                <input type="hidden" id="tagIds" name="tagIds" th:value="${#strings.listJoin(book.tagIds, ',')}">
+                                <div id="tag-tree-container"
+                                     class="tag-selector border p-3"
+                                     style="max-height: 400px; overflow-y: auto;"
+                                     th:attr="data-initial-ids=${#strings.listJoin(book.tagIds, ',')}, data-initial-names=${#strings.listJoin(book.tagNames, ',')}">
+                                    <div th:replace="~{fragments/tag-tree :: tagTree(tags=${tags})}"></div>
+                                </div>
                             </div>
                         </div>
                         <div class="card-footer">
@@ -95,5 +106,6 @@
         </div>
     </div>
     <script th:src="@{/js/admin-book-category.js}"></script>
+    <script th:src="@{/js/admin-book-tags.js}"></script>
 </section>
 </html>

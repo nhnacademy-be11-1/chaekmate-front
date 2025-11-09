@@ -62,7 +62,7 @@ public class AdminBookController {
 
     // 도서 상세 페이지
     @GetMapping("/admin/books/{bookId}")
-    public String bookManagementDetailView(@PathVariable Long bookId, Model model) {
+    public String bookManagementDetailView(@PathVariable(value = "bookId") Long bookId, Model model) {
 
         AdminBookDetail book = adminBookService.getBookById(bookId);
         model.addAttribute("book", book);

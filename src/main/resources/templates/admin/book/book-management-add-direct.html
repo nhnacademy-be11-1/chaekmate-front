@@ -17,7 +17,7 @@
                     </div>
                     <div class="form-group">
                         <label for="publisher">출판사</label>
-                        <input type="text" class="form-control" id="publisher" th:field="*{publisher}" required>
+                        <input type="text" class="form-control" id="publisher" th:field="*{publisher}" >
                     </div>
                     <div class="form-group">
                         <label for="isbn">ISBN</label>
@@ -25,7 +25,7 @@
                     </div>
                     <div class="form-group">
                         <label for="publishedAt">출판일</label>
-                        <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}" required>
+                        <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}" >
                     </div>
                     <div class="form-group">
                         <label for="price">정가</label>
@@ -45,11 +45,11 @@
                     </div>
                     <div class="form-group">
                         <label for="index">목차</label>
-                        <textarea class="form-control" id="index" rows="5" th:field="*{index}" required></textarea>
+                        <textarea class="form-control" id="index" rows="5" th:field="*{index}" ></textarea>
                     </div>
                     <div class="form-group">
                         <label for="description">설명</label>
-                        <textarea class="form-control" id="description" rows="5" th:field="*{description}" required></textarea>
+                        <textarea class="form-control" id="description" rows="5" th:field="*{description}" ></textarea>
                     </div>
                     <div class="form-check">
                         <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
@@ -76,10 +76,20 @@
                         </div>
                     </div>
 
-                    <!-- Tag Selector (Simple) -->
+                    <!-- Tag Selector -->
                     <div class="form-group">
-                        <label for="tagIds">태그 ID (쉼표로 구분)</label>
-                        <input type="text" class="form-control" id="tagIds" name="tagIds" placeholder="1,2,3">
+                        <label for="tagIds">태그</label>
+                        <div class="border p-2 mb-2 bg-light">
+                            <strong>선택된 태그:</strong>
+                            <span id="selected-tag-names">없음</span>
+                        </div>
+                        <input type="hidden" id="tagIds" name="tagIds">
+                        <div id="tag-tree-container"
+                             class="tag-selector border p-3"
+                             style="max-height: 400px; overflow-y: auto;"
+                             th:attr="data-initial-ids='', data-initial-names=''">
+                            <div th:replace="~{fragments/tag-tree :: tagTree(tags=${tags})}"></div>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn btn-primary">도서 등록</button>
@@ -89,5 +99,6 @@
     </div>
 
     <script th:src="@{/js/admin-book-category.js}"></script>
+    <script th:src="@{/js/admin-book-tags.js}"></script>
 </section>
 </html>

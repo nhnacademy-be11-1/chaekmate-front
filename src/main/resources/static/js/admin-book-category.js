@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const idsInput = document.getElementById('categoryIds');
     const namesSpan = document.getElementById('selected-category-names');
 
-    // From modify page
     const initialIds = container.dataset.initialIds || '';
     const initialNames = container.dataset.initialNames || '';
 
@@ -28,7 +27,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Pre-highlight selected items in the tree
     const allCategoryItems = container.querySelectorAll('.category-item');
-
     for (const item of allCategoryItems) {
         const id = item.dataset.id;
         if (selectedCategories.has(id)) {
