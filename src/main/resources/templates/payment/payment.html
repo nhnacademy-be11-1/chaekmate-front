@@ -58,10 +58,8 @@
             await widgets.requestPayment({
                 orderId: orderId,
                 orderName: [[${orderName}]],
-                // successUrl: window.location.origin + "/payment-success.html",
-                // failUrl: window.location.origin + "/payment-fail.html"
-                successUrl: window.location.origin + "/pay/success",
-                failUrl: window.location.origin + "/pay/fail"
+                successUrl: window.location.origin + "/payments/success",
+                failUrl: window.location.origin + "/payments/fail"
             });
         });
     }

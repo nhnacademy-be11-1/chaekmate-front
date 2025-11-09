@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+    <style>
+        /* 페이지 한정 보조 스타일: 기본 style.css 팔레트와 조화 */
+        .cm-card { background: var(--light); border: 1px solid rgba(0,0,0,.06); border-radius: .25rem; }
+        .cm-card + .cm-card { margin-top: 1.25rem; }
+        .cm-section-title { position: relative; display:inline-block; padding: .25rem .75rem; background: var(--secondary); color: var(--dark); text-transform:uppercase; }
+        .cm-skeleton { background: linear-gradient(90deg, rgba(0,0,0,.04), rgba(0,0,0,.08), rgba(0,0,0,.04)); background-size: 200% 100%; animation: cm-shine 1.2s linear infinite; border-radius: .25rem; }
+        .cm-skel-line { height: 14px; margin: 6px 0; }
+        .cm-skel-img { width: 48px; height: 64px; }
+        .cm-empty { border: 1px dashed rgba(0,0,0,.15); border-radius: .25rem; padding: 18px; color:#6c757d; text-align:center; background:#fff; }
+        .cm-total-row { display:flex; justify-content:space-between; padding: .25rem 0; }
+        .cm-total-row.cm-strong { border-top: 1px solid rgba(0,0,0,.1); margin-top:.5rem; padding-top:.75rem; font-weight:600; }
+        .cm-badge { display:inline-block; padding:.15rem .5rem; background: var(--secondary); color: var(--dark); border-radius:.25rem; font-size:.85rem; }
+        .cm-wrap-tile { border: 1px solid rgba(0,0,0,.08); border-radius:.25rem; padding:.5rem; cursor:pointer; }
+        .cm-wrap-tile.active { border-color: var(--primary); box-shadow: 0 0 0 2px rgba(255,211,51,.25); }
+        @keyframes cm-shine { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+    </style>
+
+    <!-- 브레드크럼 -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="/">홈</a>
+                    <a class="breadcrumb-item text-dark" href="/shop">서점</a>
+                    <span class="breadcrumb-item active">주문서</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <form id="checkoutForm" class="container-fluid" th:action="@{/payments}" method="post">
+        <div class="row px-xl-5">
+            <!-- 좌: 주문 항목/배송정보 -->
+            <div class="col-lg-8">
+                <!-- 주문 상품 -->
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">주문 상품</span></h5>
+                <div class="cm-card p-3">
+                    <!-- 데이터가 있을 때 -->
+                    <div class="table-responsive" th:if="${orderItems != null and !#lists.isEmpty(orderItems)}">
+                        <table class="table table-borderless table-hover align-middle mb-0">
+                            <thead>
+                            <tr class="text-dark">
+                                <th style="width:64px">표지</th>
+                                <th>상품명</th>
+                                <th class="text-right">가격</th>
+                                <th class="text-center">수량</th>
+                                <th class="text-right">소계</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item,idx : ${orderItems}">
+                                <td>
+                                    <img th:if="${item.thumbnailUrl}" th:src="${item.thumbnailUrl}" alt="thumb" class="img-fluid" style="max-width:48px;">
+                                    <div th:if="${item.thumbnailUrl} == null" class="cm-skeleton cm-skel-img"></div>
+                                </td>
+                                <td>
+                                    <div class="font-weight-bold" th:text="${item.name}">책 제목</div>
+                                    <small class="text-muted d-block" th:text="${item.author}">저자</small>
+
+                                    <!-- 쿠폰 -->
+                                    <div class="mt-2">
+                                        <label class="mb-1 d-block">쿠폰 적용</label>
+                                        <select class="custom-select"
+                                                th:name="${'items[' + idx.index + '].couponId'}"
+                                                th:disabled="${#lists.isEmpty(item.applicableCoupons)}">
+                                            <option value="">선택 안함</option>
+                                            <option th:each="c : ${item.applicableCoupons}"
+                                                    th:value="${c.id}"
+                                                    th:text="${c.name + ' (' + c.discountText + ')'}"
+                                                    th:disabled="${!c.usable}"></option>
+                                        </select>
+                                        <small class="text-muted" th:if="${#lists.isEmpty(item.applicableCoupons)}">적용 가능한 쿠폰이 없습니다.</small>
+                                    </div>
+
+                                    <!-- 포인트 -->
+                                    <div class="mt-2">
+                                        <label class="mb-1">포인트 사용</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" step="1" class="form-control"
+                                                   th:name="${'items[' + idx.index + '].usePoint'}"
+                                                   th:attr="data-max=${item.maxPointUsablePerItem}, placeholder=${'최대 ' + item.maxPointUsablePerItem + 'P'}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button" th:attr="data-index=${idx.index}" onclick="useMaxPoint(this)">최대</button>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">보유 포인트: <b th:text="${member != null ? member.remainingPoints : 0}">0</b>P</small>
+                                    </div>
+
+                                    <!-- 포장지: 이미지 있으면 타일, 없으면 셀렉트 -->
+                                    <div class="mt-3">
+                                        <label class="mb-1 d-block">포장지 선택</label>
+                                        <div class="row no-gutters" th:if="${wraps != null and wraps.?[imageUrl != null].size() > 0}">
+                                            <div class="col-6 col-md-4 pr-2 mb-2" th:each="w : ${wraps}">
+                                                <label class="w-100 cm-wrap-tile">
+                                                    <input class="sr-only" type="radio" th:name="${'items[' + idx.index + '].wrapId'}" th:value="${w.id}">
+                                                    <img th:if="${w.imageUrl}" th:src="${w.imageUrl}" alt="wrap" class="img-fluid rounded">
+                                                    <div class="mt-2 small d-flex justify-content-between align-items-center">
+                                                        <span th:text="${w.name}">기본 포장</span>
+                                                        <span class="text-muted" th:text="${w.price == 0 ? '무료' : '+' + #numbers.formatInteger(w.price,0,'COMMA') + '원'}">무료</span>
+                                                    </div>
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div th:if="${wraps == null or wraps.?[imageUrl != null].size() == 0}">
+                                            <select class="custom-select" th:name="${'items[' + idx.index + '].wrapId'}">
+                                                <option th:each="w : ${wraps}" th:value="${w.id}"
+                                                        th:text="${w.name + (w.price == 0 ? ' (무료)' : ' (+' + #numbers.formatInteger(w.price,0,'COMMA') + '원)')}"></option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-right" th:text="${#numbers.formatInteger(item.price,0,'COMMA')} + '원'">15,000원</td>
+                                <td class="text-center" th:text="${item.quantity}">1</td>
+                                <td class="text-right" th:text="${#numbers.formatInteger(item.subtotal,0,'COMMA')} + '원'">15,000원</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- 데이터가 없을 때(placeholder) -->
+                    <div th:if="${orderItems == null or #lists.isEmpty(orderItems)}" class="cm-empty">
+                        <div class="mb-2"><span class="cm-badge">주문 상품</span></div>
+                        현재 담긴 상품이 없습니다. 계속 쇼핑하시겠어요?
+                    </div>
+                </div>
+
+                <!-- 배송/수령인 정보 -->
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">배송 정보</span></h5>
+                <div class="cm-card p-3">
+                    <div class="form-group">
+                        <label>수령인 이름</label>
+                        <input type="text" class="form-control" name="receiverName" placeholder="홍길동">
+                    </div>
+                    <div class="form-group">
+                        <label>연락처</label>
+                        <input type="text" class="form-control" name="receiverPhone" placeholder="010-1234-5678">
+                    </div>
+                    <div class="form-group">
+                        <label>배송지 선택</label>
+                        <select class="custom-select" th:if="${addresses != null and !#lists.isEmpty(addresses)}"
+                                name="addressId">
+                            <option th:each="addr : ${addresses}" th:value="${addr.id}"
+                                    th:text="${addr.label + ' - ' + addr.road + ' ' + addr.detail}">우리집 - 도로명 상세</option>
+                        </select>
+                        <div th:if="${addresses == null or #lists.isEmpty(addresses)}" class="cm-empty mt-2">
+                            등록된 배송지가 없습니다. 주소를 추가해주세요.
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>배송 요청사항</label>
+                        <textarea class="form-control" name="request" rows="2" placeholder="예: 문 앞에 놓아주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>배송일 선택</label>
+                        <input type="date" class="form-control" name="deliveryDate"
+                               th:attr="min=${defaultDeliveryDate != null ? defaultDeliveryDate : T(java.time.LocalDate).now().plusDays(3)}">
+                        <small class="text-muted">* 미선택 시 기본배송일(주문일 +3일)</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우: 결제 요약 -->
+            <div class="col-lg-4">
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">결제 요약</span></h5>
+                <div class="cm-card p-3">
+                    <!-- 값 있을 때 -->
+                    <div th:if="${summary != null}">
+                        <div class="cm-total-row"><span>상품 합계</span><span th:text="${#numbers.formatInteger(summary.productsTotal,0,'COMMA')} + '원'">0원</span></div>
+                        <div class="cm-total-row"><span>쿠폰 할인</span><span th:text="'-' + #numbers.formatInteger(summary.couponDiscount,0,'COMMA') + '원'">-0원</span></div>
+                        <div class="cm-total-row"><span>포인트 사용</span><span th:text="'-' + #numbers.formatInteger(summary.pointDiscount,0,'COMMA') + '원'">-0원</span></div>
+                        <div class="cm-total-row"><span>포장비</span><span th:text="${#numbers.formatInteger(summary.wrapFeeTotal,0,'COMMA')} + '원'">0원</span></div>
+                        <div class="cm-total-row"><span>배송비</span><span th:text="${#numbers.formatInteger(summary.shippingFee,0,'COMMA')} + '원'">0원</span></div>
+                        <div class="cm-total-row cm-strong">
+                            <span>총 결제금액</span>
+                            <span th:text="${#numbers.formatInteger(summary.payableTotal,0,'COMMA')} + '원'">0원</span>
+                        </div>
+                    </div>
+                    <!-- 값 없을 때(placeholder) -->
+                    <div th:if="${summary == null}">
+                        <div class="cm-total-row"><span>상품 합계</span><span class="cm-skeleton cm-skel-line" style="width:70px;"></span></div>
+                        <div class="cm-total-row"><span>쿠폰 할인</span><span class="cm-skeleton cm-skel-line" style="width:70px;"></span></div>
+                        <div class="cm-total-row"><span>포인트 사용</span><span class="cm-skeleton cm-skel-line" style="width:70px;"></span></div>
+                        <div class="cm-total-row"><span>포장비</span><span class="cm-skeleton cm-skel-line" style="width:70px;"></span></div>
+                        <div class="cm-total-row"><span>배송비</span><span class="cm-skeleton cm-skel-line" style="width:70px;"></span></div>
+                        <div class="cm-total-row cm-strong"><span>총 결제금액</span><span class="cm-skeleton cm-skel-line" style="width:90px;"></span></div>
+                    </div>
+
+                    <button type="submit" class="btn btn-block btn-primary font-weight-bold py-3 mt-3">결제하기</button>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        // "최대" 포인트 버튼
+        function useMaxPoint(btn){
+            var idx = btn.getAttribute('data-index');
+            var input = document.querySelector('input[name="items['+idx+'].usePoint"]');
+            if(!input) return;
+            var max = input.getAttribute('data-max') || 0;
+            input.value = max;
+        }
+        // 포장지 타일 active 토글(이미지 타일 있는 경우)
+        document.addEventListener('click', function(e){
+            var tile = e.target.closest('.cm-wrap-tile');
+            if(!tile) return;
+            var group = tile.closest('.row');
+            if(group){
+                group.querySelectorAll('.cm-wrap-tile').forEach(function(t){ t.classList.remove('active'); });
+            }
+            tile.classList.add('active');
+            var radio = tile.querySelector('input[type="radio"]');
+            if(radio) radio.checked = true;
+        });
+    </script>
+</section>
+</html>
