@@ -13,6 +13,7 @@ import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.service.AdminBookService;
+import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
 
 @Controller
@@ -36,6 +37,9 @@ public class AdminBookController {
     @GetMapping("/admin/books/new")
     public String bookManagementAddDirectView(@ModelAttribute BookCreateRequest bookCreateRequest, Model model) {
 
+        List<TagResponse> tags = tagService.getAllTags();
+
+        model.addAttribute("tags",tags);
         model.addAttribute("bookCreateRequest", bookCreateRequest);
 
         return "admin/book/book-management-add-direct";
@@ -71,6 +75,9 @@ public class AdminBookController {
     public String bookManagementModifyView(@PathVariable Long bookId, Model model) {
 
         AdminBookDetail book = adminBookService.getBookById(bookId);
+        List<TagResponse> tags = tagService.getAllTags();
+
+        model.addAttribute("tags",tags);
         model.addAttribute("book", book);
 
         return "admin/book/book-management-modify";
