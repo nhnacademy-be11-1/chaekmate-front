@@ -42,18 +42,16 @@
 
                     <!-- Category Selector -->
                     <div class="form-group">
-                        <label>카테고리 선택 (다중 선택 가능)</label>
+                        <label> 카테고리 선택 (다중 선택 가능)
                         <div class="border p-2 mb-2 bg-light">
                             <strong>선택된 카테고리:</strong>
                             <span id="selected-category-names">없음</span>
                         </div>
                         <input type="hidden" id="categoryIds" name="categoryIds" value="">
-
-                        <div class="border p-3" style="max-height: 400px; overflow-y: auto;" id="category-tree-container">
-                            <ul class="list-unstyled">
-                                <th:block th:replace="~{::categoryTree(categories=${categories})}"></th:block>
-                            </ul>
+                        <div id="category-tree-container" class="category-selector border p-3" style="max-height: 400px; overflow-y: auto;">
+                           <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
                         </div>
+                        </label>
                     </div>
 
                     <div class="form-group">
@@ -72,58 +70,6 @@
         </div>
     </div>
 
-    <!-- Recursive Fragment for the Category Tree -->
-    <th:block th:fragment="categoryTree(categories)">
-        <li th:each="category : ${categories}">
-            <div class="d-flex align-items-center my-1">
-                <button th:if="${!category.children.isEmpty()}" type="button" class="btn btn-sm py-0 px-2 mr-2 toggle-btn">+</button>
-                <div th:unless="${!category.children.isEmpty()}" style="width: 28px;" class="mr-2"></div>
-                <span class="category-item" th:data-id="${category.id}" th:text="${category.name}" style="cursor: pointer;"></span>
-            </div>
-            <ul th:if="${!category.children.isEmpty()}" class="list-unstyled ml-4" style="display: none;">
-                <th:block th:replace="~{::categoryTree(categories=${category.children})}"></th:block>
-            </ul>
-        </li>
-    </th:block>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const container = document.getElementById('category-tree-container');
-        const categoryIdsInput = document.getElementById('categoryIds');
-        const selectedNamesSpan = document.getElementById('selected-category-names');
-        let selectedCategories = new Map();
-
-        container.addEventListener('click', function(e) {
-            // Toggle button
-            if (e.target.classList.contains('toggle-btn')) {
-                const sublist = e.target.closest('li').querySelector('ul');
-                if (sublist) {
-                    sublist.style.display = (sublist.style.display === 'none') ? 'block' : 'none';
-                    e.target.textContent = (sublist.style.display === 'none') ? '+' : '-';
-                }
-            }
-
-            // Category item selection (multi-select)
-            if (e.target.classList.contains('category-item')) {
-                const id = e.target.dataset.id;
-                const name = e.target.textContent;
-
-                if (selectedCategories.has(id)) {
-                    selectedCategories.delete(id);
-                    e.target.classList.remove('font-weight-bold', 'text-primary');
-                } else {
-                    selectedCategories.set(id, name);
-                    e.target.classList.add('font-weight-bold', 'text-primary');
-                }
-
-                // Update display and hidden input
-                const names = Array.from(selectedCategories.values());
-                const ids = Array.from(selectedCategories.keys());
-                selectedNamesSpan.textContent = names.length > 0 ? names.join(', ') : '없음';
-                categoryIdsInput.value = ids.join(',');
-            }
-        });
-    });
-    </script>
+    <script th:src="@{/js/admin-book-category.js}"></script>
 </section>
 </html>

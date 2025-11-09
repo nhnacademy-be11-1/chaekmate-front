@@ -20,7 +20,7 @@ public class AdminBookController {
 
     private final AdminBookService adminBookService;
 
-    // 도서 관리자 페이지
+    // 도서 관리자 페이지 뷰
     @GetMapping("/admin/books")
     public String bookManagementView(Model model) {
 
@@ -31,14 +31,17 @@ public class AdminBookController {
     }
 
     // 도서 직접 추가 페이지 뷰
-    @GetMapping("/admin/books/add-direct")
-    public String bookManagementAddDirectView(@ModelAttribute BookCreateRequest request, Model model) {
+    @GetMapping("/admin/books/new")
+    public String bookManagementAddDirectView(@ModelAttribute BookCreateRequest bookCreateRequest, Model model) {
+        model.addAttribute("bookCreateRequest", bookCreateRequest);
+
         return "admin/book/book-management-add-direct";
     }
 
-    // 알라딘 도서 검색 페이지
-    @GetMapping("/admin/books/add-aladin")
+    // 알라딘 도서 검색 페이지 뷰
+    @GetMapping("/admin/books/aladin")
     public String bookManagementAddAladinView(Model model) {
+
         return "admin/book/book-management-add-aladin";
     }
 
@@ -72,7 +75,8 @@ public class AdminBookController {
 
     // 관리자 도서 수정 요청
     @PutMapping("/admin/books/{bookId}/modify")
-    public String modifyBook(@PathVariable Long bookId, @ModelAttribute AdminBookDetail adminBookDetail){
+    public String modifyBook(@PathVariable Long bookId,
+                             @ModelAttribute AdminBookDetail adminBookDetail){ // @RequestParam 과 비슷
 
         adminBookService.modifyBookByBookDetail(bookId, adminBookDetail);
 

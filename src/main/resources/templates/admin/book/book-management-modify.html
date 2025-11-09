@@ -12,7 +12,6 @@
                         <input type="hidden" name="_method" value="put"/>
                         <input type="hidden" name="views" th:value="${book.views}"/>
                         <input type="hidden" name="id" th:value="${book.id}"/>
-                        <input type="hidden" name="categoryIds" th:each="id : ${book.categoryIds}" th:value="${id}" />
                         <input type="hidden" name="tagIds" th:each="id : ${book.tagIds}" th:value="${id}" />
                         <div class="card-body">
                             <div class="row">
@@ -73,8 +72,18 @@
                                         <label class="form-check-label" for="isSaleEnd">판매 종료</label>
                                     </div>
                                     <div class="form-group">
-                                        <label for="categories">카테고리</label>
-                                        <input type="text" id="categories" name="categories" class="form-control" th:value="${#strings.listJoin(book.categoryNames, ', ')}" readonly>
+                                        <label for="categoryIds">카테고리</label>
+                                        <div class="border p-2 mb-2 bg-light">
+                                            <strong>선택된 카테고리:</strong>
+                                            <span id="selected-category-names" th:text="${#strings.isEmpty(book.categoryNames)} ? '없음' : ${#strings.listJoin(book.categoryNames, ', ')}">없음</span>
+                                        </div>
+                                        <input type="hidden" id="categoryIds" name="categoryIds" th:value="${#strings.listJoin(book.categoryIds, ',')}">
+                                        <div id="category-tree-container"
+                                             class="category-selector border p-3"
+                                             style="max-height: 400px; overflow-y: auto;"
+                                             th:attr="data-initial-ids=${#strings.listJoin(book.categoryIds, ',')}, data-initial-names=${#strings.listJoin(book.categoryNames, ',')}">
+                                            <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label for="tags">태그</label>
@@ -92,5 +101,6 @@
             </div>
         </div>
     </div>
+    <script th:src="@{/js/admin-book-category.js}"></script>
 </section>
 </html>
