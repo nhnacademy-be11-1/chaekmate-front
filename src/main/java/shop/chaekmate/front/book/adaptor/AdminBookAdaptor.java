@@ -26,4 +26,8 @@ public interface AdminBookAdaptor {
     // 도서 생성 요청
     @PostMapping("/books")
     CommonResponse<Void> createBook(@RequestBody BookCreateRequest bookCreateRequest);
+
+    @DeleteMapping("/books/{bookId}")
+    CommonResponse<Void> deleteBookById(@PathVariable(value = "bookId") Long bookId);
+
 }
