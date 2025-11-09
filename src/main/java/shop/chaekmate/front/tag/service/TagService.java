@@ -41,4 +41,8 @@ public class TagService {
 
         return tags.stream().filter(t->ids.contains(t.id())).map(TagResponse::name).toList();
     }
+
+    public List<TagResponse> getAllTags(){
+        return tagAdaptor.getAllTags().data();
+    }
 }
