@@ -17,6 +17,10 @@ jobs:
       PORT_NUMBER: ${{ secrets.PORT_NUMBER }}
       MINIO_ID: ${{ secrets.MINIO_ID }}
       MINIO_PASSWORD: ${{ secrets.PASSWORD }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      REDIS_RANGE: ${{ secrets.REDIS_RANGE }}
       GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
 
     steps:
@@ -89,4 +93,11 @@ jobs:
           script: |
             export DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}"
             export PORT_NUMBER="${{ secrets.PORT_NUMBER }}"
+            export MINIO_ID="${{ secrets.MINIO_ID }}"
+            export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
+            export REDIS_HOST="${{ secrets.REDIS_HOST }}"
+            export REDIS_PORT="${{ secrets.REDIS_PORT }}"
+            export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+            export REDIS_RANGE="${{ secrets.REDIS_RANGE }}"
+            export GATEWAY_URL="${{ secrets.GATEWAY_URL }}"
             bash -lc ./startup.sh
