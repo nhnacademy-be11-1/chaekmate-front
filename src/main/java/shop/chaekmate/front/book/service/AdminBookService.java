@@ -2,12 +2,15 @@ package shop.chaekmate.front.book.service;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.book.adaptor.AdminBookAdaptor;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
+import shop.chaekmate.front.book.dto.response.AladinBookResponse;
 import shop.chaekmate.front.category.service.CategoryService;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.tag.service.TagService;
@@ -53,6 +56,15 @@ public class AdminBookService {
     public void deleteBookByBookId(Long bookId){
 
         adminBookAdaptor.deleteBookById(bookId);
+
+    }
+
+    // 알라딘으로 도서 검색
+    public Page<AladinBookResponse> searchBooksByAladin(String query, String searchType, Pageable pageable){
+
+        CommonResponse<Page<AladinBookResponse>> wrappedResponse = adminBookAdaptor.getBooksByAladinSearch(query, searchType, pageable);
+
+        return wrappedResponse.data();
 
     }
 
