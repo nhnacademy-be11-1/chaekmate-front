@@ -16,6 +16,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import shop.chaekmate.front.auth.dto.response.MemberInfoResponse;
+import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.auth.service.AuthService;
 
 @Component
@@ -40,6 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         memberInfoResponse.getBody() != null)  {
                     MemberInfoResponse memberInfo = memberInfoResponse.getBody();
 
+                    CustomPrincipal principal = new CustomPrincipal(
+                            memberInfo.memberId(),
+                            memberInfo.name(),
+                            memberInfo.role());
+
                     // 권한 설정 (기본값: ROLE_USER)
                     String role = memberInfo.role();
                     List<SimpleGrantedAuthority> authorities = List.of(
@@ -47,7 +53,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     );
 
                     Authentication auth = new UsernamePasswordAuthenticationToken(
-                            String.valueOf(memberInfo.memberId()),
+                            principal,
                             null,
                             authorities
                     );
