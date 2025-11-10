@@ -55,7 +55,7 @@ public class AdminBookController {
     public String bookManagementAddAladinView(
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String searchType,
-            @PageableDefault(page=0,size=5) Pageable pageable,
+            @PageableDefault(size=5) Pageable pageable,
             Model model) {
 
         if (query != null) {

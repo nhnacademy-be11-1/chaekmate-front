@@ -10,13 +10,13 @@
                 <!-- Search Form -->
                 <form class="form-inline mb-4" th:action="@{/admin/books/aladin}" method="get">
                     <div class="form-group mr-2">
-                        <select class="form-control" name="searchType">
+                        <select aria-label="검색타입" class="form-control" id="searchType" name="searchType">
                             <option value="TITLE" th:selected="${searchType == 'TITLE'}">제목</option>
                             <option value="AUTHOR" th:selected="${searchType == 'AUTHOR'}">저자</option>
                             <option value="PUBLISHER" th:selected="${searchType == 'PUBLISHER'}">출판사</option>
                         </select>
                     </div>
-                    <input class="form-control mr-sm-2 w-50" type="search" name="query" placeholder="검색어를 입력하세요"
+                    <input aria-label="검색어" id="query" class="form-control mr-sm-2 w-50" type="search" name="query" placeholder="검색어를 입력하세요"
                            th:value="${query}" required>
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
                 </form>
