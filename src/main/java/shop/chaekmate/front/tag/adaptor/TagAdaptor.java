@@ -1,5 +1,6 @@
 package shop.chaekmate.front.tag.adaptor;
 
+import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,5 +25,8 @@ public interface TagAdaptor {
 
     @PostMapping(value = "/admin/tags")
     CommonResponse<TagCreateResponse> createTag(@RequestBody TagCreateRequest request);
+
+    @GetMapping(value = "/tags")
+    CommonResponse<List<TagResponse>> getAllTags();
 
 }
