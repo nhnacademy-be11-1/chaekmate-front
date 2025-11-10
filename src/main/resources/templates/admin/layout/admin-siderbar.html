@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
+<nav th:fragment="admin-sidebar" class="navbar d-flex flex-column bg-dark navbar-dark">
+    <div class="nav flex-column align-items-start nav-pills">
+        <a class="nav-item nav-link" th:href="@{/admin}">대시보드</a>
+        <a class="nav-item nav-link" th:href="@{/admin/books}">도서 관리</a>
+        <a class="nav-item nav-link" th:href="@{/admin/categories}">카테고리 관리</a>
+        <a class="nav-item nav-link" th:href="@{/admin/tags}">태그 관리</a>
+    </div>
+</nav>
+</html>

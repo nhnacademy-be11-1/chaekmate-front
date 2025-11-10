@@ -12,4 +12,10 @@ public class IndexController {
 
         return "index";
     }
+
+    @GetMapping("/admin")
+    public String adminIndex(Model model){
+
+        return "admin/admin-index";
+    }
 }
