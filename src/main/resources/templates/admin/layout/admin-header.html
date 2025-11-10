@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <header th:fragment="admin-header" class="bg-light p-3 d-flex justify-content-between align-items-center border-bottom">
-    <a th:href="@{/admin}" class="h3 text-uppercase text-dark bg-light px-2">
-        <span class="h1 text-uppercase text-primary bg-dark px-2">Chaek</span>
-        <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Mate</span>
-        <span class="h1 text-uppercase text-secondary bg-dark px-2">Admin</span>
+    <a th:href="@{/admin}" class="d-flex align-items-center text-decoration-none">
+        <span class="h1 m-0 px-2 text-uppercase bg-dark text-primary">Chaek</span>
+        <span class="h1 m-0 px-2 text-uppercase bg-primary text-dark">Mate</span>
+        <span class="h1 m-0 px-2 text-uppercase bg-dark text-white">Admin</span>
     </a>
     <a th:href="@{/logout}" class="btn btn-primary">Logout</a>
 </header>
