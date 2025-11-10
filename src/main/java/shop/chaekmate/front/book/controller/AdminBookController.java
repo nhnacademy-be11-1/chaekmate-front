@@ -2,6 +2,9 @@ package shop.chaekmate.front.book.controller;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,9 +12,11 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
+import shop.chaekmate.front.book.dto.response.AladinBookResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
@@ -45,9 +50,27 @@ public class AdminBookController {
         return "admin/book/book-management-add-direct";
     }
 
-    // 알라딘 도서 검색 페이지 뷰
+    // 관리자 알라딘 도서 검색 뷰
     @GetMapping("/admin/books/aladin")
-    public String bookManagementAddAladinView(Model model) {
+    public String bookManagementAddAladinView(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) String searchType,
+            @PageableDefault(size=5) Pageable pageable,
+            Model model) {
+
+        if (query != null) {
+            Page<AladinBookResponse> searchResult = adminBookService.searchBooksByAladin(query, searchType, pageable);
+
+            int startPage = (searchResult.getNumber() / 10) * 10;
+            int endPage = Math.min(searchResult.getTotalPages() - 1, startPage + 9);
+
+            model.addAttribute("startPage", startPage);
+            model.addAttribute("endPage", endPage);
+            model.addAttribute("query",query);
+            model.addAttribute("searchType",searchType);
+            model.addAttribute("searchResult", searchResult);
+
+        }
 
         return "admin/book/book-management-add-aladin";
     }

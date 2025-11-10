@@ -8,24 +8,25 @@
                 <h2 class="h2 font-weight-bold text-dark mb-4">알라딘으로 도서 추가</h2>
 
                 <!-- Search Form -->
-                <form class="form-inline mb-4" th:action="@{/admin/books/add-aladin}" method="get">
+                <form class="form-inline mb-4" th:action="@{/admin/books/aladin}" method="get">
                     <div class="form-group mr-2">
-                        <select class="form-control" name="searchType">
-                            <option value="Title" th:selected="${searchType == 'Title'}">제목</option>
-                            <option value="Author" th:selected="${searchType == 'Author'}">저자</option>
-                            <option value="Publisher" th:selected="${searchType == 'Publisher'}">출판사</option>
+                        <select aria-label="검색타입" class="form-control" id="searchType" name="searchType">
+                            <option value="TITLE" th:selected="${searchType == 'TITLE'}">제목</option>
+                            <option value="AUTHOR" th:selected="${searchType == 'AUTHOR'}">저자</option>
+                            <option value="PUBLISHER" th:selected="${searchType == 'PUBLISHER'}">출판사</option>
                         </select>
                     </div>
-                    <input class="form-control mr-sm-2 w-50" type="search" name="query" placeholder="검색어를 입력하세요" th:value="${query}" required>
+                    <input aria-label="검색어" id="query" class="form-control mr-sm-2 w-50" type="search" name="query" placeholder="검색어를 입력하세요"
+                           th:value="${query}" required>
                     <button class="btn btn-outline-success my-2 my-sm-0" type="submit">검색</button>
                 </form>
 
                 <!-- Search Result -->
                 <div th:if="${searchResult}">
                     <h4 class="h4 font-weight-bold text-dark mb-3">검색 결과</h4>
-                    <div th:if="${searchResult.empty}" class="alert alert-warning">검색 결과가 없습니다.</div>
+                    <div th:if="${searchResult.isEmpty()}" class="alert alert-warning">검색 결과가 없습니다.</div>
 
-                    <table class="table table-bordered text-center" th:unless="${searchResult.empty}">
+                    <table class="table table-bordered text-center" th:unless="${searchResult.isEmpty()}">
                         <thead class="thead-dark">
                         <tr>
                             <th style="width: 10%;">표지</th>
@@ -44,24 +45,46 @@
                             <td th:text="${book.publishedAt}"></td>
                             <td th:text="${book.isbn}"></td>
                             <td>
-                                <a class="btn btn-sm btn-primary" th:href="@{/admin/books/add-direct(title=${book.title}, author=${book.author}, isbn=${book.isbn}, publishedDate=${book.publishedAt}, description=${book.description}, price=${book.price}, salesPrice=${book.salesPrice}, thumbnailUrl=${book.coverImage})}">이 책으로<br>등록</a>
+                                <a class="btn btn-sm btn-primary"
+                                   th:href="@{/admin/books/new(title=${book.title}, author=${book.author}, isbn=${book.isbn}, publishedDate=${book.publishedAt}, description=${book.description}, price=${book.price}, salesPrice=${book.salesPrice}, imageUrl=${book.coverImage})}">이
+                                    책으로<br>등록</a>
                             </td>
                         </tr>
                         </tbody>
                     </table>
 
                     <!-- Pagination -->
-                    <nav aria-label="Page navigation" th:if="${!searchResult.empty}">
+                    <nav aria-label="Page navigation" th:if="${!searchResult.isEmpty()}">
                         <ul class="pagination justify-content-center">
-                            <li class="page-item" th:classappend="${searchResult.first} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/books/add-aladin(query=${query}, searchType=${searchType}, page=${searchResult.number - 1})}">Previous</a>
+
+                            <!-- 이전 블록 -->
+                            <li class="page-item"
+                                th:classappend="${searchResult.number / 10 == 0} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/admin/books/aladin(query=${query}, searchType=${searchType}, page=${(searchResult.number / 10 - 1) * 10})}">
+                                    Prev 10
+                                </a>
                             </li>
-                            <li class="page-item" th:each="i : ${#numbers.sequence(0, searchResult.totalPages - 1)}" th:classappend="${i == searchResult.number} ? 'active' : ''">
-                                <a class="page-link" th:href="@{/admin/books/add-aladin(query=${query}, searchType=${searchType}, page=${i})}" th:text="${i + 1}"></a>
+
+                            <!-- 현재 블록의 페이지 번호 -->
+                            <li class="page-item"
+                                th:each="i : ${#numbers.sequence(startPage, endPage)}"
+                                th:classappend="${i == searchResult.number} ? 'active' : ''">
+                                <a class="page-link"
+                                   th:href="@{/admin/books/aladin(query=${query}, searchType=${searchType}, page=${i})}"
+                                   th:text="${i + 1}">
+                                </a>
                             </li>
-                            <li class="page-item" th:classappend="${searchResult.last} ? 'disabled' : ''">
-                                <a class="page-link" th:href="@{/admin/books/add-aladin(query=${query}, searchType=${searchType}, page=${searchResult.number + 1})}">Next</a>
+
+                            <!-- 다음 블록 -->
+                            <li class="page-item"
+                                th:classappend="${((searchResult.number / 10) + 1) * 10 >= searchResult.totalPages} ? 'disabled' : ''">
+                                <a class="page-link"
+                                   th:href="@{/admin/books/aladin(query=${query}, searchType=${searchType}, page=${((searchResult.number / 10) + 1) * 10})}">
+                                    Next 10
+                                </a>
                             </li>
+
                         </ul>
                     </nav>
                 </div>
