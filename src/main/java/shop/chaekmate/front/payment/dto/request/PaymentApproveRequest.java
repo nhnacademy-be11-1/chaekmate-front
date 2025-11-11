@@ -1,7 +1,7 @@
 package shop.chaekmate.front.payment.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 
 public record PaymentApproveRequest(
 
@@ -14,6 +14,6 @@ public record PaymentApproveRequest(
         @NotBlank(message = "주문 번호는 필수 입력 값입니다.")
         String orderId,
 
-        @Positive(message = "승인 금액은 0보다 커야 합니다.")
+        @PositiveOrZero(message = "승인 금액은 음수가 될 수 없습니다.")
         long amount
 ) {}

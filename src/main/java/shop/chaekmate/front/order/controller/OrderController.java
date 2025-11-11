@@ -21,7 +21,7 @@ public class OrderController {
                 new OrderItem(
                         "이펙티브 자바 3판",
                         "Joshua Bloch",
-                        38000,
+                        3800,
                         1,
                         38000,
                         "/static/img/cat-1.jpg"
@@ -39,8 +39,8 @@ public class OrderController {
 
         // 🎁 2. 포장지 더미
         var wraps = List.of(
-                new Wrap(1L, "기본 포장", 0, "/static/img/wrap_basic.jpg"),
-                new Wrap(2L, "선물 포장", 1500, "/img/wrap_gift.jpg")
+                new Wrap(1L, "기본 포장", 0, "/static/img/cat-4.jpg"),
+                new Wrap(2L, "선물 포장", 1500, "/img/cat-3.jpg")
         );
         model.addAttribute("wraps", wraps);
 
