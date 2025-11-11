@@ -14,19 +14,16 @@ public class BookImageService {
 
     private final BookImageAdaptor bookImageAdaptor;
 
-    public String getThumbnailByBookId(Long bookId){
-
+    public BookThumbnailResponse getThumbnailByBookId(Long bookId){
         CommonResponse<BookThumbnailResponse> response = bookImageAdaptor.getBookThumbnail(bookId);
 
-        return response.data().imageUrl();
+        return response.data();
     }
 
-    public List<String> getDetailImagesByBookId(Long bookId){
+    public List<BookImageResponse> getDetailImagesByBookId(Long bookId){
         CommonResponse<List<BookImageResponse>> response = bookImageAdaptor.getBookDetailImages(bookId);
 
-        return response.data().stream().map(BookImageResponse::imageUrl).toList();
+        return response.data();
     }
-
-
 
 }

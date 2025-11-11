@@ -17,6 +17,8 @@ import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
+import shop.chaekmate.front.book.dto.response.BookImageResponse;
+import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
 import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
@@ -92,10 +94,10 @@ public class AdminBookController {
         AdminBookDetail book = adminBookService.getBookById(bookId);
 
         // 섬네일 주입
-        String thumbnail = bookImageService.getThumbnailByBookId(bookId);
+        BookThumbnailResponse thumbnail = bookImageService.getThumbnailByBookId(bookId);
 
         // 상세 이미지 주입
-        List<String> detailImages = bookImageService.getDetailImagesByBookId(bookId);
+        List<BookImageResponse> detailImages = bookImageService.getDetailImagesByBookId(bookId);
 
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
@@ -110,6 +112,15 @@ public class AdminBookController {
 
         AdminBookDetail book = adminBookService.getBookById(bookId);
         List<TagResponse> tags = tagService.getAllTags();
+
+        // 섬네일 주입
+        BookThumbnailResponse thumbnail = bookImageService.getThumbnailByBookId(bookId);
+
+        // 상세 이미지 주입
+        List<BookImageResponse> detailImages = bookImageService.getDetailImagesByBookId(bookId);
+
+        model.addAttribute("thumbnail", thumbnail);
+        model.addAttribute("detailImages", detailImages);
 
         model.addAttribute("tags", tags);
         model.addAttribute("book", book);

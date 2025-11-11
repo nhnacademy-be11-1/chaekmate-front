@@ -47,8 +47,9 @@
                                 <input type="number" id="stock" name="stock" class="form-control" th:value="${book.stock}">
                             </div>
                             <div class="form-group">
-                                <label for="imageUrl">이미지 URL</label>
-                                <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${book.imageUrl}">
+                                <!-- 업데이트 요청 시 섬네일 변경됨 -->
+                                <label for="imageUrl">섬네일 URL</label>
+                                <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${thumbnail.imageUrl()}">
                             </div>
                             <div class="form-group">
                                 <label for="index">목차</label>
