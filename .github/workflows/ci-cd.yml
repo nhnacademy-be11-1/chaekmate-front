@@ -1,4 +1,4 @@
-name: Front CI-CD with Maven
+name: Core CI-CD with Maven
 
 on:
   push:
@@ -14,7 +14,7 @@ jobs:
     env:
       SPRING_PROFILES_ACTIVE: prod  # prod 프로파일 우선 적용
       DOMAIN: ${{ secrets.DOMAIN_NAME }}
-      PORT: ${{ secrets.PORT_NUMBER }}
+      PORT_NUMBER: ${{ secrets.PORT_NUMBER }}
       MINIO_ID: ${{ secrets.MINIO_ID }}
       MINIO_PASSWORD: ${{ secrets.PASSWORD }}
       GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
@@ -88,5 +88,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             export DOMAIN="${{ env.DOMAIN }}"
-            export PORT="${{ env.PORT }}"
+            export PORT_NUMBER="${{ env.PORT_NUMBER }}"
+            export MINIO_ID="${{ secrets.MINIO_ID }}"
+            export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
+            export GATEWAY_URL="${{ secrets.GATEWAY_URL }}"
             bash -lc ./startup.sh

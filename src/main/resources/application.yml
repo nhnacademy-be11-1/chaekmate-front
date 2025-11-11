@@ -1,5 +1,10 @@
 spring:
-  mvc:
-    hiddenmethod:
-      filter:
-        enabled: true
+  application:
+    name: front
+
+chaekmate:
+  gateway:
+    url: http://localhost:8080
+
+server:
+  port: 5173

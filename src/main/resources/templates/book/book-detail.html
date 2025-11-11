@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+  <title th:text="${book.title} + ' - 도서 상세 정보'"></title>
+  <style>
+    /* 재고 수량 입력 필드 너비 조정 */
+    .quantity-input {
+      width: 80px;
+      text-align: center;
+    }
+
+    /* 책 이미지 영역 */
+    .book-detail-img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #e9ecef;
+      border-radius: 5px;
+    }
+
+    /* 할인 정보 텍스트 크기 */
+    .price-info h3 {
+      font-size: 2.5rem;
+    }
+
+    .price-info small {
+      font-size: 1.1rem;
+    }
+
+    /* 설명/목차 탭 내용 영역 */
+    .tab-content {
+      padding: 20px 0;
+      border: 1px solid #dee2e6;
+      border-top: none;
+      padding: 20px;
+      white-space: pre-wrap; /* 줄 바꿈 유지 */
+    }
+
+    /* 재고 상태 표시 */
+    .stock-status {
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+<section>
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-12">
+        <nav class="breadcrumb bg-light mb-30">
+          <a class="breadcrumb-item text-dark" th:href="@{/}">Home</a>
+          <a class="breadcrumb-item text-dark" th:href="@{/categories/0}">도서 목록</a>
+          <span class="breadcrumb-item active" th:text="${book.title}">도서 상세</span>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid pb-5">
+    <div class="row px-xl-5">
+      <div class="col-lg-5 mb-30">
+        <img class="book-detail-img"
+             th:src="${book.imageUrl ?: '/img/no-image.jpeg'}"
+             th:alt="${book.title}"
+             onerror="this.src='/img/no-image.jpeg'; this.onerror=null;">
+
+        <div class="d-flex justify-content-center mt-3">
+          <a href="#" class="btn btn-outline-danger mr-2" title="찜하기">
+            <i class="far fa-heart mr-1"></i> 찜하기
+          </a>
+          <a href="#" class="btn btn-outline-info" title="보관함">
+            <i class="fa fa-archive mr-1"></i> 보관함
+          </a>
+        </div>
+      </div>
+
+      <div class="col-lg-7 mb-30">
+        <h2 class="font-weight-semi-bold mb-3" th:text="${book.title}">자바 ORM JPA 프로그래밍</h2>
+        <div class="d-flex mb-3">
+          <p class="text-muted mr-3">
+            <span class="font-weight-bold">저자:</span>
+            <span th:text="${book.author ?: '저자 미상'}">김영한</span>
+          </p>
+          <p class="text-muted">
+            <span class="font-weight-bold">출판사:</span>
+            <span th:text="${book.publisher ?: '출판사 미상'}">에이콘출판</span>
+          </p>
+        </div>
+
+        <div class="mb-4">
+          <p class="text-muted">
+            <span class="font-weight-bold">조회수:</span>
+            <span th:text="${#numbers.formatInteger(book.views, 0, 'COMMA')}">10,000</span>
+          </p>
+          <p class="stock-status">
+            <span class="font-weight-bold">재고:</span>
+            <span th:if="${book.stock > 0}" class="text-success" th:text="${#numbers.formatInteger(book.stock, 0, 'COMMA') + '권'}">500권</span>
+            <span th:unless="${book.stock > 0}" class="text-danger">품절</span>
+          </p>
+        </div>
+
+        <div class="price-info mb-4">
+          <th:block th:if="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+            <p class="text-muted text-decoration-line-through mb-1">
+              정가: <small th:text="${#numbers.formatInteger(book.price, 0, 'COMMA')} + '원'">43,000원</small>
+            </p>
+            <h3 class="font-weight-semi-bold text-danger mb-0">
+              판매가:
+              <span th:text="${#numbers.formatInteger(book.salesPrice, 0, 'COMMA')} + '원'">38,700원</span>
+            </h3>
+            <p class="text-danger mt-1">
+              (<span th:text="${T(java.lang.Math).round((book.price - book.salesPrice) * 100.0 / book.price)} + '%'">10%</span> 할인 |
+              <span th:text="${#numbers.formatInteger(book.price - book.salesPrice, 0, 'COMMA')} + '원'">4,300원</span> 절약)
+            </p>
+          </th:block>
+
+          <th:block th:unless="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+            <h3 class="font-weight-semi-bold text-warning mb-0">
+              판매가:
+              <span th:if="${book.salesPrice != null and book.salesPrice > 0}"
+                    th:text="${#numbers.formatInteger(book.salesPrice, 0, 'COMMA')} + '원'">38,700원</span>
+              <span th:unless="${book.salesPrice != null and book.salesPrice > 0}" class="text-muted">가격 정보 없음</span>
+            </h3>
+          </th:block>
+        </div>
+
+        <div class="d-flex align-items-center mb-4 pt-2">
+          <div class="input-group quantity mr-3" style="width: 130px;">
+            <div class="input-group-btn">
+              <button class="btn btn-primary btn-minus">
+                <i class="fa fa-minus"></i>
+              </button>
+            </div>
+            <input type="text" class="form-control bg-secondary border-0 text-center quantity-input" value="1" id="quantityInput">
+            <div class="input-group-btn">
+              <button class="btn btn-primary btn-plus">
+                <i class="fa fa-plus"></i>
+              </button>
+            </div>
+          </div>
+
+          <button class="btn btn-primary px-3 mr-2" id="addToCartBtn">
+            <i class="fa fa-shopping-cart mr-1"></i> 장바구니 담기
+          </button>
+          <button class="btn btn-danger px-3" id="buyNowBtn">
+            <i class="fa fa-bolt mr-1"></i> 바로 주문
+          </button>
+        </div>
+
+        <p class="mb-4 text-muted small">
+          <span th:if="${book.stock <= 5 and book.stock > 0}" class="text-danger">재고가 얼마 남지 않았습니다!</span>
+          <span th:if="${book.stock > 0}">택배 주문시 **익일** 출고 예정 (평일 기준)</span>
+          <span th:unless="${book.stock > 0}" class="text-danger">현재 품절로 구매하실 수 없습니다.</span>
+        </p>
+      </div>
+    </div>
+
+    <div class="row px-xl-5">
+      <div class="col">
+        <div class="bg-light p-30">
+          <div class="nav nav-tabs mb-4">
+            <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세 설명</a>
+            <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-index">목차</a>
+            <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${book.views % 10}">0</span>)</a>
+          </div>
+          <div class="tab-content">
+            <div class="tab-pane fade show active" id="tab-description">
+              <h4 class="mb-3">도서 상세 정보</h4>
+              <div th:utext="${book.description ?: '등록된 상세 설명이 없습니다.'}">
+                등록된 상세 설명이 없습니다.
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-index">
+              <h4 class="mb-3">도서 목차</h4>
+              <div th:utext="${book.index ?: '등록된 목차가 없습니다.'}">
+                등록된 목차가 없습니다.
+              </div>
+            </div>
+
+            <div class="tab-pane fade" id="tab-reviews">
+              <div class="row">
+                <p class="text-center w-100">리뷰 섹션이 들어갈 자리입니다.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script th:inline="javascript">
+    $(document).ready(function() {
+      var $quantityInput = $('#quantityInput');
+      var maxStock = [[${book.stock}]] || 0; // 재고 수량
+
+      // 수량 감소
+      $('.btn-minus').on('click', function() {
+        var now = parseInt($quantityInput.val());
+        if (now > 1) {
+          $quantityInput.val(now = now - 1);
+        }
+      });
+
+      // 수량 증가
+      $('.btn-plus').on('click', function() {
+        var now = parseInt($quantityInput.val());
+        if (maxStock > 0 && now < maxStock) {
+          $quantityInput.val(now = now + 1);
+        } else if (maxStock === 0) {
+          alert('현재 품절 상태입니다.');
+        } else if (now >= maxStock) {
+          alert('재고 수량을 초과할 수 없습니다. (최대 ' + maxStock + '권)');
+        } else {
+          $quantityInput.val(now = now + 1); // 재고 무한 가정
+        }
+      });
+
+      // 직접 입력 시 유효성 검사 (재고 및 최소 1)
+      $quantityInput.on('change', function() {
+        var now = parseInt($quantityInput.val());
+        if (isNaN(now) || now < 1) {
+          $quantityInput.val(1);
+        } else if (maxStock > 0 && now > maxStock) {
+          alert('재고 수량을 초과할 수 없습니다. (최대 ' + maxStock + '권)');
+          $quantityInput.val(maxStock);
+        }
+      });
+
+      // 품절 시 구매 버튼 비활성화
+      if (maxStock === 0) {
+        $('#addToCartBtn').prop('disabled', true).text('품절 (장바구니 불가)');
+        $('#buyNowBtn').prop('disabled', true).text('품절 (주문 불가)');
+        $('.btn-minus').prop('disabled', true);
+        $('.btn-plus').prop('disabled', true);
+      }
+    });
+
+    // 장바구니 담기 버튼 클릭 이벤트
+    $('#addToCartBtn').on('click', function() {
+      var bookId = [[${book.id}]];
+      var quantity = parseInt($('#quantityInput').val());
+      // 실제 장바구니 로직 (AJAX 호출 등)을 여기에 구현해!
+      alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권을 장바구니에 담았습니다! (실제 로직 구현 필요)');
+    });
+
+    // 바로 주문 버튼 클릭 이벤트
+    $('#buyNowBtn').on('click', function() {
+      var bookId = [[${book.id}]];
+      var quantity = parseInt($('#quantityInput').val());
+      // 실제 바로 주문 로직 (결제 페이지 이동 등)을 여기에 구현해!
+      alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
+      // 예: location.href = '/orders/checkout?bookId=' + bookId + '&quantity=' + quantity;
+    });
+
+  </script>
+</section>
+</body>
+</html>
