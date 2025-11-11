@@ -18,6 +18,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import shop.chaekmate.front.auth.dto.response.MemberInfoResponse;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.auth.service.AuthService;
+import shop.chaekmate.front.auth.util.CookieUtil;
 
 @Component
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = getTokenFromCookie(request);
+        String accessToken = CookieUtil.extractAccessTokenFromCookie(request);
 
         if (accessToken != null) {
             try {
@@ -66,19 +67,5 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
-    }
-
-    private String getTokenFromCookie(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-
-        for (Cookie cookie : cookies) {
-            if ("accessToken".equals(cookie.getName())) {
-                return cookie.getValue();
-            }
-        }
-        return null;
     }
 }

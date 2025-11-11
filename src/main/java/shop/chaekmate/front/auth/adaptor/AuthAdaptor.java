@@ -17,6 +17,9 @@ public interface AuthAdaptor {
     @PostMapping("/auth/login")
     ResponseEntity<LoginResponse> login(@RequestBody LoginRequest request);
 
+    @PostMapping("/auth/admin/login")
+    ResponseEntity<LoginResponse> adminLogin(@RequestBody LoginRequest request);
+
     @GetMapping("/auth/me")
     ResponseEntity<MemberInfoResponse> getMemberInfo(
             @CookieValue("accessToken") String token

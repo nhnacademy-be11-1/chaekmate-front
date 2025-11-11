@@ -19,6 +19,10 @@ public class AuthService {
         return authAdaptor.login(request);
     }
 
+    public ResponseEntity<LoginResponse> adminLogin(LoginRequest request) {
+        return authAdaptor.adminLogin(request);
+    }
+
     public ResponseEntity<MemberInfoResponse> getMemberInfo(String token) {
         return authAdaptor.getMemberInfo(token);
     }
