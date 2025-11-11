@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/toss-style.css}"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>토스페이먼츠 샘플 프로젝트</title>
+    <!-- 토스페이먼츠 SDK 추가 -->
+    <script src="https://js.tosspayments.com/v2/standard"></script>
+
+</head>
+
+<body>
+<!-- 주문서 영역 -->
+<div class="wrapper">
+    <div class="box_section" style="padding: 40px 30px 50px 30px; margin-top: 30px; margin-bottom: 50px">
+        <!-- 결제 UI -->
+        <div id="payment-method"></div>
+        <!-- 이용약관 UI -->
+        <div id="agreement"></div>
+        <!-- 결제하기 버튼 -->
+        <div class="result wrapper">
+            <button class="button" id="payment-button" style="margin-top: 30px">
+                결제하기
+            </button>
+        </div>
+    </div>
+</div>
+<script th:inline="javascript">
+    const orderId = [[${orderNumber}]];
+    const amount = {
+        currency: "KRW",
+        value: [[${price}]]
+    };
+
+    console.log(orderId);
+    console.log(amount.value);
+
+    main();
+
+    async function main() {
+        const button = document.getElementById("payment-button");
+        const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+        const customerKey = orderId;
+        const tossPayments = TossPayments(clientKey);
+        const widgets = tossPayments.widgets({ customerKey });
+
+        await widgets.setAmount(amount);
+        await widgets.renderPaymentMethods({
+            selector: "#payment-method",
+            variantKey: "DEFAULT",
+        });
+        await widgets.renderAgreement({ selector: "#agreement", variantKey: "AGREEMENT" });
+
+        button.addEventListener("click", async function () {
+            await widgets.requestPayment({
+                orderId: orderId,
+                orderName: [[${orderName}]],
+                successUrl: window.location.origin + "/payments/success",
+                failUrl: window.location.origin + "/payments/fail"
+            });
+        });
+    }
+</script>
+</body>
+</html>
