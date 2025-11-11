@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <h2 class="h2 font-weight-bold text-dark mb-4">새 카테고리 추가</h2>
+                <form th:action="@{/admin/categories}" method="post">
+                    <div class="form-group">
+                        <label for="categoryName">카테고리 이름</label>
+                        <input type="text" class="form-control" id="categoryName" name="name" placeholder="카테고리 이름을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="parentId">상위 카테고리 설정</label>
+                        <div class="border p-2 mb-2 bg-light">
+                            <strong>선택된 카테고리:</strong>
+                            <span id="selected-category-name">없음 (최상위 카테고리로 등록)</span>
+                        </div>
+                        <input type="hidden" id="parentId" name="parentId" value="">
+                        <button type="button" class="btn btn-sm btn-secondary mb-2" id="clear-selection">선택 해제</button>
+
+                        <!-- Category Tree Container -->
+                        <div class="border p-3" style="max-height: 400px; overflow-y: auto;" id="category-tree-container">
+                            <ul class="list-unstyled">
+                                <th:block th:replace="~{fragments/category-tree :: categoryTree(${categories})}"></th:block>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">추가하기</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('category-tree-container');
+        const parentIdInput = document.getElementById('parentId');
+        const selectedNameSpan = document.getElementById('selected-category-name');
+        const clearButton = document.getElementById('clear-selection');
+        let selectedItem = null;
+
+        container.addEventListener('click', function(e) {
+            // Toggle button for expanding/collapsing sub-categories
+            if (e.target.classList.contains('toggle-btn')) {
+                const sublist = e.target.closest('li').querySelector('ul');
+                if (sublist) {
+                    if (sublist.style.display === 'none') {
+                        sublist.style.display = 'block';
+                        e.target.textContent = '-';
+                    } else {
+                        sublist.style.display = 'none';
+                        e.target.textContent = '+';
+                    }
+                }
+            }
+
+            // Category item for selection
+            if (e.target.classList.contains('category-item')) {
+                const id = e.target.dataset.id;
+                const name = e.target.textContent;
+
+                // Update hidden input and display
+                parentIdInput.value = id;
+                selectedNameSpan.textContent = name + ` (ID: ${id})`;
+
+                // Visual feedback for selection
+                if (selectedItem) {
+                    selectedItem.classList.remove('font-weight-bold', 'text-primary');
+                }
+                e.target.classList.add('font-weight-bold', 'text-primary');
+                selectedItem = e.target;
+            }
+        });
+
+        // Clear selection button
+        clearButton.addEventListener('click', function() {
+            parentIdInput.value = '';
+            selectedNameSpan.textContent = '없음 (최상위 카테고리로 등록)';
+            if (selectedItem) {
+                selectedItem.classList.remove('font-weight-bold', 'text-primary');
+                selectedItem = null;
+            }
+        });
+    });
+    </script>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const container = document.querySelector('.category-selector-container');
+            const selectedDisplay = document.querySelector('.selected-category-display');
+            const parentIdInput = document.getElementById('parentId');
+            const clearButton = document.getElementById('clear-parent-category');
+
+            // 하위 카테고리 토글 기능
+            container.addEventListener('click', function(e) {
+                if (e.target.classList.contains('toggle-children')) {
+                    const sublist = e.target.closest('li').querySelector('ul');
+                    if (sublist) {
+                        if (sublist.style.display === 'none') {
+                            sublist.style.display = 'block';
+                            e.target.textContent = '-';
+                        } else {
+                            sublist.style.display = 'none';
+                            e.target.textContent = '+';
+                        }
+                    }
+                }
+
+                // 카테고리 선택 기능
+                if (e.target.classList.contains('category-select-item')) {
+                    e.preventDefault();
+                    
+                    // 모든 아이템의 'selected' 클래스 제거
+                    container.querySelectorAll('.category-select-item').forEach(item => item.classList.remove('font-weight-bold', 'text-primary'));
+
+                    // 클릭된 아이템에 'selected' 클래스 추가
+                    e.target.classList.add('font-weight-bold', 'text-primary');
+
+                    // 선택된 카테고리 정보 업데이트
+                    const selectedId = e.target.getAttribute('data-id');
+                    const selectedName = e.target.textContent;
+                    parentIdInput.value = selectedId;
+                    selectedDisplay.textContent = `선택: ${selectedName} (ID: ${selectedId})`;
+                }
+            });
+
+            // 선택 해제 기능
+            clearButton.addEventListener('click', function() {
+                container.querySelectorAll('.category-select-item').forEach(item => item.classList.remove('font-weight-bold', 'text-primary'));
+                parentIdInput.value = '';
+                selectedDisplay.textContent = '선택 없음 (최상위 카테고리로 등록)';
+            });
+        });
+    </script>
+</section>
+</html>
