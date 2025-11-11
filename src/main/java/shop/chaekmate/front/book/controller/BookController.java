@@ -13,7 +13,6 @@ import shop.chaekmate.front.book.adaptor.BookAdaptor;
 import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
-import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -23,7 +22,6 @@ import shop.chaekmate.front.common.CommonResponse;
 public class BookController {
 
     private final BookAdaptor bookAdaptor;
-    private final CategoryAdaptor categoryAdaptor;
     private final BookImageAdaptor bookImageAdaptor;
 
     @GetMapping("/categories/{categoryId}")
