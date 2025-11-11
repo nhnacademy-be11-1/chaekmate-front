@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="|&quot;${prompt}&quot;에 대한 검색결과 ${page.totalElements}개|">검색결과</title>
+    <link rel="stylesheet" th:href="@{/css/your-styles.css}"/>
+</head>
+<body>
+<section class="container py-4">
+
+    <!-- 헤더 -->
+    <div class="d-flex justify-content-between align-items-center section-header">
+        <h5 class="mb-0 font-weight-bold">
+            <span th:text="|&quot;${prompt}&quot;에 대한 검색결과 ${page.totalElements}개|">"키워드"에 대한 검색결과 0개</span>
+        </h5>
+
+        <div class="sort-tab">
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='popularity,desc')}"
+               th:classappend="${param.sort == 'popularity,desc'} ? ' active' : ''">인기도순</a>
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='price,asc')}"
+               th:classappend="${param.sort == 'price,asc'} ? ' active' : ''">낮은가격순</a>
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='price,desc')}"
+               th:classappend="${param.sort == 'price,desc'} ? ' active' : ''">높은가격순</a>
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='publicationDatetime,desc')}"
+               th:classappend="${param.sort == 'publicationDatetime,desc'} ? ' active' : ''">신상품순</a>
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='rating,desc')}"
+               th:classappend="${param.sort == 'rating,desc'} ? ' active' : ''">평점순</a>
+            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='reviewCnt,desc')}"
+               th:classappend="${param.sort == 'reviewCnt,desc'} ? ' active' : ''">리뷰순</a>
+        </div>
+    </div>
+
+    <!-- 목록 반복 -->
+    <div class="mt-3">
+        <div th:if="${books != null and !#lists.isEmpty(books)}">
+            <div th:each="book : ${books}" class="book-item d-flex align-items-start py-3" style="border-bottom:1px solid #eee;">
+
+                <!-- 썸네일 -->
+                <div class="book-cover mr-3" style="width:120px; height:170px; flex-shrink:0;">
+                    <a th:href="@{/books/{id}(id=${book.id})}">
+                        <img th:src="${book.bookImages != null and !#lists.isEmpty(book.bookImages) ? book.bookImages[0] : '/img/no-image.jpeg'}"
+                             th:alt="${book.title}" style="width:100%; height:100%; object-fit:cover;"
+                             onerror="this.src='/img/no-image.jpeg'; this.onerror=null;"/>
+                    </a>
+                </div>
+
+                <!-- 정보 -->
+                <div class="book-info flex-fill">
+                    <!-- 제목 -->
+                    <div class="book-title" style="font-size:18px; font-weight:600; color:#222;">
+                        <a th:href="@{/books/{id}(id=${book.id})}"
+                           th:text="${book.title}"
+                           style="color:inherit; text-decoration:none;"></a>
+                    </div>
+
+                    <!-- 저자 -->
+                    <div class="book-meta text-muted" style="margin-bottom:6px;">
+                        <span th:text="${book.author != null ? book.author : '저자 미상'}">저자</span>
+                    </div>
+
+                    <!-- 출판사 · 출간일 -->
+                    <div class="d-flex align-items-center book-pubinfo" style="font-size:13px; color:#888; margin-bottom:8px;">
+                        <div th:text="${book.publisher != null ? book.publisher : '-'}">출판사</div>
+                        <div th:if="${book.publicationDatetime != null}"
+                             th:text="${#temporals.format(book.publicationDatetime, 'yyyy-MM-dd')}">YYYY-MM-DD</div>
+                    </div>
+
+                    <!-- 가격 -->
+                    <div class="book-price mb-2">
+                        <span class="sale"
+                              th:text="${book.price != null ? #numbers.formatInteger(book.price,0,'COMMA') + '원' : '가격 정보 없음'}">
+                            0원
+                        </span>
+                    </div>
+
+                    <!-- 평점 -->
+                    <div class="rating mb-2">
+                        <span>
+                            <i class="fa fa-star" th:each="i: ${#numbers.sequence(1, T(java.lang.Math).floor(book.rating))}"></i>
+                            <i class="fa fa-star-half-alt" th:if="${(book.rating - T(java.lang.Math).floor(book.rating)) >= 0.5}"></i>
+                        </span>
+                        <small class="text-muted"
+                               th:text="${book.rating != null ? book.rating : 0.0} + ' (' + ${book.reviewCnt} + ')'">0.0 (0)</small>
+                    </div>
+
+                    <!-- 설명 -->
+                    <div class="description"
+                         th:if="${book.description != null}"
+                         th:utext="${book.description}"
+                         style="font-size:13px; color:#444; line-height:1.6; margin-top:8px;">
+                        도서 설명(요약)
+                    </div>
+
+                    <!-- 리뷰 요약 -->
+                    <div th:if="${book.reviewSummary != null and !#strings.isEmpty(book.reviewSummary)}" style="margin-top:10px;">
+                        <span class="review-summary"
+                              style="display:inline-block; background:#f1f3f5; border-radius:20px; padding:8px 14px; font-style:italic; color:#333;"
+                              th:text="${book.reviewSummary}">리뷰 요약</span>
+                    </div>
+
+                    <!-- 태그 -->
+                    <div class="book-tags mt-2" th:if="${book.tags != null and !#lists.isEmpty(book.tags)}">
+                        <span th:each="t : ${book.tags}" th:text="${t}"
+                              style="display:inline-block; background:#f8f9fa; color:#555; font-size:12px; padding:3px 8px; border-radius:10px; margin-right:6px;">
+                            #태그
+                        </span>
+                    </div>
+
+                    <!-- 카테고리 -->
+                    <div class="book-categories mt-2" th:if="${book.categories != null and !#lists.isEmpty(book.categories)}">
+                        <span th:each="c : ${book.categories}" th:text="${c}"
+                              style="display:inline-block; background:#f8f9fa; color:#555; font-size:12px; padding:3px 8px; border-radius:10px; margin-right:6px;">
+                            카테고리
+                        </span>
+                    </div>
+                </div>
+
+                <!-- 버튼 -->
+                <div class="book-buttons d-flex flex-column align-items-end" style="min-width:140px;">
+                    <form th:action="@{/cart/add}" method="post">
+                        <input type="hidden" name="bookId" th:value="${book.id}"/>
+                        <button type="submit" class="btn btn-sm"
+                                style="width:120px; background:#555; color:white; border:none; margin-bottom:6px;">
+                            장바구니
+                        </button>
+                    </form>
+                    <a th:href="@{/books/{id}(id=${book.id})}"
+                       class="btn btn-sm"
+                       style="width:120px; background:#4a56e2; color:white; text-align:center; padding:7px 0;">
+                        상세페이지
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- 항목 없음 -->
+        <div th:if="${books == null or #lists.isEmpty(books)}" class="text-center py-5 text-muted">
+            검색 결과가 없습니다.
+        </div>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="mt-4">
+        <nav th:if="${page.totalPages > 1}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/search(prompt=${prompt}, size=${page.size}, sort=${param.sort}, page=0)}">처음</a>
+                </li>
+                <li class="page-item" th:classappend="${page.first} ? 'disabled'">
+                    <a class="page-link" th:href="@{/search(prompt=${prompt}, size=${page.size}, sort=${param.sort}, page=${page.number - 1})}">이전</a>
+                </li>
+                <li class="page-item"
+                    th:each="i : ${#numbers.sequence(T(java.lang.Math).max(0, page.number - 2), T(java.lang.Math).min(page.totalPages - 1, page.number + 2))}"
+                    th:classappend="${i == page.number} ? 'active'">
+                    <a class="page-link" th:text="${i + 1}"
+                       th:href="@{/search(prompt=${prompt}, size=${page.size}, sort=${param.sort}, page=${i})}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/search(prompt=${prompt}, size=${page.size}, sort=${param.sort}, page=${page.number + 1})}">다음</a>
+                </li>
+                <li class="page-item" th:classappend="${page.last} ? 'disabled'">
+                    <a class="page-link" th:href="@{/search(prompt=${prompt}, size=${page.size}, sort=${param.sort}, page=${page.totalPages - 1})}">마지막</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+</section>
+</body>
+</html>
