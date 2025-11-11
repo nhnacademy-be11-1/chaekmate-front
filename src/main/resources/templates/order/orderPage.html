@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+
+<section>
+    <style>
+        /* ------- 공통 카드 스타일 (기존 유지) ------- */
+        .cm-card {
+            background: var(--light);
+            border: 1px solid rgba(0, 0, 0, .06);
+            border-radius: .25rem;
+        }
+
+        .cm-section-title {
+            position: relative;
+            display: inline-block;
+            padding: .25rem .75rem;
+            background: var(--secondary);
+            color: var(--dark);
+            text-transform: uppercase;
+        }
+
+        .cm-total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: .25rem 0;
+        }
+
+        .cm-total-row.cm-strong {
+            border-top: 1px solid rgba(0, 0, 0, .1);
+            margin-top: .5rem;
+            padding-top: .75rem;
+            font-weight: 600;
+        }
+
+        .cm-wrap-tile {
+            border: 1px solid rgba(0, 0, 0, .08);
+            border-radius: .25rem;
+            padding: .5rem;
+            cursor: pointer;
+        }
+
+        .cm-wrap-tile.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 211, 51, .25);
+        }
+
+        @keyframes cm-shine {
+            0% {
+                background-position: 200% 0
+            }
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        .sticky-wrapper {
+            position: relative;
+        }
+
+        @media (min-width: 992px) {
+            .sticky-box {
+                position: sticky;
+                top: 100px;
+            }
+        }
+    </style>
+
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="/">홈</a>
+                    <a class="breadcrumb-item text-dark" href="/shop">서점</a>
+                    <span class="breadcrumb-item active">주문서</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <form id="checkoutForm" class="container-fluid" th:action="@{/payments}" method="post">
+        <div class="row px-xl-5">
+            <!-- 좌측: 주문 상품 -->
+            <div class="col-lg-8">
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">주문 상품</span></h5>
+                <div class="cm-card p-3 mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr class="text-dark">
+                                <th style="width:64px">표지</th>
+                                <th>상품명</th>
+                                <th class="text-right">가격</th>
+                                <th class="text-center">수량</th>
+                                <th class="text-right">소계</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:each="item,idx : ${orderItems}">
+                                <td><img th:src="@{${item.thumbnailUrl}}" class="img-fluid rounded"
+                                         style="max-width:48px;"></td>
+                                <td>
+                                    <div class="font-weight-bold" th:text="${item.name}">책 제목</div>
+                                    <small class="text-muted d-block" th:text="${item.author}">저자</small>
+
+                                    <!-- 쿠폰 -->
+                                    <div class="mt-2">
+                                        <label class="mb-1 d-block">쿠폰 적용</label>
+                                        <select class="custom-select coupon-select" th:data-price="${item.price}">
+                                            <option value="">선택 안함</option>
+                                            <option value="3000">3,000원 할인 쿠폰</option>
+                                            <option value="5000">5,000원 할인 쿠폰</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 포인트 -->
+                                    <div class="mt-2">
+                                        <label class="mb-1">포인트 사용</label>
+                                        <div class="input-group">
+                                            <input type="number" min="0" class="form-control point-input"
+                                                   placeholder="사용 포인트 입력" th:data-max="${member.remainingPoints}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary" type="button"
+                                                        onclick="useMaxPoint(this)">최대
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">보유 포인트: <b
+                                                th:text="${member.remainingPoints}">12000</b>P</small>
+                                    </div>
+
+                                    <!-- 포장지 -->
+                                    <div class="mt-3">
+                                        <label class="mb-1 d-block">포장지 선택</label>
+                                        <div class="d-flex">
+                                            <label class="cm-wrap-tile mr-2">
+                                                <input type="radio" name="wrap" value="0" class="sr-only wrap-radio">
+                                                <span>기본 (무료)</span>
+                                            </label>
+                                            <label class="cm-wrap-tile">
+                                                <input type="radio" name="wrap" value="1500" class="sr-only wrap-radio">
+                                                <span>선물 포장 (+1,500원)</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-right price" th:text="${item.price}">38000</td>
+                                <td class="text-center qty" th:text="${item.quantity}">1</td>
+                                <td class="text-right subtotal" th:text="${item.subtotal}">38000</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 🚚 배송 정보 -->
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">배송 정보</span></h5>
+                <div class="cm-card p-3 mb-5">
+
+                    <!-- 주문자 -->
+                    <h6 class="font-weight-bold mb-3">주문자 정보</h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>이름</label>
+                            <input type="text" class="form-control" id="ordererName" name="ordererName"
+                                   th:value="${member.name}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>전화번호</label>
+                            <input type="text" class="form-control" id="ordererPhone" name="ordererPhone"
+                                   th:value="${member.phone}">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>이메일</label>
+                            <input type="email" class="form-control" id="ordererEmail" name="ordererEmail"
+                                   th:value="${member.email}">
+                            <small class="form-text text-muted">Dooray 메시지 전송용</small>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- 수령인 -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="font-weight-bold mb-0">수령인 정보</h6>
+                        <div>
+                            <input type="checkbox" id="sameAsOrderer" class="mr-1">
+                            <label for="sameAsOrderer" class="mb-0 small text-muted">주문자 정보와 동일</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>이름</label>
+                            <input type="text" class="form-control" id="receiverName" name="receiverName">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>전화번호</label>
+                            <input type="text" class="form-control" id="receiverPhone" name="receiverPhone">
+                        </div>
+                    </div>
+
+                    <!-- 주소 -->
+                    <div class="form-group">
+                        <label>배송지 선택</label>
+                        <select class="custom-select" id="addressSelect" name="addressId" th:if="${addresses != null}">
+                            <option value="">배송지 선택</option>
+                            <option th:each="addr : ${addresses}" th:value="${addr.id}"
+                                    th:text="${addr.label + ' - ' + addr.road + ' ' + addr.detail}"></option>
+                        </select>
+                    </div>
+
+                    <!-- 직접 입력 -->
+                    <div class="form-group">
+                        <label>직접 입력</label>
+                        <div class="input-group mb-2">
+                            <input type="text" class="form-control" id="postcode" placeholder="우편번호" readonly>
+                            <div class="input-group-append">
+                                <button type="button" class="btn btn-outline-secondary" onclick="findAddress()">주소 검색
+                                </button>
+                            </div>
+                        </div>
+                        <input type="text" class="form-control mb-2" id="roadAddress" placeholder="도로명 주소" readonly>
+                        <input type="text" class="form-control" id="detailAddress" placeholder="상세 주소 입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label>배송 요청사항</label>
+                        <textarea class="form-control" name="request" rows="2" placeholder="예: 문 앞에 놓아주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>배송일 지정</label>
+                        <input type="date" class="form-control" id="deliveryDate" name="deliveryDate"
+                               th:value="${defaultDeliveryDate}" th:attr="min=${defaultDeliveryDate}">
+                        <small class="text-muted">* 기본 배송일은 주문일 +3일입니다.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우: 결제 정보 -->
+            <div class="col-lg-4 sticky-wrapper">
+                <div class="sticky-box">
+                    <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">결제 정보</span></h5>
+                    <div class="cm-card p-3">
+                        <!-- 서버에서 생성된 주문번호를 hidden으로 -->
+                        <input type="hidden" name="orderNumber" th:value="${orderNumber}">
+                        <input type="hidden" name="orderName" th:value="${orderItems[0].name}">
+                        <input type="hidden" name="price" th:value="${summary.payableTotal}">
+
+                        <<div class="cm-total-row"><span>상품 합계</span><span id="sum-products" th:text="${summary.productsTotal} + '원'"></span></div>
+                        <div class="cm-total-row"><span>쿠폰 할인</span><span id="sum-coupon" th:text="'-' + ${summary.couponDiscount} + '원'"></span></div>
+                        <div class="cm-total-row"><span>포인트 사용</span><span id="sum-point" th:text="'-' + ${summary.pointDiscount} + '원'"></span></div>
+                        <div class="cm-total-row"><span>포장비</span><span id="sum-wrap" th:text="${summary.wrapFeeTotal} + '원'"></span></div>
+                        <div class="cm-total-row"><span>배송비</span><span id="sum-shipping" th:text="${summary.shippingFee} + '원'"></span></div>
+                        <div class="cm-total-row cm-strong">
+                            <span>총 결제금액</span><span id="sum-total" th:text="${summary.payableTotal} + '원'"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-block btn-primary font-weight-bold py-3 mt-3">
+                            결제하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // 숫자 포맷/파싱
+            const fmt = n => (isNaN(n) ? 0 : n).toLocaleString('ko-KR') + '원';
+            const num = v => {
+                const n = parseInt(String(v).replace(/[^\d-]/g, ''), 10);
+                return isNaN(n) ? 0 : n;
+            };
+
+            // 합계 상태
+            const summary = {
+                productsTotal: 0,
+                couponDiscount: 0,
+                pointDiscount: 0,
+                wrapFeeTotal: 0,
+                shippingFee: 3000
+            };
+
+            // DOM 헬퍼
+            const $ = (sel, root = document) => root.querySelector(sel);
+            const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+
+            // 포인트 총 최대치(보유 포인트). 행마다 data-max가 동일하다고 가정
+            const getPointMaxTotal = () => {
+                const any = $('.point-input');
+                return any ? num(any.dataset.max || 0) : 0;
+            };
+
+            // 합계 재계산(항상 전체를 다시 계산)
+            const recalc = () => {
+                // 1) 상품 총합: 각 행의 .subtotal 합
+                summary.productsTotal = $$('.subtotal')
+                    .map(td => num(td.textContent))
+                    .reduce((a, b) => a + b, 0);
+
+                // 2) 쿠폰 합계: 선택된 옵션 값들의 합
+                summary.couponDiscount = $$('.coupon-select')
+                    .map(sel => num(sel.value))
+                    .reduce((a, b) => a + b, 0);
+
+                // 3) 포인트 합계: 각 입력값 합 -> 전체 보유포인트 한도로 clamp
+                const rawPointSum = $$('.point-input')
+                    .map(input => num(input.value))
+                    .reduce((a, b) => a + b, 0);
+                summary.pointDiscount = Math.min(rawPointSum, getPointMaxTotal());
+
+                // 4) 포장비: 선택된 라디오 1개 값
+                const checkedWrap = $('.wrap-radio:checked');
+                summary.wrapFeeTotal = checkedWrap ? num(checkedWrap.value) : 0;
+
+                // 5) 총 결제금액
+                const total =
+                    summary.productsTotal
+                    - summary.couponDiscount
+                    - summary.pointDiscount
+                    + summary.wrapFeeTotal
+                    + summary.shippingFee;
+
+                // 6) 오른쪽 패널 반영
+                const set = (id, val, prefix = '', sign = '') => {
+                    const el = document.getElementById(id);
+                    if (!el) return;
+                    const text = (sign ? sign : '') + fmt(val);
+                    el.textContent = prefix ? prefix + text : text;
+                };
+
+                set('sum-products', summary.productsTotal);
+                set('sum-coupon', summary.couponDiscount, '', '-');
+                set('sum-point', summary.pointDiscount, '', '-');
+                set('sum-wrap', summary.wrapFeeTotal);
+                set('sum-shipping', summary.shippingFee);
+                set('sum-total', total);
+
+                // 7) 폼 전송 hidden price 동기화 (최종 결제금액 숫자)
+                const priceHidden = $('input[name="price"]');
+                if (priceHidden) priceHidden.value = total;
+            };
+
+            // 이벤트 바인딩 ----------------------------
+
+            // 주문자 동일 체크 -> 수령인 복사
+            const sameCheck = $('#sameAsOrderer');
+            if (sameCheck) {
+                sameCheck.addEventListener('change', e => {
+                    const on = e.target.checked;
+                    $('#receiverName').value  = on ? ($('#ordererName').value  || '') : '';
+                    $('#receiverPhone').value = on ? ($('#ordererPhone').value || '') : '';
+                });
+            }
+
+            // 배송일 min = 오늘 +3
+            const deliveryDate = $('#deliveryDate');
+            if (deliveryDate) {
+                const today = new Date();
+                today.setDate(today.getDate() + 3);
+                deliveryDate.min = today.toISOString().split('T')[0];
+                if (!deliveryDate.value) deliveryDate.value = deliveryDate.min;
+            }
+
+            // 주소 검색(더미 팝업)
+            function findAddress() {
+                alert("📦 주소 검색 API 연결 예정 (카카오 우편번호 API 등)");
+            }
+            // window.findAddress = () => {
+            //     window.open(
+            //         'https://www.juso.go.kr/addrlink/addrLinkUrl.do?link=https://www.epost.go.kr/',
+            //         'addrPopup',
+            //         'width=600,height=600,scrollbars=yes'
+            //     );
+            // };
+
+            // 쿠폰 변경 -> 재계산
+            $$('.coupon-select').forEach(sel => {
+                sel.addEventListener('change', recalc);
+            });
+
+            // 포인트 입력 -> 숫자 정규화 후 재계산
+            $$('.point-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    input.value = String(num(input.value)); // 숫자만 유지
+                    recalc();
+                });
+            });
+
+            // 포장지 라디오 -> 재계산
+            $$('.wrap-radio').forEach(r => {
+                r.addEventListener('change', recalc);
+            });
+
+            // 포인트 최대 버튼
+            window.useMaxPoint = (btn) => {
+                const input = btn.closest('.input-group')?.querySelector('.point-input');
+                if (!input) return;
+                const max = getPointMaxTotal();
+
+                // 현재 다른 행에서 이미 입력한 포인트 합
+                const others = $$('.point-input')
+                    .filter(i => i !== input)
+                    .map(i => num(i.value))
+                    .reduce((a, b) => a + b, 0);
+
+                // 남은 한도만큼 현재 입력창에 세팅
+                const remain = Math.max(0, max - others);
+                input.value = remain;
+                recalc();
+            };
+
+            // 초기 1회 계산
+            recalc();
+
+            // 폼 제출 시 안전 장치: 최종금액 다시 동기화
+            const form = document.getElementById('checkoutForm');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    recalc();
+                });
+            }
+        });
+    </script>
+
+</section>
+</html>
