@@ -16,8 +16,8 @@
         </h5>
 
         <div class="sort-tab">
-            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='popularity,desc')}"
-               th:classappend="${param.sort == 'popularity,desc'} ? ' active' : ''">인기도순</a>
+<!--            <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='popularity,desc')}"-->
+<!--               th:classappend="${param.sort == 'popularity,desc'} ? ' active' : ''">인기도순</a>-->
             <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='price,asc')}"
                th:classappend="${param.sort == 'price,asc'} ? ' active' : ''">낮은가격순</a>
             <a th:href="@{/search(prompt=${prompt}, size=${page.size}, sort='price,desc')}"
