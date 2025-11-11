@@ -18,6 +18,7 @@ import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
+import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
 
@@ -27,6 +28,7 @@ public class AdminBookController {
 
     private final AdminBookService adminBookService;
     private final TagService tagService;
+    private final BookImageService bookImageService;
 
     // 도서 관리자 페이지 뷰
     @GetMapping("/admin/books")
@@ -88,6 +90,15 @@ public class AdminBookController {
     public String bookManagementDetailView(@PathVariable(value = "bookId") Long bookId, Model model) {
 
         AdminBookDetail book = adminBookService.getBookById(bookId);
+
+        // 섬네일 주입
+        String thumbnail = bookImageService.getThumbnailByBookId(bookId);
+
+        // 상세 이미지 주입
+        List<String> detailImages = bookImageService.getDetailImagesByBookId(bookId);
+
+        model.addAttribute("thumbnail", thumbnail);
+        model.addAttribute("detailImages", detailImages);
         model.addAttribute("book", book);
 
         return "admin/book/book-management-detail";
