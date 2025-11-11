@@ -1,6 +1,10 @@
 package shop.chaekmate.front.category.service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
@@ -50,4 +54,33 @@ public class CategoryService {
         categoryCache.reload(); // 캐시 리로드
 
     }
+
+    public List<String> findNamesByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        List<CategoryResponse> cachedCategories = categoryCache.getCachedCategories();
+
+        // Create a map of ID -> Name for all categories by flattening the hierarchy
+        Map<Long, String> allCategoriesMap = flattenCategories(cachedCategories)
+                .collect(Collectors.toMap(CategoryResponse::id, CategoryResponse::name, (a, b) -> a)); // handle duplicates if any
+
+        return ids.stream()
+                .map(allCategoriesMap::get)
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    // findNamesByIds 의 헬퍼 메소드 (계층 구조인 카테고리 평탄화)
+    private Stream<CategoryResponse> flattenCategories(List<CategoryResponse> categories) {
+        if (categories == null || categories.isEmpty()) {
+            return Stream.empty();
+        }
+        return categories.stream()
+                .flatMap(category -> Stream.concat(
+                        Stream.of(category),
+                        flattenCategories(category.children())
+                ));
+    }
+
 }

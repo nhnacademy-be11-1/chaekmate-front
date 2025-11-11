@@ -87,6 +87,36 @@
 			<artifactId>spring-data-commons</artifactId>
 		</dependency>
 
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<!-- Thymeleaf Security -->
+		<dependency>
+			<groupId>org.thymeleaf.extras</groupId>
+			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
+		</dependency>
+
+		<!-- Jackson (JWT 파싱용) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.data</groupId>
+			<artifactId>spring-data-commons</artifactId>
+		</dependency>
+
+    <dependency>
+        <groupId>com.aventrix.jnanoid</groupId>
+        <artifactId>jnanoid</artifactId>
+        <version>2.0.0</version>
+    </dependency>
+    
 	</dependencies>
 	<dependencyManagement>
 		<dependencies>
