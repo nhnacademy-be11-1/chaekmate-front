@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
 import shop.chaekmate.front.member.dto.response.MemberGradeResponse;
 import shop.chaekmate.front.member.service.MemberService;
@@ -24,8 +21,8 @@ public class MemberController {
         return "/member/signup";
     }
 
-    @PostMapping("/signup")
-    public String signupPost(@ModelAttribute MemberCreateRequest request){
+    @PostMapping("/members")
+    public String signupPost(@RequestBody MemberCreateRequest request){
         log.info("request : {}", request);
         memberService.createMember(request);
         return "redirect:/login";

@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+  <title>회원가입</title>
+</head>
 <section>
 
   <div class="container-fluid">
@@ -9,30 +12,27 @@
         <div class="bg-light p-30">
           <h2 class="mb-4">회원가입</h2>
 
-          <!-- 컨트롤러가 @ModelAttribute로 받으므로 폼 전송 유지 -->
-          <form method="post" th:action="@{/signup}" id="signupForm" novalidate>
+          <!-- 브라우저 기본 검증 사용: novalidate 삭제 -->
+          <form id="signupForm" th:action="@{/members}" method="post">
             <div class="row">
-              <!-- 로그인 아이디 -->
+
+              <!-- 로그인 아이디 (<=20, required) -->
               <div class="col-md-12 form-group">
                 <label for="loginId">Login ID</label>
                 <div class="input-group">
                   <input type="text" class="form-control" id="loginId" name="loginId"
-                         maxlength="20" required autocomplete="username"
-                         placeholder="예) user123">
-                  <button type="button" class="btn btn-outline-secondary" id="btnCheckLoginId">
-                    중복확인
-                  </button>
+                         maxlength="20" required autocomplete="username" placeholder="예) user123">
+                  <button type="button" class="btn btn-primary" id="btnCheckLoginId">중복확인</button>
                 </div>
                 <small class="text-muted">최대 20자</small>
                 <small id="loginIdMsg" class="d-block mt-1" aria-live="polite"></small>
               </div>
 
-              <!-- 비밀번호 -->
+              <!-- 비밀번호 (8~100, required) -->
               <div class="col-md-12 form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password"
-                       minlength="8" maxlength="100" required autocomplete="new-password"
-                       placeholder="8~100자">
+                       minlength="8" maxlength="100" required autocomplete="new-password" placeholder="8~100자">
                 <small id="pwMsg" class="d-block mt-1 text-muted">영문/숫자/기호 조합 권장</small>
               </div>
 
@@ -40,50 +40,46 @@
               <div class="col-md-12 form-group">
                 <label for="passwordConfirm">Password 확인</label>
                 <input type="password" class="form-control" id="passwordConfirm"
-                       minlength="8" maxlength="100" required autocomplete="new-password"
-                       placeholder="비밀번호 재입력">
+                       minlength="8" maxlength="100" required autocomplete="new-password" placeholder="비밀번호 재입력">
                 <small id="pwConfirmMsg" class="d-block mt-1" aria-live="polite"></small>
               </div>
 
-              <!-- 이름 -->
+              <!-- 이름 (<=50, required) -->
               <div class="col-md-12 form-group">
                 <label for="name">이름</label>
                 <input type="text" class="form-control" id="name" name="name"
-                       maxlength="50" required placeholder="홍길동" autocomplete="name">
+                       maxlength="50" required autocomplete="name" placeholder="홍길동">
               </div>
 
-              <!-- 전화번호: 자동 하이픈 포맷 -->
+              <!-- 전화번호 (<=20, required) -->
               <div class="col-md-12 form-group">
                 <label for="phone">전화번호</label>
                 <input type="tel" class="form-control" id="phone" name="phone"
                        inputmode="numeric" autocomplete="tel"
+                       maxlength="20"
                        pattern="^[0-9\-]{9,20}$" required placeholder="010-1234-5678">
               </div>
 
-              <!-- 이메일 -->
+              <!-- 이메일 (<=50, required) -->
               <div class="col-md-12 form-group">
                 <label for="email">이메일</label>
                 <div class="input-group">
                   <input type="email" class="form-control" id="email" name="email"
-                         maxlength="50" required autocomplete="email"
-                         placeholder="user@example.com">
-                  <button type="button" class="btn btn-outline-secondary" id="btnCheckEmail">
-                    중복확인
-                  </button>
+                         maxlength="50" required autocomplete="email" placeholder="user@example.com">
+                  <button type="button" class="btn btn-primary" id="btnCheckEmail">중복확인</button>
                 </div>
                 <small id="emailMsg" class="d-block mt-1" aria-live="polite"></small>
               </div>
 
-              <!-- 생년월일 -->
+              <!-- 생년월일 (required) -->
               <div class="col-md-12 form-group">
                 <label for="birthDate">생년월일</label>
                 <input type="date" class="form-control" id="birthDate" name="birthDate" required>
-                <small class="text-muted">형식: YYYY-MM-DD</small>
               </div>
 
               <!-- 제출 -->
               <div class="col-md-12">
-                <button type="submit" class="btn btn-primary" id="btnSubmit" disabled>회원가입</button>
+                <button type="submit" class="btn btn-primary" id="btnSubmit">회원가입</button>
               </div>
 
               <div class="col-md-12 mt-3 text-center">
@@ -99,7 +95,7 @@
   </div>
 
   <script>
-    // 엘리먼트 참조
+    // 요소
     const $form = document.getElementById('signupForm');
     const $submit = document.getElementById('btnSubmit');
 
@@ -112,20 +108,20 @@
     const $emailMsg = document.getElementById('emailMsg');
 
     const $pw = document.getElementById('password');
-    const $pwMsg = document.getElementById('pwMsg');
     const $pw2 = document.getElementById('passwordConfirm');
     const $pwConfirmMsg = document.getElementById('pwConfirmMsg');
 
+    const $name = document.getElementById('name');
     const $phone = document.getElementById('phone');
     const $birth = document.getElementById('birthDate');
 
-    // 상태 플래그
+    // 상태
     let idChecked = false;
     let emailChecked = false;
     let lastCheckedId = null;
     let lastCheckedEmail = null;
 
-    // 메시지 헬퍼
+    // msg helper
     function setMsg($el, text, type) {
       $el.textContent = text || '';
       $el.classList.remove('text-success','text-danger','text-muted');
@@ -134,112 +130,29 @@
       else if (type === 'err') $el.classList.add('text-danger');
     }
 
-    function updateSubmitState() {
-      const pwOk = $pw.value.length >= 8 && $pw.value === $pw2.value;
-      const allOk = idChecked && emailChecked && pwOk && $form.checkValidity();
-      $submit.disabled = !allOk;
-    }
-
-    // 아이디 중복 확인
-    async function checkLoginId() {
-      const v = $loginId.value.trim();
-      if (!v) { setMsg($loginIdMsg, '아이디를 입력하세요.', 'err'); idChecked = false; updateSubmitState(); return false; }
-
-      $btnCheckLoginId.disabled = true;
-      setMsg($loginIdMsg, '확인 중...', null);
-      try {
-        const res = await fetch(`/members/check-login-id?loginId=${encodeURIComponent(v)}`, {
-          method: 'GET', headers: { 'Accept': 'application/json' }
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          setMsg($loginIdMsg, err.message || '중복 확인 실패', 'err');
-          idChecked = false;
-          updateSubmitState();
-          return false;
-        }
-        const data = await res.json();
-        if (data.available) {
-          setMsg($loginIdMsg, '사용 가능한 아이디입니다.', 'ok');
-          idChecked = true;
-          lastCheckedId = v;
-          updateSubmitState();
-          return true;
-        } else {
-          setMsg($loginIdMsg, '이미 사용 중인 아이디입니다.', 'err');
-          idChecked = false;
-          updateSubmitState();
-          return false;
-        }
-      } catch {
-        setMsg($loginIdMsg, '네트워크 오류가 발생했습니다.', 'err');
-        idChecked = false;
-        updateSubmitState();
-        return false;
-      } finally {
-        $btnCheckLoginId.disabled = false;
-      }
-    }
-
-    // 이메일 중복 확인
-    async function checkEmail() {
-      const v = $email.value.trim();
-      if (!v) { setMsg($emailMsg, '이메일을 입력하세요.', 'err'); emailChecked = false; updateSubmitState(); return false; }
-
-      $btnCheckEmail.disabled = true;
-      setMsg($emailMsg, '확인 중...', null);
-      try {
-        const res = await fetch(`/members/check-email?email=${encodeURIComponent(v)}`, {
-          method: 'GET', headers: { 'Accept': 'application/json' }
-        });
-        if (!res.ok) {
-          const err = await res.json().catch(() => ({}));
-          setMsg($emailMsg, err.message || '중복 확인 실패', 'err');
-          emailChecked = false;
-          updateSubmitState();
-          return false;
-        }
-        const data = await res.json();
-        if (data.available) {
-          setMsg($emailMsg, '사용 가능한 이메일입니다.', 'ok');
-          emailChecked = true;
-          lastCheckedEmail = v;
-          updateSubmitState();
-          return true;
-        } else {
-          setMsg($emailMsg, '이미 사용 중인 이메일입니다.', 'err');
-          emailChecked = false;
-          updateSubmitState();
-          return false;
-        }
-      } catch {
-        setMsg($emailMsg, '네트워크 오류가 발생했습니다.', 'err');
-        emailChecked = false;
-        updateSubmitState();
-        return false;
-      } finally {
-        $btnCheckEmail.disabled = false;
-      }
-    }
-
-    // 비밀번호 일치 체크
+    // 비밀번호 확인
     function validatePasswords() {
-      if (!$pw.value && !$pw2.value) {
+      const pwEmpty = $pw.value.trim().length === 0;
+      const pw2Empty = $pw2.value.trim().length === 0;
+
+      if (pwEmpty && pw2Empty) {
         setMsg($pwConfirmMsg, '', null);
-      } else if ($pw.value.length < 8) {
-        setMsg($pwConfirmMsg, '비밀번호는 8자 이상이어야 합니다.', 'err');
-      } else if ($pw.value !== $pw2.value) {
-        setMsg($pwConfirmMsg, '비밀번호가 일치하지 않습니다.', 'err');
-      } else {
-        setMsg($pwConfirmMsg, '비밀번호가 일치합니다.', 'ok');
+        return;
       }
-      updateSubmitState();
+
+      if ($pw.value.length < 8) {
+        setMsg($pwConfirmMsg, '비밀번호는 8자 이상이어야 합니다.', 'err');
+      } else if ($pw.value === $pw2.value) {
+        setMsg($pwConfirmMsg, '비밀번호가 일치합니다.', 'ok');
+      } else {
+        setMsg($pwConfirmMsg, '비밀번호가 일치하지 않습니다.', 'err');
+      }
     }
 
-    // 전화번호 자동 하이픈 (국내 간단 규칙)
+
+    // 전화번호 포맷(표시용)
     function formatPhone(value) {
-      const digits = value.replace(/\D/g, '');
-      // 02 국번 간단 처리, 그 외 3-4-4 패턴 우선
+      const digits = value.replaceAll(/\D/g, '');
       if (digits.startsWith('02')) {
         if (digits.length <= 2) return digits;
         if (digits.length <= 5) return digits.replace(/(\d{2})(\d+)/, '$1-$2');
@@ -252,39 +165,103 @@
       }
     }
 
-    // 이벤트 바인딩
-    $btnCheckLoginId.addEventListener('click', checkLoginId);
-    $btnCheckEmail.addEventListener('click', checkEmail);
+    // 이메일 UI 보조
+    function updateEmailUI() {
+      const v = $email.value.trim();
+      if (!v) {
+        setMsg($emailMsg, '', null);
+        emailChecked = false;
+        $btnCheckEmail.disabled = false;
+        return;
+      }
+      if (!$email.validity.valid) {
+        setMsg($emailMsg, '이메일 형식이 올바르지 않습니다.', 'err');
+        emailChecked = false;
+        $btnCheckEmail.disabled = true;
+        return;
+      }
+      $btnCheckEmail.disabled = false;
+      if (v !== lastCheckedEmail) emailChecked = false;
+    }
+
+    // 이벤트 연결
+    $email.addEventListener('input', updateEmailUI);
+    $email.addEventListener('blur', updateEmailUI);
+
+    // 아이디 중복확인
+    async function checkLoginId() {
+      const v = $loginId.value.trim();
+      if (!v) { setMsg($loginIdMsg, '아이디를 입력하세요.', 'err'); idChecked = false; return false; }
+      $btnCheckLoginId.disabled = true;
+      setMsg($loginIdMsg, '확인 중...', null);
+      try {
+        const res = await fetch(`/members/check-login-id?loginId=${encodeURIComponent(v)}`, {
+          method: 'GET', headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok && data.available) {
+          setMsg($loginIdMsg, '사용 가능한 아이디입니다.', 'ok');
+          idChecked = true; lastCheckedId = v;
+        } else {
+          setMsg($loginIdMsg, '이미 사용 중인 아이디입니다.', 'err');
+          idChecked = false;
+        }
+      } catch {
+        setMsg($loginIdMsg, '중복 확인 실패', 'err');
+        idChecked = false;
+      } finally {
+        $btnCheckLoginId.disabled = false;
+      }
+      return idChecked;
+    }
+
+    // 이메일 중복확인
+    async function checkEmail() {
+      const v = $email.value.trim();
+      if (!v) { setMsg($emailMsg, '이메일을 입력하세요.', 'err'); emailChecked = false; return false; }
+      $btnCheckEmail.disabled = true;
+      setMsg($emailMsg, '확인 중...', null);
+      try {
+        const res = await fetch(`/members/check-email?email=${encodeURIComponent(v)}`, {
+          method: 'GET', headers: { 'Accept': 'application/json' }
+        });
+        const data = await res.json();
+        if (res.ok && data.available) {
+          setMsg($emailMsg, '사용 가능한 이메일입니다.', 'ok');
+          emailChecked = true; lastCheckedEmail = v;
+        } else {
+          setMsg($emailMsg, '이미 사용 중인 이메일입니다.', 'err');
+          emailChecked = false;
+        }
+      } catch {
+        setMsg($emailMsg, '중복 확인 실패', 'err');
+        emailChecked = false;
+      } finally {
+        $btnCheckEmail.disabled = false;
+      }
+      return emailChecked;
+    }
+
+    document.getElementById('btnCheckLoginId').addEventListener('click', checkLoginId);
+    document.getElementById('btnCheckEmail').addEventListener('click', checkEmail);
 
     $loginId.addEventListener('input', () => {
-      // 입력이 바뀌면 검증 무효화
       if ($loginId.value.trim() !== lastCheckedId) {
-        idChecked = false;
-        setMsg($loginIdMsg, '', null);
-        updateSubmitState();
+        idChecked = false; setMsg($loginIdMsg, '', null);
       }
     });
     $email.addEventListener('input', () => {
       if ($email.value.trim() !== lastCheckedEmail) {
-        emailChecked = false;
-        setMsg($emailMsg, '', null);
-        updateSubmitState();
+        emailChecked = false; setMsg($emailMsg, '', null);
       }
     });
-
-    $loginId.addEventListener('blur', () => { if ($loginId.value.trim()) checkLoginId(); });
-    $email.addEventListener('blur', () => { if ($email.value.trim()) checkEmail(); });
 
     $pw.addEventListener('input', validatePasswords);
     $pw2.addEventListener('input', validatePasswords);
 
-    $phone.addEventListener('input', (e) => {
-      const pos = e.target.selectionStart;
-      const before = e.target.value;
-      e.target.value = formatPhone(before);
-    });
+    $phone.addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); });
 
-    // 오늘 이후 생일 선택 방지
+    // 오늘 이후 생일 금지
     (function lockFutureDate() {
       const d = new Date();
       const yyyy = d.getFullYear();
@@ -293,45 +270,61 @@
       $birth.setAttribute('max', `${yyyy}-${mm}-${dd}`);
     })();
 
-    // 제출 전 최종 방어: 비동기 중복검사까지 강제 수행
     $form.addEventListener('submit', async (e) => {
-      // HTML5 기본 검증 먼저
-      if (!$form.checkValidity()) {
-        e.preventDefault();
-        e.stopPropagation();
-        $form.reportValidity();
-        return;
-      }
+      // 1) 브라우저 기본 검증
+      if (!$form.checkValidity()) { e.preventDefault(); e.stopPropagation(); $form.reportValidity(); return; }
 
-      // 비밀번호 확인
+      // 2) 비번 일치
       if ($pw.value.length < 8 || $pw.value !== $pw2.value) {
-        e.preventDefault();
-        e.stopPropagation();
-        validatePasswords();
-        return;
+        e.preventDefault(); e.stopPropagation(); validatePasswords(); return;
       }
 
-      // 중복 체크 강제 실행
-      const [okId, okEmail] = await Promise.all([
-        idChecked && $loginId.value.trim() === lastCheckedId ? true : checkLoginId(),
-        emailChecked && $email.value.trim() === lastCheckedEmail ? true : checkEmail()
-      ]);
-
-      if (!okId || !okEmail) {
-        e.preventDefault();
-        e.stopPropagation();
-        return;
+      // 3) 중복검사 결과 확인
+      if (!idChecked || $loginId.value.trim() !== lastCheckedId) {
+        e.preventDefault(); e.stopPropagation(); setMsg($loginIdMsg, '아이디 중복확인을 해주세요.', 'err'); return;
+      }
+      if (!emailChecked || $email.value.trim() !== lastCheckedEmail) {
+        e.preventDefault(); e.stopPropagation(); setMsg($emailMsg, '이메일 중복확인을 해주세요.', 'err'); return;
       }
 
-      // 여기까지 통과해야 전송
-      updateSubmitState();
+      // 4) 서버가 @RequestBody DTO를 받으므로 JSON으로 전송
+      e.preventDefault(); // 기본 submit 막고 fetch로 보냄
+
+      // DB 저장용: 하이픈 제거(숫자만 남김)
+      const cleanPhone = $phone.value.replaceAll(/\D/g, '');
+
+      const body = {
+        loginId: $loginId.value.trim(),
+        password: $pw.value,
+        name: $name.value.trim(),
+        phone: cleanPhone,
+        email: $email.value.trim(),
+        birthDate: $birth.value,
+        platformType: "LOCAL"
+      };
+
+      try {
+        const res = await fetch('/members', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        if (res.status === 201 || res.status === 200) {
+          globalThis.location.href = '/login';
+          return;
+        }
+        const err = await res.json().catch(() => ({}));
+        alert(err.message || '회원가입에 실패했습니다.');
+      } catch {
+        alert('네트워크 오류가 발생했습니다.');
+      }
     });
 
     // 초기 상태
     setMsg($loginIdMsg, '', null);
     setMsg($emailMsg, '', null);
     setMsg($pwConfirmMsg, '', null);
-    updateSubmitState();
   </script>
 
 </section>
