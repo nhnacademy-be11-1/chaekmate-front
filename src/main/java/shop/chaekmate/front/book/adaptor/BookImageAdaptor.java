@@ -39,6 +39,7 @@ public interface BookImageAdaptor {
     @GetMapping("/books/{bookId}/images/details")
     CommonResponse<List<BookImageResponse>> getBookDetailImages(@PathVariable Long bookId);
 
+    // 특정 도서 특정 이미지 삭제
     @DeleteMapping("/books/{bookId}/images/{imageId}")
     CommonResponse<Void> deleteBookImage(@PathVariable Long bookId,
                                          @PathVariable Long imageId);
