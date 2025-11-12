@@ -89,11 +89,13 @@
                             </div>
                             <div class="form-group">
                                 <label for="index">목차</label>
-                                <textarea class="form-control" id="index" rows="5" th:field="*{index}"></textarea>
+                                <div id ="index-editor"></div>
+                                <input type="hidden" id="index" name="index" th:value="*{index}" />
                             </div>
                             <div class="form-group">
                                 <label for="description">설명</label>
-                                <textarea class="form-control" id="description" rows="5" th:field="*{description}"></textarea>
+                                <div id="description-editor"></div>
+                                <input type="hidden" id="description" name="description" th:value="*{description}" />
                             </div>
                             <div class="form-check">
                                 <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
