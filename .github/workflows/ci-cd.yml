@@ -26,6 +26,7 @@ jobs:
       MINIO_ACCESS_KEY: ${{ secrets.MINIO_ID }}
       MINIO_SECRET_KEY: ${{ secrets.MINIO_PASSWORD }}
       MINIO_BUCKET_NAME: ${{ secrets.MINIO_BUCKET_NAME }}
+      CHAEKMATE_IMAGE_URL: ${{ secrets.CHAEKMATE_IMAGE_URL }}
 
     steps:
       # Step.1 코드 체크아웃
@@ -108,5 +109,6 @@ jobs:
             export MINIO_ACCESS_KEY="${{ secrets.MINIO_ID }}"
             export MINIO_SECRET_KEY="${{ secrets.MINIO_PASSWORD }}"
             export MINIO_BUCKET_NAME="${{ secrets.MINIO_BUCKET_NAME }}"
+            export CHAEKMATE_IMAGE_URL="${{ secrets.CHAEKMATE_IMAGE_URL }}"
   
             bash -lc ./startup.sh

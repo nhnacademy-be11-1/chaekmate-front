@@ -10,7 +10,8 @@ server:
   port: 5173
 
 minio:
-  url: ${MINIO_URL:http://storage.java21.net:8000}
-  accessKey: ${MINIO_ACCESS_KEY:3P0frMluG9VWCtYH9I7e}
-  secretKey: ${MINIO_SECRET_KEY:97xkODbuUyRx6NOAUbQGCuxJdXmfC83UqVKFDFrj}
-  bucketName: ${MINIO_BUCKET_NAME:chaekmate-image-server}
+  url: ${MINIO_URL}
+  accessKey: ${MINIO_ACCESS_KEY}
+  secretKey: ${MINIO_SECRET_KEY}
+  bucketName: ${MINIO_BUCKET_NAME}
+  chaekmateImageUrl: ${CHAEKMATE_IMAGE_URL}
