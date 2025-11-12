@@ -9,19 +9,19 @@ import shop.chaekmate.front.point.dto.response.PointPolicyResponse;
 
 import java.util.List;
 
-@FeignClient(name="pointpolicy-client" , url = "${chaekmate.gateway.url}")
+@FeignClient(name="pointpolicies-client" , url = "${chaekmate.gateway.url}")
 public interface PointPolicyAdaptor {
 
-    @GetMapping(value= "/admin/point-policy")
+    @GetMapping(value= "/admin/point-policies")
     CommonResponse<List<PointPolicyResponse>> getAllPointPolicy();
 
-    @DeleteMapping(value = "/admin/point-policy/{type}")
+    @DeleteMapping(value = "/admin/point-policies/{type}")
     CommonResponse<Void> deletePointPolicy(@PathVariable("type") String type);
 
-    @PostMapping(value = "/admin/point-policy")
+    @PostMapping(value = "/admin/point-policies")
     CommonResponse<PointPolicyResponse> createPointPolicy(@RequestBody PointPolicyCreateRequest request);
 
-    @PutMapping(value = "/admin/point-policy/{type}")
+    @PutMapping(value = "/admin/point-policies/{type}")
     CommonResponse<Void> updatePointPolicy(@PathVariable("type") String type,
                                            @RequestBody PointPolicyUpdateRequest request);
 }
