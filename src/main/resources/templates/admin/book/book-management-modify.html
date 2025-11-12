@@ -2,18 +2,86 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
 <section>
-    <div class="container-fluid">
+    <div class="container-fluid" th:with="bookId=${book.id}">
         <div class="row px-xl-5">
             <div class="col-12">
                 <h2 class="h2 font-weight-bold text-dark mb-4" th:text="${book.title} + ' 정보 수정'">도서 정보 수정</h2>
-                <div class="card">
-                    <form th:action="@{/admin/books/{id}/modify(id=${book.id})}" th:object="${book}" method="post">
-                        <!-- 타임리프 전용 HTTP 메소드 form 에서 바꾸는법 -->
-                        <input type="hidden" name="_method" value="put"/>
-                        <input type="hidden" name="views" th:value="${book.views}"/>
-                        <input type="hidden" name="id" th:value="${book.id}"/>
-                        <input type="hidden" name="tagIds" th:each="id : ${book.tagIds}" th:value="${id}" />
+
+                <!-- Main Form for Everything -->
+                <form th:action="@{/admin/books/{id}/modify(id=${book.id})}" method="post">
+                    <input type="hidden" name="_method" value="put"/>
+                    <input type="hidden" name="id" th:value="${book.id}" />
+                    <input type="hidden" name="views" th:value="${book.views}" />
+
+                    <!-- Thumbnail Management Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">썸네일 관리</h5>
+                        </div>
                         <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <h6>현재 썸네일</h6>
+                                    <img id="thumbnail-preview" th:src="${thumbnail != null ? thumbnail.path : '/img/no-image.jpeg'}"
+                                         class="img-fluid rounded" alt="Thumbnail Preview" style="max-height: 250px;">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group">
+                                        <label for="thumbnail-upload-input">새 썸네일 파일 선택</label>
+                                        <input type="file" class="form-control-file" id="thumbnail-upload-input" accept="image/*">
+                                        <small id="thumbnail-status" class="form-text"></small>
+                                        <!-- Hidden input to store the new thumbnail URL -->
+                                        <input type="hidden" id="new-thumbnail-url" name="newThumbnailUrl">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detail Image Management Card -->
+                    <div class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="mb-0">상세 이미지 관리</h5>
+                        </div>
+                        <div class="card-body">
+                            <h6>현재 상세 이미지</h6>
+                            <div id="detail-images-container" class="row mb-3">
+                                <div th:each="image : ${detailImages}" class="col-md-3 mb-3" th:id="'detail-image-container-' + ${image.id}">
+                                    <div class="position-relative">
+                                        <img th:src="${image.path}" class="img-fluid rounded" alt="Detail">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute delete-detail-btn"
+                                                style="top: 5px; right: 5px;" th:attr="data-image-id=${image.id}">
+                                            &times;
+                                        </button>
+                                    </div>
+                                </div>
+                                <div th:if="${#lists.isEmpty(detailImages)}" class="col-12">
+                                    <p class="text-muted">등록된 상세 이미지가 없습니다.</p>
+                                </div>
+                            </div>
+                            <hr>
+                            <h6>새 상세 이미지 추가</h6>
+                            <div class="form-group">
+                                <label for="detail-image-upload-input">추가할 이미지 파일 선택</label>
+                                <input type="file" class="form-control-file" id="detail-image-upload-input" accept="image/*">
+                                <small id="detail-image-status" class="form-text"></small>
+                            </div>
+                            <!-- Container for newly added image previews and their hidden inputs -->
+                            <div id="new-detail-images-preview-container" class="row mt-3"></div>
+                        </div>
+                    </div>
+
+                    <!-- Main Book Info Form Card -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">도서 정보</h5>
+                        </div>
+                        <div class="card-body">
+                            <!-- Hidden fields for image changes -->
+                            <input type="hidden" id="deleted-image-ids" name="deletedImageIds">
+                            <div id="new-detail-urls-container"></div>
+
+                            <!-- Text-based fields for the book -->
                             <div class="form-group">
                                 <label for="title">제목</label>
                                 <input type="text" id="title" name="title" class="form-control" th:value="${book.title}">
@@ -47,11 +115,6 @@
                                 <input type="number" id="stock" name="stock" class="form-control" th:value="${book.stock}">
                             </div>
                             <div class="form-group">
-                                <!-- 업데이트 요청 시 섬네일 변경됨 -->
-                                <label for="imageUrl">섬네일 URL</label>
-                                <input type="text" id="imageUrl" name="imageUrl" class="form-control" th:value="${thumbnail.imageUrl()}">
-                            </div>
-                            <div class="form-group">
                                 <label for="index">목차</label>
                                 <textarea id="index" name="index" class="form-control" rows="5" th:text="${book.index}"></textarea>
                             </div>
@@ -60,11 +123,11 @@
                                 <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
                             </div>
                             <div class="form-check">
-                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
+                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:checked="${book.isWrappable}">
                                 <label class="form-check-label" for="isWrappable">포장 가능</label>
                             </div>
                             <div class="form-check mb-3">
-                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="*{isSaleEnd}">
+                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:checked="${book.isSaleEnd}">
                                 <label class="form-check-label" for="isSaleEnd">판매 종료</label>
                             </div>
                             <div class="form-group">
@@ -74,14 +137,10 @@
                                     <span id="selected-category-names" th:text="${#strings.isEmpty(book.categoryNames)} ? '없음' : ${#strings.listJoin(book.categoryNames, ', ')}">없음</span>
                                 </div>
                                 <input type="hidden" id="categoryIds" name="categoryIds" th:value="${#strings.listJoin(book.categoryIds, ',')}">
-                                <div id="category-tree-container"
-                                     class="category-selector border p-3"
-                                     style="max-height: 400px; overflow-y: auto;"
-                                     th:attr="data-initial-ids=${#strings.listJoin(book.categoryIds, ',')}, data-initial-names=${#strings.listJoin(book.categoryNames, ',')}">
+                                <div id="category-tree-container" class="category-selector border p-3" style="max-height: 400px; overflow-y: auto;" th:attr="data-initial-ids=${#strings.listJoin(book.categoryIds, ',')}, data-initial-names=${#strings.listJoin(book.categoryNames, ',')}">
                                     <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
                                 </div>
                             </div>
-                            <!-- Tag Selector -->
                             <div class="form-group">
                                 <label for="tagIds">태그</label>
                                 <div class="border p-2 mb-2 bg-light">
@@ -89,22 +148,20 @@
                                     <span id="selected-tag-names" th:text="${#strings.isEmpty(book.tagNames)} ? '없음' : ${#strings.listJoin(book.tagNames, ', ')}">없음</span>
                                 </div>
                                 <input type="hidden" id="tagIds" name="tagIds" th:value="${#strings.listJoin(book.tagIds, ',')}">
-                                <div id="tag-tree-container"
-                                     class="tag-selector border p-3"
-                                     style="max-height: 400px; overflow-y: auto;"
-                                     th:attr="data-initial-ids=${#strings.listJoin(book.tagIds, ',')}, data-initial-names=${#strings.listJoin(book.tagNames, ',')}">
+                                <div id="tag-tree-container" class="tag-selector border p-3" style="max-height: 400px; overflow-y: auto;" th:attr="data-initial-ids=${#strings.listJoin(book.tagIds, ',')}, data-initial-names=${#strings.listJoin(book.tagNames, ',')}">
                                     <div th:replace="~{fragments/tag-tree :: tagTree(tags=${tags})}"></div>
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer">
                             <a th:href="@{/admin/books}" class="btn btn-secondary">취소</a>
-                            <button type="submit" class="btn btn-primary">저장하기</button>
+                            <button type="submit" class="btn btn-primary">모든 변경사항 저장</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
+    <script th:src="@{/js/image-upload.js}"></script>
 </section>
 </html>

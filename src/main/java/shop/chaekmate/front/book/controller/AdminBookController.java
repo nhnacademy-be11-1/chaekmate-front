@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
+import shop.chaekmate.front.book.dto.request.BookModificationRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
@@ -129,13 +129,14 @@ public class AdminBookController {
     }
 
     // 관리자 도서 수정 요청
-    @PutMapping("/admin/books/{bookId}/modify")
+    @PostMapping("/admin/books/{bookId}/modify")
     public String modifyBook(@PathVariable Long bookId,
-                             @ModelAttribute AdminBookDetail adminBookDetail) { // @RequestParam 과 비슷
+                             @ModelAttribute BookModificationRequest request) {
 
-        adminBookService.modifyBookByBookDetail(bookId, adminBookDetail);
+        // 종합 요청으로 수정
+        adminBookService.modifyBookByRequest(bookId, request);
 
-        return "redirect:/admin/books";
+        return "redirect:/admin/books/" + request.id();
     }
 
     // 도서 삭제 요청 - 바로 리다이렉트 반환

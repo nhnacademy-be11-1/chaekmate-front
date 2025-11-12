@@ -24,24 +24,24 @@ public record BookModifyRequest(
         List<Long> tagIds
 ) {
 
-    public static BookModifyRequest of(AdminBookDetail adminBookDetail){
+    public static BookModifyRequest of(BookModificationRequest modificationRequest){
 
         return BookModifyRequest.builder()
-                .title(adminBookDetail.title())
-                .index(adminBookDetail.index())
-                .description(adminBookDetail.description())
-                .author(adminBookDetail.author())
-                .publisher(adminBookDetail.publisher())
-                .publishedAt(adminBookDetail.publishedAt())
-                .isbn(adminBookDetail.isbn())
-                .price(adminBookDetail.price())
-                .salesPrice(adminBookDetail.salesPrice())
-                .imageUrl(adminBookDetail.imageUrl())
-                .isWrappable(adminBookDetail.isWrappable())
-                .isSaleEnd(adminBookDetail.isSaleEnd())
-                .stock(adminBookDetail.stock())
-                .categoryIds(adminBookDetail.categoryIds())
-                .tagIds(adminBookDetail.tagIds())
+                .title(modificationRequest.title())
+                .index(modificationRequest.index())
+                .description(modificationRequest.description())
+                .author(modificationRequest.author())
+                .publisher(modificationRequest.publisher())
+                .publishedAt(modificationRequest.publishedAt())
+                .isbn(modificationRequest.isbn())
+                .price(modificationRequest.price())
+                .salesPrice(modificationRequest.salesPrice())
+                .imageUrl(modificationRequest.newThumbnailUrl())
+                .isWrappable(modificationRequest.isWrappable())
+                .isSaleEnd(modificationRequest.isSaleEnd())
+                .stock(modificationRequest.stock())
+                .categoryIds(modificationRequest.categoryIds())
+                .tagIds(modificationRequest.tagIds())
                 .build();
     }
 

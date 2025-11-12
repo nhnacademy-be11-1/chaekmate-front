@@ -6,8 +6,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.book.adaptor.AdminBookAdaptor;
+import shop.chaekmate.front.book.adaptor.BookAdaptor;
+import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
+import shop.chaekmate.front.book.dto.request.BookImageAddRequest;
+import shop.chaekmate.front.book.dto.request.BookModificationRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
+import shop.chaekmate.front.book.dto.request.BookThumbnailUpdateRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
@@ -22,6 +27,8 @@ public class AdminBookService {
     private final AdminBookAdaptor adminBookAdaptor;
     private final CategoryService categoryService;
     private final TagService tagService;
+    private final BookAdaptor bookAdaptor;
+    private final BookImageAdaptor bookImageAdaptor;
 
     public List<AdminBookResponse> getRecentCreatedBooks(int limit){
         CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(limit);
@@ -44,11 +51,18 @@ public class AdminBookService {
     }
 
     // 도서 수정
-    public void modifyBookByBookDetail(Long bookId, AdminBookDetail adminBookDetail){
+    public void modifyBookByRequest(Long bookId , BookModificationRequest modificationRequest){
+        // 도서 엔티티 수정 요청
+        BookModifyRequest modifyRequest = BookModifyRequest.of(modificationRequest);
+        adminBookAdaptor.modifyBookById(bookId, modifyRequest);
 
-        BookModifyRequest request = BookModifyRequest.of(adminBookDetail);
+        // 도서 썸네일 수정
+        BookThumbnailUpdateRequest thumbnailUpdateRequest = new BookThumbnailUpdateRequest(modificationRequest.newThumbnailUrl());
+        bookImageAdaptor.updateBookThumbnail(bookId, thumbnailUpdateRequest);
 
-        adminBookAdaptor.modifyBookById(bookId, request);
+        // 도서 상세 이미지 수정
+        modificationRequest.newDetailImageUrls().forEach(imageUrl-> bookImageAdaptor.addBookImage(bookId,new BookImageAddRequest(imageUrl)));
+        modificationRequest.deletedImageIds().forEach(imageId-> bookImageAdaptor.deleteBookImage(bookId,imageId));
 
     }
 
