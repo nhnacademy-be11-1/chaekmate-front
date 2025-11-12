@@ -22,6 +22,10 @@ jobs:
       REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
       REDIS_RANGE: ${{ secrets.REDIS_RANGE }}
       GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
+      MINIO_URL: ${{ secrets.MINIO_URL }}
+      MINIO_ACCESS_KEY: ${{ secrets.MINIO_ID }}
+      MINIO_SECRET_KEY: ${{ secrets.MINIO_PASSWORD }}
+      MINIO_BUCKET_NAME: ${{ secrets.MINIO_BUCKET_NAME }}
 
     steps:
       # Step.1 코드 체크아웃
@@ -100,4 +104,9 @@ jobs:
             export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
             export REDIS_RANGE="${{ secrets.REDIS_RANGE }}"
             export GATEWAY_URL="${{ secrets.GATEWAY_URL }}"
+            export MINIO_URL="${{ secrets.MINIO_URL }}"
+            export MINIO_ACCESS_KEY="${{ secrets.MINIO_ID }}"
+            export MINIO_SECRET_KEY="${{ secrets.MINIO_PASSWORD }}"
+            export MINIO_BUCKET_NAME="${{ secrets.MINIO_BUCKET_NAME }}"
+  
             bash -lc ./startup.sh
