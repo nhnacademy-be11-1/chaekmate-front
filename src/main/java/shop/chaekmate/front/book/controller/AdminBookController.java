@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModificationRequest;
@@ -129,7 +130,7 @@ public class AdminBookController {
     }
 
     // 관리자 도서 수정 요청
-    @PostMapping("/admin/books/{bookId}/modify")
+    @PutMapping("/admin/books/{bookId}/modify")
     public String modifyBook(@PathVariable Long bookId,
                              @ModelAttribute BookModificationRequest request) {
 

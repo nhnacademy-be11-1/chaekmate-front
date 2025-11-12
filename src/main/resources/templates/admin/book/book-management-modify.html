@@ -22,7 +22,7 @@
                             <div class="row align-items-center">
                                 <div class="col-md-3">
                                     <h6>현재 썸네일</h6>
-                                    <img id="thumbnail-preview" th:src="${thumbnail != null ? thumbnail.path : '/img/no-image.jpeg'}"
+                                    <img id="thumbnail-preview" th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
                                          class="img-fluid rounded" alt="Thumbnail Preview" style="max-height: 250px;">
                                 </div>
                                 <div class="col-md-9">
@@ -46,11 +46,11 @@
                         <div class="card-body">
                             <h6>현재 상세 이미지</h6>
                             <div id="detail-images-container" class="row mb-3">
-                                <div th:each="image : ${detailImages}" class="col-md-3 mb-3" th:id="'detail-image-container-' + ${image.id}">
+                                <div th:each="image : ${detailImages}" class="col-md-3 mb-3" th:id="'detail-image-container-' + ${image.bookImageId()}">
                                     <div class="position-relative">
-                                        <img th:src="${image.path}" class="img-fluid rounded" alt="Detail">
+                                        <img th:src="${image.imageUrl()}" class="img-fluid rounded" alt="Detail">
                                         <button type="button" class="btn btn-sm btn-danger position-absolute delete-detail-btn"
-                                                style="top: 5px; right: 5px;" th:attr="data-image-id=${image.id}">
+                                                style="top: 5px; right: 5px;" th:attr="data-image-id=${image.bookImageId()}">
                                             &times;
                                         </button>
                                     </div>
@@ -123,11 +123,11 @@
                                 <textarea id="description" name="description" class="form-control" rows="5" th:text="${book.description}"></textarea>
                             </div>
                             <div class="form-check">
-                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:checked="${book.isWrappable}">
+                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="${book.isWrappable}">
                                 <label class="form-check-label" for="isWrappable">포장 가능</label>
                             </div>
                             <div class="form-check mb-3">
-                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:checked="${book.isSaleEnd}">
+                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="${book.isSaleEnd}">
                                 <label class="form-check-label" for="isSaleEnd">판매 종료</label>
                             </div>
                             <div class="form-group">

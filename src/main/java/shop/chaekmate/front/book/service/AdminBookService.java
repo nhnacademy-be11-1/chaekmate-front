@@ -57,13 +57,22 @@ public class AdminBookService {
         adminBookAdaptor.modifyBookById(bookId, modifyRequest);
 
         // 도서 썸네일 수정
-        BookThumbnailUpdateRequest thumbnailUpdateRequest = new BookThumbnailUpdateRequest(modificationRequest.newThumbnailUrl());
-        bookImageAdaptor.updateBookThumbnail(bookId, thumbnailUpdateRequest);
+        if(modificationRequest.newThumbnailUrl() !=  null && !modificationRequest.newThumbnailUrl().isBlank()) {
+            BookThumbnailUpdateRequest thumbnailUpdateRequest = new BookThumbnailUpdateRequest(
+                    modificationRequest.newThumbnailUrl());
+            bookImageAdaptor.updateBookThumbnail(bookId, thumbnailUpdateRequest);
+        }
 
-        // 도서 상세 이미지 수정
-        modificationRequest.newDetailImageUrls().forEach(imageUrl-> bookImageAdaptor.addBookImage(bookId,new BookImageAddRequest(imageUrl)));
-        modificationRequest.deletedImageIds().forEach(imageId-> bookImageAdaptor.deleteBookImage(bookId,imageId));
+        // 도서 상세 이미지 추가
+        if(modificationRequest.newDetailImageUrls() != null && !modificationRequest.newDetailImageUrls().isEmpty()) {
+            modificationRequest.newDetailImageUrls()
+                    .forEach(imageUrl -> bookImageAdaptor.addBookImage(bookId, new BookImageAddRequest(imageUrl)));
+        }
 
+        // 도서 상세 이미지 삭제
+        if(modificationRequest.deletedImageIds() != null && !modificationRequest.deletedImageIds().isEmpty()){
+            modificationRequest.deletedImageIds().forEach(imageId -> bookImageAdaptor.deleteBookImage(bookId, imageId));
+        }
     }
 
     // 도서 삭제
