@@ -10,7 +10,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
-                                <img th:src="${thumbnail.imageUrl()}" class="img-fluid" alt="Thumbnail">
+                                <img th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
+                                     class="img-fluid"
+                                     alt="Thumbnail">
                             </div>
                             <div class="col-md-8">
                                 <p><strong>ID:</strong> <span th:text="${book.id}"></span></p>

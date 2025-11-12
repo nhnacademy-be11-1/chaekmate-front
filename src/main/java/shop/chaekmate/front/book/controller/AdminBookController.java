@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import shop.chaekmate.front.book.dto.request.BookCreateRequest;
+import shop.chaekmate.front.book.dto.request.BookCreationRequest;
 import shop.chaekmate.front.book.dto.request.BookModificationRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
@@ -45,12 +45,12 @@ public class AdminBookController {
 
     // 도서 직접 추가 페이지 뷰
     @GetMapping("/admin/books/new")
-    public String bookManagementAddDirectView(@ModelAttribute BookCreateRequest bookCreateRequest, Model model) {
+    public String bookManagementAddDirectView(@ModelAttribute BookCreationRequest bookCreationRequest, Model model) {
 
         List<TagResponse> tags = tagService.getAllTags();
 
         model.addAttribute("tags", tags);
-        model.addAttribute("bookCreateRequest", bookCreateRequest);
+        model.addAttribute("bookCreationRequest", bookCreationRequest);
 
         return "admin/book/book-management-add-direct";
     }
@@ -82,7 +82,7 @@ public class AdminBookController {
 
     // 도서 추가 요청
     @PostMapping("/admin/books")
-    public String createBook(@ModelAttribute BookCreateRequest request) {
+    public String createBook(@ModelAttribute BookCreationRequest request) {
 
         adminBookService.createBook(request);
         return "redirect:/admin/books";
