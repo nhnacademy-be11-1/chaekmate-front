@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 import shop.chaekmate.front.auth.config.CookieConfig;
 import shop.chaekmate.front.auth.service.AuthService;
+import shop.chaekmate.front.auth.util.CookieUtil;
 
 @Slf4j
 @Component
@@ -23,17 +24,7 @@ public class CustomLogoutHandler implements LogoutHandler {
 
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-        String accessToken = null;
-
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            for (Cookie cookie : cookies) {
-                if ("accessToken".equals(cookie.getName())) {
-                    accessToken = cookie.getValue();
-                    break;
-                }
-            }
-        }
+        String accessToken = CookieUtil.extractAccessTokenFromCookie(request);
 
         // Auth Server에 logout 요청 (Redis에서 RefreshToken 삭제)
         if (accessToken != null && !accessToken.trim().isEmpty()) {
