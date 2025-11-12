@@ -6,8 +6,8 @@
         <div class="row px-xl-5">
             <div class="col-12">
                 <h2 class="h2 font-weight-bold text-dark mb-4" th:text="${book.title} + ' 정보 수정'">도서 정보 수정</h2>
-
                 <!-- Main Form for Everything -->
+
                 <form th:action="@{/admin/books/{id}/modify(id=${book.id})}" method="post">
                     <input type="hidden" name="_method" value="put"/>
                     <input type="hidden" name="id" th:value="${book.id}" />
@@ -157,8 +157,8 @@
                             <a th:href="@{/admin/books}" class="btn btn-secondary">취소</a>
                             <button type="submit" class="btn btn-primary">모든 변경사항 저장</button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
         </div>
     </div>

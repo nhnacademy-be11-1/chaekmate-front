@@ -27,7 +27,6 @@ public class AdminBookService {
     private final AdminBookAdaptor adminBookAdaptor;
     private final CategoryService categoryService;
     private final TagService tagService;
-    private final BookAdaptor bookAdaptor;
     private final BookImageAdaptor bookImageAdaptor;
 
     public List<AdminBookResponse> getRecentCreatedBooks(int limit){
