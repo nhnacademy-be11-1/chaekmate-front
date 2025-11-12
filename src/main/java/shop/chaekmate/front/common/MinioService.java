@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,14 +15,13 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 public class MinioService {
     private final MinioClient minioClient;
-
-    private final String minioUrl;
     private final String bucketName;
+    private final String chaekmateImageUrl;
 
     public MinioService(MinioProperties minioProperties, MinioClient minioClient) {
         this.minioClient = minioClient;
-        this.minioUrl = minioProperties.getUrl();
         this.bucketName = minioProperties.getBucketName();
+        this.chaekmateImageUrl = minioProperties.getChaekmateImageUrl();
     }
 
     public String uploadFile(MultipartFile file) throws MinioException, IOException, NoSuchAlgorithmException, InvalidKeyException {
@@ -42,6 +40,6 @@ public class MinioService {
                         .contentType(file.getContentType())
                         .build());
 
-        return String.format("%s/%s/%s", minioUrl, bucketName, objectName); // Manually construct URL
+        return String.format("%s/%s/%s", chaekmateImageUrl, bucketName, objectName); // Manually construct URL
     }
 }

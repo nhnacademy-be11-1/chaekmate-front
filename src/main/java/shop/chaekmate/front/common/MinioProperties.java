@@ -14,4 +14,5 @@ public class MinioProperties {
     private String bucketName;
     private String accessKey;
     private String secretKey;
+    private String chaekmateImageUrl;
 }
