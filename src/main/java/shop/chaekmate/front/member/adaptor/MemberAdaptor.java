@@ -4,7 +4,6 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
-import shop.chaekmate.front.member.dto.response.MemberGradeResponse;
 
 import java.util.Map;
 
@@ -20,6 +19,4 @@ public interface MemberAdaptor {
     @GetMapping(value = "/members/check-email")
     CommonResponse<Map<String, Object>> checkEmail(@RequestParam String email);
 
-    @GetMapping(value = "/members/{memberId}/grades")
-    CommonResponse<MemberGradeResponse> getGrade(@PathVariable String memberId);
 }
