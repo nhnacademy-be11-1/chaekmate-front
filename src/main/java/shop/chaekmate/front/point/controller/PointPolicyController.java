@@ -1,6 +1,7 @@
 package shop.chaekmate.front.point.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -12,13 +13,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class PointPolicyController {
 
     private final PointPolicyService pointPolicyService;
 
-    @GetMapping("/admin/point-policy")
+    @GetMapping("/admin/point-policies")
     public String pointPolicyManagementView(Model model) {
         List<PointPolicyResponse> response = pointPolicyService.getAllPointPolicy();
 
@@ -33,30 +35,31 @@ public class PointPolicyController {
         return "admin/point/point-management";
     }
 
-    @DeleteMapping("/admin/point-policy/{type}")
+    @PostMapping("/admin/point-policies/{type}/delete")
     public String deletePointPolicy(@PathVariable("type") String type) {
+        log.info("===== Controller: 삭제 요청 받음 - type: {} =====", type);
         pointPolicyService.deletePointPolicy(type);
-
-        return "redirect:/admin/point-policy";
+        log.info("===== Controller: 리다이렉트 실행 =====");
+        return "redirect:/admin/point-policies";
     }
 
-    @PostMapping("/admin/point-policy")
+    @PostMapping("/admin/point-policies")
     public String createPointPolicy(@RequestParam(required = false) String earnedType,
                                     @RequestParam(required = false) Integer point) {
         if (earnedType == null || earnedType.isEmpty()) {
-            return "redirect:/admin/point-policy?error=타입을 선택해주세요";
+            return "redirect:/admin/point-policies?error=타입을 선택해주세요";
         }
         if (point == null) {
-            return "redirect:/admin/point-policy?error=포인트를 입력해주세요";
+            return "redirect:/admin/point-policies?error=포인트를 입력해주세요";
         }
         pointPolicyService.createPointPolicy(earnedType, point);
 
-        return "redirect:/admin/point-policy";
+        return "redirect:/admin/point-policies";
     }
 
-    @PostMapping("/admin/point-policy/{type}/update")
+    @PutMapping("/admin/point-policies/{type}/update")
     public String updatePolicy(@PathVariable String type, @RequestParam int point) {
         pointPolicyService.updatePointPolicy(type, point);
-        return "redirect:/admin/point-policy";
+        return "redirect:/admin/point-policies";
     }
 }
