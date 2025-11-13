@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
-import shop.chaekmate.front.member.dto.response.MemberGradeResponse;
+import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -17,8 +19,8 @@ public class MemberService {
         memberAdaptor.createMember(memberCreateRequest);
     }
 
-    public MemberGradeResponse getGradeByMemberId(String memberId){
-        CommonResponse<MemberGradeResponse> wrappedResponse = memberAdaptor.getGrade(memberId);
+    public List<MemberAddressResponse> getAddressesByMemberId(String memberId) {
+        CommonResponse<List<MemberAddressResponse>> wrappedResponse = memberAdaptor.getAddresses(Long.valueOf(memberId));
         return wrappedResponse.data();
     }
 }
