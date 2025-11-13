@@ -22,9 +22,9 @@ public class ImageUploadController {
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) {
 
         try {
-            long maxSize = 100L * 1024L * 1024L;
+            long maxSize = 20L * 1024L * 1024L;
             if (file.getSize() > maxSize){
-                throw new IllegalArgumentException("이미지 사이즈는 100 MB 를 넘을 수 없습니다");
+                throw new IllegalArgumentException("이미지 사이즈는 20 MB 를 넘을 수 없습니다");
             }
             String imageUrl = minioService.uploadFile(file);
             Map<String, String> response = new HashMap<>();
