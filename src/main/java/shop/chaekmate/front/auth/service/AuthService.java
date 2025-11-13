@@ -32,6 +32,6 @@ public class AuthService {
     }
 
     public ResponseEntity<LoginResponse> refreshToken(String refreshToken) {
-        String cookieHeader = "refreshToken=" + refreshToken;
-        return authAdaptor.refreshToken(cookieHeader);    }
+        return authAdaptor.refreshToken(refreshToken);
+    }
 }
