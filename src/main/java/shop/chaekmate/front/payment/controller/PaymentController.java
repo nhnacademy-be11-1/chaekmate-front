@@ -20,15 +20,42 @@ public class PaymentController {
 
     private final PaymentAdaptor paymentAdaptor;
 
-    //주문서 -> PaymentReadyRequest
+    //주문서
     @PostMapping
     public String redirectToPaymentPage(@ModelAttribute PaymentReadyRequest request, Model model) {
         log.info("[결제 요청] 주문번호={}, 결제금액={}",
                 request.orderNumber(), request.price());
 
+        if (request.price() == 0L) {
+            log.info("[포인트 결제 감지] Toss 페이지 생략 → 바로 승인 진행");
+
+            var approveRequest = new PaymentApproveRequest(
+                    "POINT",           // 결제수단
+                    null,              // Toss paymentKey 없음
+                    request.orderNumber(),
+                    0L,                // 결제금액 없음
+                    request.pointUsed() // 사용된 포인트 금액
+            );
+
+            try {
+                CommonResponse<PaymentApproveResponse> response = paymentAdaptor.approve(approveRequest);
+                model.addAttribute("approveResponse", response.data());
+                log.info("[포인트 결제 완료] orderNumber={}, totalAmount={}, approvedAt={}",
+                        response.data().orderId(), response.data().totalAmount(), response.data().approvedAt());
+
+                return "payment/payment-success";
+            } catch (Exception e) {
+                log.error("[포인트 결제 실패] 주문번호={}, 사유={}", request.orderNumber(), e.getMessage());
+                model.addAttribute("code", "POINT-500");
+                model.addAttribute("message", "포인트 결제 중 오류가 발생했습니다.");
+                return "payment/payment-fail";
+            }
+        }
+
         model.addAttribute("orderNumber", request.orderNumber());
         model.addAttribute("orderName", request.orderName());
         model.addAttribute("price", request.price());
+        model.addAttribute("pointUsed",request.pointUsed());
 
         return "payment/payment";
     }
@@ -37,8 +64,10 @@ public class PaymentController {
     public String success(@ModelAttribute PaymentCallbackRequest request, Model model) {
         try {
             long amount = Long.parseLong(request.amount());
+            int pointUsed = request.pointUsed()!=null?Integer.parseInt(request.pointUsed()):0;
+
             CommonResponse<PaymentApproveResponse> approveResponse = paymentAdaptor.approve(
-                    new PaymentApproveRequest("TOSS", request.paymentKey(), request.orderId(), amount)
+                    new PaymentApproveRequest("TOSS", request.paymentKey(), request.orderId(), amount,pointUsed)
             );
 
             model.addAttribute("approveResponse", approveResponse.data());

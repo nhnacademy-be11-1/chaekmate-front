@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>포인트 결제 완료</title>
+    <link rel="stylesheet" th:href="@{/css/toss-style.css}"/>
+</head>
+<body>
+<div class="box_section" style="width: 600px">
+    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png"/>
+    <h2>포인트 결제가 완료되었습니다 🎉</h2>
+
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>주문번호</b></div>
+        <div class="p-grid-col text--right" th:text="${approveResponse.orderId}"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 50px">
+        <div class="p-grid-col text--left"><b>사용 포인트</b></div>
+        <div class="p-grid-col text--right" th:text="${approveResponse.totalAmount} + 'P'"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>결제 시각</b></div>
+        <div class="p-grid-col text--right"
+             th:text="${#temporals.format(approveResponse.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></div>
+    </div>
+</div>
+
+<div class="box_section" style="width: 600px; text-align: left; margin-top: 40px;">
+    <button onclick="location.href='/'">홈으로 가기</button>
+    <button onclick="location.href='/mypage'">주문 내역 보기</button>
+</div>
+</body>
+</html>

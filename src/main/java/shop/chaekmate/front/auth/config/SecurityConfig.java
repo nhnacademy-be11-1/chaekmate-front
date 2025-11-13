@@ -32,7 +32,8 @@ public class SecurityConfig {
                         .requestMatchers("/","/login", "/signup").permitAll()
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**", "/favicon.ico").permitAll()
                         .requestMatchers("/logout").authenticated()
-                        .anyRequest().authenticated()
+                                .anyRequest().permitAll()
+//                        .anyRequest().authenticated()
                 )
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(
