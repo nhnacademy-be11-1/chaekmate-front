@@ -16,6 +16,9 @@ public interface MemberAdaptor {
     @PostMapping(value = "/members")
     CommonResponse<Void> createMember(@RequestBody MemberCreateRequest memberCreateRequest);
 
+    @DeleteMapping(value = "/members/{memberId}")
+    CommonResponse<Void> deleteMember(@PathVariable Long memberId);
+
     @GetMapping(value = "/members/check-login-id")
     CommonResponse<Map<String, Object>> checkLoginId(@RequestParam String loginId);
 

@@ -39,11 +39,18 @@ public class MemberProxyController {
     }
 
     @DeleteMapping("/{memberId}/addresses/{addressId}")
-    public String delete(@PathVariable String memberId,
+    public String deleteAddress(@PathVariable String memberId,
                          @PathVariable String addressId,
                          RedirectAttributes redirectAttributes) {
         memberAdaptor.deleteAddress(Long.valueOf(memberId), Long.valueOf(addressId));
         redirectAttributes.addFlashAttribute("msg", "배송지가 삭제되었습니다.");
         return "redirect:/" + memberId + "/mypage";
+    }
+
+    @PostMapping("/{memberId}/withdraw")
+    public String deleteMember(@PathVariable String memberId, RedirectAttributes redirectAttributes) {
+        memberAdaptor.deleteMember(Long.valueOf(memberId));
+        redirectAttributes.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
+        return "redirect:/login";
     }
 }
