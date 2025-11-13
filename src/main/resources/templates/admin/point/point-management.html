@@ -6,6 +6,15 @@
         <div class="row px-xl-5">
             <div class="col-12">
                 <h2 class="h2 font-weight-bold text-dark mb-4">전체 포인트 정책 목록</h2>
+
+                <!-- 에러 메시지 표시 -->
+                <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${error}"></span>
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
                 <a href="#" class="btn btn-primary mb-3" data-toggle="modal" data-target="#addModal">정책 추가</a>
 
                 <div class="table-responsive">
@@ -112,15 +121,44 @@
         </div>
     </div>
 </section>
+</html>
 
 <script th:inline="javascript">
     function openEditModal(btn) {
         const type = btn.dataset.type;
         const point = btn.dataset.point;
 
+        console.log('=== openEditModal 호출 ===');
+        console.log('type:', type);
+        console.log('point:', point);
+
+        // 화면 표시용 설정 (readonly)
         document.getElementById('editType').value = type;
         document.getElementById('editPoint').value = point;
-        document.getElementById('editForm').action = '/admin/point-policies/' + type + '/update';
+
+        // Form action 설정 (URL에 type 포함)
+        const formAction = '/admin/point-policies/' + encodeURIComponent(type) + '/update';
+        document.getElementById('editForm').action = formAction;
+
+        console.log('form action 설정됨:', formAction);
     }
+
+    // jQuery ready 사용 (Bootstrap 모달과 호환성 확보)
+    $(document).ready(function() {
+        console.log('=== jQuery ready 실행 ===');
+
+        const editForm = document.getElementById('editForm');
+        if (editForm) {
+            $(editForm).on('submit', function(e) {
+                console.log('=== Form Submit 이벤트 발생 ===');
+                console.log('Form action:', this.action);
+                console.log('Form method:', this.method);
+                console.log('point value:', $('#editPoint').val());
+            });
+            console.log('=== Form submit 리스너 등록 완료 ===');
+        } else {
+            console.error('editForm을 찾을 수 없습니다!');
+        }
+    });
 </script>
-</html>
+
