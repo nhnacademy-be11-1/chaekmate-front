@@ -27,4 +27,8 @@ public interface AuthAdaptor {
 
     @PostMapping("/auth/logout")
     ResponseEntity<LogoutResponse> logout(@CookieValue(value= "accessToken", required = false) String token);
+
+    @PostMapping("/auth/refresh")
+    ResponseEntity<LoginResponse> refreshToken(
+            @org.springframework.web.bind.annotation.RequestHeader("Cookie") String cookieHeader);
 }
