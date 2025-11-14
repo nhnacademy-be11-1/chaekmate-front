@@ -3,6 +3,7 @@
       th:replace="~{layout/layout :: html(~{::section})}">
 
 <section>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <style>
         /* ------- 공통 카드 스타일 (기존 유지) ------- */
         .cm-card {
@@ -126,7 +127,7 @@
                                             </div>
                                         </div>
                                         <small class="text-muted">보유 포인트: <b
-                                                th:text="${member.remainingPoints}">12000</b>P</small>
+                                                th:text="${member.remainingPoints}">18000</b>P</small>
                                     </div>
 
                                     <!-- 포장지 -->
@@ -205,8 +206,13 @@
                         <label>배송지 선택</label>
                         <select class="custom-select" id="addressSelect" name="addressId" th:if="${addresses != null}">
                             <option value="">배송지 선택</option>
-                            <option th:each="addr : ${addresses}" th:value="${addr.id}"
-                                    th:text="${addr.label + ' - ' + addr.road + ' ' + addr.detail}"></option>
+                            <option th:each="addr : ${addresses}"
+                                    th:value="${addr.id}"
+                                    th:data-road="${addr.streetName}"
+                                    th:data-detail="${addr.detail}"
+                                    th:data-postcode="${addr.zipcode}"
+                                    th:text="${addr.memo + ' - ' + addr.streetName + ' ' + addr.detail}">
+                            </option>
                         </select>
                     </div>
 
@@ -247,12 +253,16 @@
                         <input type="hidden" name="orderNumber" th:value="${orderNumber}">
                         <input type="hidden" name="orderName" th:value="${orderItems[0].name}">
                         <input type="hidden" name="price" th:value="${summary.payableTotal}">
+                        <input type="hidden" name="pointUsed" id="point-used-hidden" th:value="${summary.pointDiscount}">
 
-                        <<div class="cm-total-row"><span>상품 합계</span><span id="sum-products" th:text="${summary.productsTotal} + '원'"></span></div>
+                        <div class="cm-total-row"><span>상품 합계</span><span id="sum-products" th:text="${summary.productsTotal} + '원'"></span></div>
                         <div class="cm-total-row"><span>쿠폰 할인</span><span id="sum-coupon" th:text="'-' + ${summary.couponDiscount} + '원'"></span></div>
                         <div class="cm-total-row"><span>포인트 사용</span><span id="sum-point" th:text="'-' + ${summary.pointDiscount} + '원'"></span></div>
                         <div class="cm-total-row"><span>포장비</span><span id="sum-wrap" th:text="${summary.wrapFeeTotal} + '원'"></span></div>
                         <div class="cm-total-row"><span>배송비</span><span id="sum-shipping" th:text="${summary.shippingFee} + '원'"></span></div>
+                        <small id="free-shipping-info" class="text-muted d-block mt-1">
+                            [[${deliveryPolicy.freeStandardAmount}]]원 이상 구매 시 무료배송
+                        </small>
                         <div class="cm-total-row cm-strong">
                             <span>총 결제금액</span><span id="sum-total" th:text="${summary.payableTotal} + '원'"></span>
                         </div>
@@ -266,8 +276,13 @@
         </div>
     </form>
 
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', () => {
+            const policy = {
+                freeStandardAmount: /*[[${deliveryPolicy.freeStandardAmount}]]*/,
+                deliveryFee: /*[[${deliveryPolicy.deliveryFee}]]*/
+            };
+
             // 숫자 포맷/파싱
             const fmt = n => (isNaN(n) ? 0 : n).toLocaleString('ko-KR') + '원';
             const num = v => {
@@ -281,7 +296,7 @@
                 couponDiscount: 0,
                 pointDiscount: 0,
                 wrapFeeTotal: 0,
-                shippingFee: 3000
+                shippingFee: policy.deliveryFee
             };
 
             // DOM 헬퍼
@@ -316,6 +331,12 @@
                 const checkedWrap = $('.wrap-radio:checked');
                 summary.wrapFeeTotal = checkedWrap ? num(checkedWrap.value) : 0;
 
+                // 배송비 계산
+                summary.shippingFee =
+                    summary.productsTotal >= policy.freeStandardAmount
+                        ? 0
+                        : policy.deliveryFee;
+
                 // 5) 총 결제금액
                 const total =
                     summary.productsTotal
@@ -332,16 +353,35 @@
                     el.textContent = prefix ? prefix + text : text;
                 };
 
-                set('sum-products', summary.productsTotal);
-                set('sum-coupon', summary.couponDiscount, '', '-');
-                set('sum-point', summary.pointDiscount, '', '-');
-                set('sum-wrap', summary.wrapFeeTotal);
-                set('sum-shipping', summary.shippingFee);
-                set('sum-total', total);
+                // 값 갱신
+                $('#sum-products').textContent = fmt(summary.productsTotal);
+                $('#sum-coupon').textContent = '-' + fmt(summary.couponDiscount);
+                $('#sum-point').textContent = '-' + fmt(summary.pointDiscount);
+                $('#sum-wrap').textContent = fmt(summary.wrapFeeTotal);
+                $('#sum-shipping').textContent = fmt(summary.shippingFee);
+                $('#sum-total').textContent = fmt(total);
+                // set('sum-products', summary.productsTotal);
+                // set('sum-coupon', summary.couponDiscount, '', '-');
+                // set('sum-point', summary.pointDiscount, '', '-');
+                // set('sum-wrap', summary.wrapFeeTotal);
+                // set('sum-shipping', summary.shippingFee);
+                // set('sum-total', total);
 
-                // 7) 폼 전송 hidden price 동기화 (최종 결제금액 숫자)
+                const infoEl = document.getElementById('free-shipping-info');
+                if (infoEl) {
+                    if (summary.shippingFee === 0) {
+                        infoEl.textContent = '무료배송 적용됨 🎉';
+                    } else {
+                        infoEl.textContent =
+                            policy.freeStandardAmount.toLocaleString() + '원 이상 구매 시 무료배송';
+                    }
+                }
+                // 7) 폼 전송 hidden price, point 동기화 (최종 결제금액 숫자)
                 const priceHidden = $('input[name="price"]');
                 if (priceHidden) priceHidden.value = total;
+
+                const pointUsedHidden = $('input[name="pointUsed"]');
+                if (pointUsedHidden) pointUsedHidden.value = summary.pointDiscount;
             };
 
             // 이벤트 바인딩 ----------------------------
@@ -365,17 +405,64 @@
                 if (!deliveryDate.value) deliveryDate.value = deliveryDate.min;
             }
 
-            // 주소 검색(더미 팝업)
-            function findAddress() {
-                alert("📦 주소 검색 API 연결 예정 (카카오 우편번호 API 등)");
+            // 배송지 선택 시 자동 채우기
+            const addressSelect = document.getElementById("addressSelect");
+            if (addressSelect) {
+                addressSelect.addEventListener("change", (e) => {
+                    const selected = e.target.selectedOptions[0];
+                    if (!selected) return;
+
+                    const postcode = selected.dataset.postcode || "";
+                    const road = selected.dataset.road || "";
+                    const detail = selected.dataset.detail || "";
+
+                    // 폼에 반영
+                    document.getElementById("postcode").value = postcode;
+                    document.getElementById("roadAddress").value = road;
+                    document.getElementById("detailAddress").value = detail;
+
+                    console.log("[배송지 선택]", { postcode, road, detail });
+                });
             }
-            // window.findAddress = () => {
-            //     window.open(
-            //         'https://www.juso.go.kr/addrlink/addrLinkUrl.do?link=https://www.epost.go.kr/',
-            //         'addrPopup',
-            //         'width=600,height=600,scrollbars=yes'
-            //     );
-            // };
+
+            // 주소 검색
+            window.findAddress = function() {
+                new daum.Postcode({
+                    oncomplete: function(data) {
+                        // 주요 데이터 추출
+                        const roadAddr = data.roadAddress;    // 도로명 주소
+                        const jibunAddr = data.jibunAddress;  // 지번 주소
+                        const zonecode = data.zonecode;       // 우편번호
+                        const buildingName = data.buildingName || '';
+
+                        // 입력 필드 채우기
+                        document.getElementById("postcode").value = zonecode;
+                        document.getElementById("roadAddress").value = roadAddr;
+
+                        // 상세 주소 입력칸으로 포커스 이동
+                        document.getElementById("detailAddress").focus();
+
+                        const detailInput = document.getElementById("detailAddress");
+                        if (detailInput) {
+                            detailInput.value = "";     // 기존 값 제거
+                            detailInput.focus();        // 커서 이동
+                        }
+
+                        const select = document.getElementById("addressSelect");
+                        if (select) {
+                            select.value = "";
+                        }
+
+                        // 콘솔 확인용
+                        console.log("선택된 주소:", {
+                            도로명주소: roadAddr,
+                            지번주소: jibunAddr,
+                            건물명: buildingName,
+                            우편번호: zonecode
+                        });
+                    }
+                }).open();
+            };
 
             // 쿠폰 변경 -> 재계산
             $$('.coupon-select').forEach(sel => {

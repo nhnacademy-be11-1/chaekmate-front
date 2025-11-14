@@ -37,13 +37,14 @@ public class SecurityConfig {
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
                         .requestMatchers("/payments/**").permitAll() // 결제 페이지
+                        .requestMatchers("/orders/**").permitAll()
                         .requestMatchers("/members/**").permitAll()     // 회원 비회원 경로 수정
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
                                 "/favicon.ico")
                         .permitAll()
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
-                        .requestMatchers("/order").authenticated() // 주문 페이지
+//                        .requestMatchers("/order").authenticated() // 주문 페이지
                         // 나머지는 인증 필요
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
