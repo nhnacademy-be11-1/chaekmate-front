@@ -20,7 +20,7 @@ public class MemberController {
 
     @GetMapping("/signup")
     public String signupView(){
-        return "/member/signup";
+        return "member/signup";
     }
 
     @PostMapping("/members")
@@ -30,12 +30,12 @@ public class MemberController {
         return "redirect:/login";
     }
 
-    @GetMapping("/{memberId}/mypage")
+    @GetMapping("/members/{memberId}/mypage")
     public String mypageView(@PathVariable String memberId, Model model){
         List<MemberAddressResponse> addresses = memberService.getAddressesByMemberId(memberId);
         model.addAttribute("memberId", memberId);
         model.addAttribute("addresses", addresses == null ? java.util.List.of() : addresses);
         model.addAttribute("addressCreateRequest", new AddressCreateRequest("", "", "", 0));
-        return "/member/mypage";
+        return "member/mypage";
     }
 }
