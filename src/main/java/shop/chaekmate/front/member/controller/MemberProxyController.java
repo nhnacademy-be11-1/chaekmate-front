@@ -49,7 +49,7 @@ public class MemberProxyController {
                 redirectAttributes.addFlashAttribute("msg", "주소 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }
         }
-        return "redirect:/" + memberId + "/mypage";
+        return "redirect:/members/" + memberId + "/mypage";
     }
 
     @DeleteMapping("/{memberId}/addresses/{addressId}")
@@ -58,7 +58,7 @@ public class MemberProxyController {
                          RedirectAttributes redirectAttributes) {
         memberAdaptor.deleteAddress(Long.valueOf(memberId), Long.valueOf(addressId));
         redirectAttributes.addFlashAttribute("msg", "배송지가 삭제되었습니다.");
-        return "redirect:/" + memberId + "/mypage";
+        return "redirect:/members/" + memberId + "/mypage";
     }
 
     @PostMapping("/{memberId}/withdraw")
