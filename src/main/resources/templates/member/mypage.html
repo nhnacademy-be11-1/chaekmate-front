@@ -8,8 +8,11 @@
                 <div class="bg-light p-30">
                     <h2 class="mb-4">마이페이지</h2>
 
-                    <!-- 시스템 메시지 -->
-                    <div th:if="${msg != null}" class="alert alert-success" th:text="${msg}">처리되었습니다.</div>
+                    <!-- 시스템 메시지: 화면에는 안 보이게 숨겨두고 JS에서 alert로 띄움 -->
+                    <div id="systemMsg"
+                         th:if="${msg != null}"
+                         th:text="${msg}"
+                         style="display:none;"></div>
 
                     <!-- 등급: 아직 DB 미정이므로 기본값 -->
                     <div class="mb-4">
@@ -175,7 +178,6 @@
                                    id="memo"
                                    maxlength="100"
                                    placeholder="우리집 등">
-                            <!-- memo는 선택값이니까 에러 표시 안 해도 무방 -->
                         </div>
 
                         <!-- 서버 제출용 숨김 필드 -->
@@ -222,8 +224,8 @@
             const roadOk   = road.length > 0;
 
             if (zipOk && roadOk) {
-                streetHidden.value  = road; // ★ 서버로 보낼 도로명 세팅
-                zipcodeHidden.value = zip;  // ★ 서버로 보낼 우편번호 세팅
+                streetHidden.value  = road;
+                zipcodeHidden.value = zip;
             } else {
                 streetHidden.value  = "";
                 zipcodeHidden.value = "";
@@ -231,7 +233,6 @@
 
             submitBtn.disabled = !(zipOk && detailOk && roadOk);
         }
-
 
         btnPostcode && btnPostcode.addEventListener('click', function () {
             new daum.Postcode({
@@ -256,6 +257,17 @@
 
         // 초기 비활성화 유지
         validate();
+
+        // ★ 시스템 메시지를 알림창으로 표시
+        document.addEventListener('DOMContentLoaded', function () {
+            const msgEl = document.getElementById('systemMsg');
+            if (msgEl) {
+                const text = msgEl.textContent.trim();
+                if (text.length > 0) {
+                    alert(text);
+                }
+            }
+        });
     </script>
 </section>
 </html>
