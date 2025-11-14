@@ -20,17 +20,17 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <tr th:if="${pointHistory.totalElements == 0}">
+                        <tr th:if="${pointHistory == null or pointHistory.totalElements == 0}">
                             <td colspan="6" class="text-center">포인트 이력이 없습니다.</td>
                         </tr>
-                        <tr th:each="history : ${pointHistory.content}">
-                            <td th:text="${history.customerId}"></td>
-                            <td th:text="${history.changedPoint > 0 ? '+' + history.changedPoint : history.changedPoint}"
-                                th:classappend="${history.changedPoint > 0 ? 'text-success' : 'text-danger'}"></td>
-                            <td th:text="${history.remainingPoint}"></td>
-                            <td th:text="${history.earnedType}"></td>
-                            <td th:text="${history.usedType != null ? history.usedType : '-'}"></td>
-                            <td th:text="${#temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss')}"></td>
+                        <tr th:if="${pointHistory != null}" th:each="history : ${pointHistory.content}">
+                            <td th:text="${history.member != null ? history.member : '-'}"></td>
+                            <td th:text="${history.type == 'EARN' ? '+' + history.point : '-' + history.point}"
+                                th:classappend="${history.type == 'EARN' ? 'text-success' : 'text-danger'}"></td>
+                            <td>-</td>
+                            <td th:text="${history.type}"></td>
+                            <td th:text="${history.source}"></td>
+                            <td th:text="${history.createdAt != null ? #temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
                         </tr>
                         </tbody>
                     </table>
