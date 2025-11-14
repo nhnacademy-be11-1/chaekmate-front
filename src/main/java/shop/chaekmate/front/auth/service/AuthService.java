@@ -30,4 +30,8 @@ public class AuthService {
     public ResponseEntity<LogoutResponse> logout(String token) {
         return authAdaptor.logout(token);
     }
+
+    public ResponseEntity<LoginResponse> refreshToken(String refreshToken) {
+        String cookieHeader = "refreshToken=" + refreshToken;
+        return authAdaptor.refreshToken(cookieHeader);    }
 }
