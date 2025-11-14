@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+    <title>마이페이지</title>
+</head>
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-10 mb-5 mx-auto">
+                <div class="bg-light p-30">
+                    <h2 class="mb-4">마이페이지</h2>
+
+                    <!-- 시스템 메시지: 화면에는 안 보이게 숨겨두고 JS에서 alert로 띄움 -->
+                    <div id="systemMsg"
+                         th:if="${msg != null}"
+                         th:text="${msg}"
+                         style="display:none;"></div>
+
+                    <!-- 등급: 아직 DB 미정이므로 기본값 -->
+                    <div class="mb-4">
+                        <h4 class="mb-3">내 등급</h4>
+                        <div class="p-3 border rounded bg-white">
+                            <p class="mb-1"><strong>등급:</strong> <span>BRONZE</span></p>
+                            <p class="mb-1"><strong>포인트 적립률:</strong> <span>0%</span></p>
+                        </div>
+                    </div>
+
+                    <!-- 주소 목록 + 추가 버튼 -->
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h4 class="mb-0">배송지</h4>
+                        <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addressModal">
+                            주소 추가
+                        </button>
+                    </div>
+
+                    <!-- 주소 목록 -->
+                    <div class="list-group mb-4" id="addressList">
+                        <!-- 주소 없을 때 -->
+                        <div class="list-group-item"
+                             th:if="${addresses == null or #lists.isEmpty(addresses)}">
+                            등록된 배송지가 없습니다.
+                        </div>
+
+                        <!-- 주소 있을 때 -->
+                        <div class="list-group-item d-flex justify-content-between align-items-center"
+                             th:each="addr : ${addresses}">
+                            <div>
+                                <!-- 도로명 + 우편번호 -->
+                                <div>
+                                    <span th:text="${addr.streetName}">세종대로 110</span>
+                                    <span class="text-muted ml-1"
+                                          th:text="${'(' + addr.zipcode + ')'}">(06236)</span>
+                                </div>
+
+                                <!-- 상세주소 -->
+                                <div class="small text-muted"
+                                     th:text="${addr.detail}">상세 주소</div>
+
+                                <!-- 메모: 있을 때만 표시 -->
+                                <div class="small text-muted"
+                                     th:if="${addr.memo != null and !#strings.isEmpty(addr.memo)}">
+                                    <span class="badge badge-secondary mr-1">메모</span>
+                                    <span th:text="${addr.memo}">문 앞에 놔주세요</span>
+                                </div>
+                            </div>
+
+                            <!-- 삭제 버튼 -->
+                            <div class="d-flex">
+                                <form th:action="@{|/members/${memberId}/addresses/${addr.id}|}"
+                                      method="post"
+                                      class="d-inline"
+                                      onsubmit="return confirm('이 배송지를 삭제하시겠습니까?');">
+                                    <input type="hidden" name="_method" value="delete"/>
+                                    <input type="hidden"
+                                           th:if="${_csrf != null}"
+                                           th:name="${_csrf.parameterName}"
+                                           th:value="${_csrf.token}"/>
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">삭제</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 탈퇴 -->
+                    <div class="p-3 border rounded bg-white">
+                        <p class="mb-3">
+                            탈퇴 시 계정이 비활성화(또는 삭제)되며 복구가 불가할 수 있습니다.
+                        </p>
+                        <form method="post"
+                              th:action="@{|/members/${memberId}/withdraw|}"
+                              onsubmit="return confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-outline-danger">회원 탈퇴</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 주소 추가 모달 -->
+    <div class="modal fade" id="addressModal" tabindex="-1"
+         role="dialog" aria-labelledby="addressModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <!-- addressCreateRequest 바인딩 -->
+                <form id="addressForm" method="post"
+                      th:action="@{|/members/${memberId}/addresses|}"
+                      th:object="${addressCreateRequest}" novalidate>
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addressModalLabel">주소 추가</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+
+                    <div class="modal-body">
+                        <input type="hidden"
+                               th:if="${_csrf != null}"
+                               th:name="${_csrf.parameterName}"
+                               th:value="${_csrf.token}"/>
+
+                        <!-- 도로명 검색 -->
+                        <div class="form-group">
+                            <label for="roadAddress" class="form-label">도로명 주소</label>
+                            <div class="input-group">
+                                <!-- 화면에 보이는 도로명 (readonly) -->
+                                <input type="text" class="form-control"
+                                       id="roadAddress"
+                                       placeholder="주소 찾기 버튼으로 검색"
+                                       readonly>
+                                <div class="input-group-append">
+                                    <button type="button"
+                                            class="btn btn-primary"
+                                            id="btnPostcode">
+                                        주소 찾기
+                                    </button>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">
+                                지번은 허용되지 않습니다. 도로명 주소를 선택해주세요.
+                            </small>
+                        </div>
+
+                        <!-- 우편번호 (표시용) -->
+                        <div class="form-group">
+                            <label for="zipcode" class="form-label">우편번호</label>
+                            <input type="text" class="form-control"
+                                   id="zipcode"
+                                   placeholder="5자리" readonly>
+                        </div>
+
+                        <!-- 상세주소 -->
+                        <div class="form-group">
+                            <label th:for="*{detail}" class="form-label">상세 주소</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{detail}"
+                                   id="detail"
+                                   maxlength="100"
+                                   placeholder="동/호수 등"
+                                   required>
+                            <small class="text-danger"
+                                   th:if="${#fields.hasErrors('detail')}"
+                                   th:errors="*{detail}">
+                                error
+                            </small>
+                        </div>
+
+                        <!-- 메모(선택) -->
+                        <div class="form-group">
+                            <label th:for="*{memo}" class="form-label">메모(선택)</label>
+                            <input type="text"
+                                   class="form-control"
+                                   th:field="*{memo}"
+                                   id="memo"
+                                   maxlength="100"
+                                   placeholder="우리집 등">
+                        </div>
+
+                        <!-- 서버 제출용 숨김 필드 -->
+                        <input type="hidden" th:field="*{streetName}" id="streetHidden">
+                        <input type="hidden" th:field="*{zipcode}" id="zipcodeHidden">
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button"
+                                class="btn btn-outline-dark"
+                                data-dismiss="modal">
+                            취소
+                        </button>
+                        <button type="submit"
+                                id="btnSubmit"
+                                class="btn btn-primary"
+                                disabled>
+                            등록
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- 카카오(다음) 우편번호 -->
+    <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script>
+        const btnPostcode   = document.getElementById('btnPostcode');
+        const roadEl        = document.getElementById('roadAddress');
+        const zipEl         = document.getElementById('zipcode');
+        const detailEl      = document.getElementById('detail');
+        const submitBtn     = document.getElementById('btnSubmit');
+        const streetHidden  = document.getElementById('streetHidden');
+        const zipcodeHidden = document.getElementById('zipcodeHidden');
+
+        function validate() {
+            const zip    = zipEl.value.trim();
+            const detail = detailEl.value.trim();
+            const road   = roadEl.value.trim();
+
+            const zipOk    = /^[0-9]{5}$/.test(zip);
+            const detailOk = detail.length > 0 && detail.length <= 100;
+            const roadOk   = road.length > 0;
+
+            if (zipOk && roadOk) {
+                streetHidden.value  = road;
+                zipcodeHidden.value = zip;
+            } else {
+                streetHidden.value  = "";
+                zipcodeHidden.value = "";
+            }
+
+            submitBtn.disabled = !(zipOk && detailOk && roadOk);
+        }
+
+        btnPostcode && btnPostcode.addEventListener('click', function () {
+            new daum.Postcode({
+                oncomplete: function (data) {
+                    if (data.userSelectedType !== 'R') {
+                        alert('지번 주소는 사용할 수 없습니다. 도로명 주소를 선택하세요.');
+                        return;
+                    }
+                    zipEl.value  = data.zonecode;
+                    roadEl.value = data.roadAddress;
+                    detailEl.focus();
+                    validate();
+                }
+            }).open();
+        });
+
+        if (detailEl) {
+            for (const evt of ['input', 'change']) {
+                detailEl.addEventListener(evt, validate);
+            }
+        }
+
+        // 초기 비활성화 유지
+        validate();
+
+        // ★ 시스템 메시지를 알림창으로 표시
+        document.addEventListener('DOMContentLoaded', function () {
+            const msgEl = document.getElementById('systemMsg');
+            if (msgEl) {
+                const text = msgEl.textContent.trim();
+                if (text.length > 0) {
+                    alert(text);
+                }
+            }
+        });
+    </script>
+</section>
+</html>

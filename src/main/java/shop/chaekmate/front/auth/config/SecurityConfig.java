@@ -37,6 +37,7 @@ public class SecurityConfig {
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
                         .requestMatchers("/payments/**").permitAll() // 결제 페이지
+                        .requestMatchers("/members/**").permitAll()     // 회원 비회원 경로 수정
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
                                 "/favicon.ico")
                         .permitAll()

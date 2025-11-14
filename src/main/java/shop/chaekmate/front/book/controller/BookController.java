@@ -1,5 +1,7 @@
 package shop.chaekmate.front.book.controller;
 
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -8,7 +10,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
-import shop.chaekmate.front.category.adaptor.CategoryAdaptor;
+import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
+import shop.chaekmate.front.book.dto.response.BookImageResponse;
+import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -18,7 +22,7 @@ import shop.chaekmate.front.common.CommonResponse;
 public class BookController {
 
     private final BookAdaptor bookAdaptor;
-    private final CategoryAdaptor categoryAdaptor;
+    private final BookImageAdaptor bookImageAdaptor;
 
     @GetMapping("/categories/{categoryId}")
     public String getBookByCategory(
@@ -42,10 +46,18 @@ public class BookController {
     @GetMapping("/books/{bookId}")
     public String getBookDetail(@PathVariable Long bookId, Model model) {
         CommonResponse<BookDetailResponse> response = bookAdaptor.getBookById(bookId);
-
         BookDetailResponse bookDetailResponse = response.data();
 
+        CommonResponse<BookThumbnailResponse> thumbnailResponse = bookImageAdaptor.getBookThumbnail(bookId);
+        BookThumbnailResponse thumbnail = thumbnailResponse.data();
+
+        CommonResponse<List<BookImageResponse>> detailImagesResponse = bookImageAdaptor.getBookDetailImages(bookId);
+        List<BookImageResponse> detailImages = detailImagesResponse.data() != null ? detailImagesResponse.data() : Collections.emptyList();
+
+
         model.addAttribute("book", bookDetailResponse);
+        model.addAttribute("thumbnail", thumbnail);
+        model.addAttribute("detailImages", detailImages);
         model.addAttribute("title", bookDetailResponse.title());
 
         return "book/book-detail";

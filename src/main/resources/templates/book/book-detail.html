@@ -32,7 +32,6 @@
       padding: 20px 0;
       border: 1px solid #dee2e6;
       border-top: none;
-      padding: 20px;
       white-space: pre-wrap; /* 줄 바꿈 유지 */
     }
 
@@ -60,9 +59,8 @@
     <div class="row px-xl-5">
       <div class="col-lg-5 mb-30">
         <img class="book-detail-img"
-             th:src="${book.imageUrl ?: '/img/no-image.jpeg'}"
-             th:alt="${book.title}"
-             onerror="this.src='/img/no-image.jpeg'; this.onerror=null;">
+             th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
+             th:alt="${book.title}">
 
         <div class="d-flex justify-content-center mt-3">
           <a href="#" class="btn btn-outline-danger mr-2" title="찜하기">
@@ -168,6 +166,12 @@
               <h4 class="mb-3">도서 상세 정보</h4>
               <div th:utext="${book.description ?: '등록된 상세 설명이 없습니다.'}">
                 등록된 상세 설명이 없습니다.
+              </div>
+              <div th:if="${!detailImages.isEmpty()}" class="mt-4">
+                <h5 class="mb-3">상세 이미지</h5>
+                <div th:each="image : ${detailImages}" class="mb-3 text-center">
+                  <img th:src="${image.imageUrl()}" th:alt="${book.title + ' 상세 이미지'}" class="img-fluid" style="max-width: 100%; height: auto;">
+                </div>
               </div>
             </div>
 
