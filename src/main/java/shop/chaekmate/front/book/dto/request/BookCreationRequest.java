@@ -1,10 +1,9 @@
-package shop.chaekmate.front.book.dto.response;
+package shop.chaekmate.front.book.dto.request;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record AdminBookResponse(
-        Long id,
+public record BookCreationRequest(
         String title,
         String index,
         String description,
@@ -14,11 +13,11 @@ public record AdminBookResponse(
         String isbn,
         Long price,
         Long salesPrice,
-        String imageUrl, // 썸네일
-        boolean isWrappable,
-        boolean isSaleEnd,
+        String thumbnailUrl,
+        List<String> newDetailImageUrls,
+        Boolean isWrappable,
+        Boolean isSaleEnd,
         Long stock,
-        Long views,
         List<Long> categoryIds,
         List<Long> tagIds
 ) {
