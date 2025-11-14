@@ -1,5 +1,6 @@
 package shop.chaekmate.front.member.controller;
 
+import feign.FeignException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class MemberProxyController {
 
     private final MemberAdaptor memberAdaptor;
+    private static final int MAX_ADDRESS_COUNT = 10;
 
     @ResponseBody
     @GetMapping("/check-login-id")
@@ -30,11 +32,23 @@ public class MemberProxyController {
     }
 
     @PostMapping("/{memberId}/addresses")
-    public String create(@PathVariable String memberId,
+    public String createAddress(@PathVariable String memberId,
                          @Valid @ModelAttribute("addressCreateRequest") AddressCreateRequest request,
                          RedirectAttributes redirectAttributes) {
-        memberAdaptor.createAddress(Long.valueOf(memberId), request); // core 호출
-        redirectAttributes.addFlashAttribute("msg", "배송지가 등록되었습니다.");
+        try {
+            memberAdaptor.createAddress(Long.valueOf(memberId), request); // core 호출
+
+            redirectAttributes.addFlashAttribute("msg", "배송지가 등록되었습니다.");
+        } catch (FeignException e) {
+            // 상태코드로 주소 개수 초과 구분 (400/409 등 프로젝트에 맞게)
+            int status = e.status();
+
+            if (status == 400 || status == 409) {
+                redirectAttributes.addFlashAttribute("msg", "배송지는 최대 " +  MAX_ADDRESS_COUNT + "개까지 등록할 수 있습니다.");
+            } else {
+                redirectAttributes.addFlashAttribute("msg", "주소 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+            }
+        }
         return "redirect:/" + memberId + "/mypage";
     }
 
