@@ -1,4 +1,4 @@
-name: Core CI-CD with Maven
+name: Front CI-CD with Maven
 
 on:
   push:
@@ -13,11 +13,20 @@ jobs:
 
     env:
       SPRING_PROFILES_ACTIVE: prod  # prod 프로파일 우선 적용
-      DOMAIN: ${{ secrets.DOMAIN_NAME }}
+      DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
       PORT_NUMBER: ${{ secrets.PORT_NUMBER }}
       MINIO_ID: ${{ secrets.MINIO_ID }}
       MINIO_PASSWORD: ${{ secrets.PASSWORD }}
+      REDIS_HOST: ${{ secrets.REDIS_HOST }}
+      REDIS_PORT: ${{ secrets.REDIS_PORT }}
+      REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
+      REDIS_RANGE: ${{ secrets.REDIS_RANGE }}
       GATEWAY_URL: ${{ secrets.GATEWAY_URL }}
+      MINIO_URL: ${{ secrets.MINIO_URL }}
+      MINIO_ACCESS_KEY: ${{ secrets.MINIO_ID }}
+      MINIO_SECRET_KEY: ${{ secrets.MINIO_PASSWORD }}
+      MINIO_BUCKET_NAME: ${{ secrets.MINIO_BUCKET_NAME }}
+      CHAEKMATE_IMAGE_URL: ${{ secrets.CHAEKMATE_IMAGE_URL }}
 
     steps:
       # Step.1 코드 체크아웃
@@ -61,7 +70,7 @@ jobs:
       - name: Rename JAR File
         run: |
           TIMESTAMP=$(TZ="Asia/Seoul" date +%Y%m%d-%H%M%S)
-          NEW_JAR_NAME="${DOMAIN}-${TIMESTAMP}.jar"
+          NEW_JAR_NAME="${DOMAIN_NAME}-${TIMESTAMP}.jar"
           mv target/*.jar target/$NEW_JAR_NAME
           echo "NEW_JAR_NAME=$NEW_JAR_NAME" >> $GITHUB_ENV
 
@@ -74,7 +83,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           source: "target/${{ env.NEW_JAR_NAME }}"
-          target: "/home/backend/be11-team1/${{ env.DOMAIN }}/"
+          target: "/home/backend/be11-team1/${{ secrets.DOMAIN_NAME }}/"
           strip_components: 1 # 폴더 구조 무시하고 파일만 업로드
           rm: false # 기존 파일 (중복 파일) 존재 시 덮어쓰기
 
@@ -87,9 +96,19 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            export DOMAIN="${{ env.DOMAIN }}"
-            export PORT_NUMBER="${{ env.PORT_NUMBER }}"
+            export DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}"
+            export PORT_NUMBER="${{ secrets.PORT_NUMBER }}"
             export MINIO_ID="${{ secrets.MINIO_ID }}"
             export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
+            export REDIS_HOST="${{ secrets.REDIS_HOST }}"
+            export REDIS_PORT="${{ secrets.REDIS_PORT }}"
+            export REDIS_PASSWORD="${{ secrets.REDIS_PASSWORD }}"
+            export REDIS_RANGE="${{ secrets.REDIS_RANGE }}"
             export GATEWAY_URL="${{ secrets.GATEWAY_URL }}"
+            export MINIO_URL="${{ secrets.MINIO_URL }}"
+            export MINIO_ACCESS_KEY="${{ secrets.MINIO_ID }}"
+            export MINIO_SECRET_KEY="${{ secrets.MINIO_PASSWORD }}"
+            export MINIO_BUCKET_NAME="${{ secrets.MINIO_BUCKET_NAME }}"
+            export CHAEKMATE_IMAGE_URL="${{ secrets.CHAEKMATE_IMAGE_URL }}"
+  
             bash -lc ./startup.sh

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>주문서 작성</title>
+</head>
+<body>
+<h2>주문서 페이지</h2>
+
+<form action="/payments" method="post">
+    <label>주문번호:</label>
+    <input type="text" name="orderNumber" value="zMC4yMjA0NDQzNjU3" required><br><br>
+
+    <label>상품명:</label>
+    <input type="text" name="orderName" value="책 이름" required><br><br>
+
+    <label>결제금액:</label>
+    <input type="number" name="price" value="29800" required><br><br>
+
+    <button type="submit">결제 페이지로 이동</button>
+</form>
+
+</body>
+</html>

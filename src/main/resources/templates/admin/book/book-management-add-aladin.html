@@ -46,7 +46,7 @@
                             <td th:text="${book.isbn}"></td>
                             <td>
                                 <a class="btn btn-sm btn-primary"
-                                   th:href="@{/admin/books/new(title=${book.title}, author=${book.author}, isbn=${book.isbn}, publishedDate=${book.publishedAt}, description=${book.description}, price=${book.price}, salesPrice=${book.salesPrice}, imageUrl=${book.coverImage})}">이
+                                   th:href="@{/admin/books/new(title=${book.title}, author=${book.author}, isbn=${book.isbn}, publishedDate=${book.publishedAt}, description=${book.description}, price=${book.price}, salesPrice=${book.salesPrice}, thumbnailUrl=${book.coverImage})}">이
                                     책으로<br>등록</a>
                             </td>
                         </tr>

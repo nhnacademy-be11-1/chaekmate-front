@@ -6,100 +6,143 @@
         <div class="row px-xl-5">
             <div class="col-12">
                 <h2 class="h2 font-weight-bold text-dark mb-4">새 도서 추가</h2>
-                <form th:action="@{/admin/books}" th:object="${bookCreateRequest}" method="post">
-                    <div class="form-group">
-                        <label for="title">제목</label>
-                        <input type="text" class="form-control" id="title" th:field="*{title}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="author">저자</label>
-                        <input type="text" class="form-control" id="author" th:field="*{author}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="publisher">출판사</label>
-                        <input type="text" class="form-control" id="publisher" th:field="*{publisher}" >
-                    </div>
-                    <div class="form-group">
-                        <label for="isbn">ISBN</label>
-                        <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="publishedAt">출판일</label>
-                        <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}" >
-                    </div>
-                    <div class="form-group">
-                        <label for="price">정가</label>
-                        <input type="number" class="form-control" id="price" th:field="*{price}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="salesPrice">판매가</label>
-                        <input type="number" class="form-control" id="salesPrice" th:field="*{salesPrice}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="stock">재고</label>
-                        <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="imageUrl">이미지 URL</label>
-                        <input type="text" class="form-control" id="imageUrl" th:field="*{imageUrl}" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="index">목차</label>
-                        <textarea class="form-control" id="index" rows="5" th:field="*{index}" ></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">설명</label>
-                        <textarea class="form-control" id="description" rows="5" th:field="*{description}" ></textarea>
-                    </div>
-                    <div class="form-check">
-                        <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
-                        <label class="form-check-label" for="isWrappable">포장 가능</label>
-                    </div>
-                    <div class="form-check mb-3">
-                        <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="*{isSaleEnd}">
-                        <label class="form-check-label" for="isSaleEnd">판매 종료</label>
-                    </div>
 
-                    <!-- Category Selector -->
-                    <div class="form-group">
-                        <label for="categoryIds">카테고리</label>
-                        <div class="border p-2 mb-2 bg-light">
-                            <strong>선택된 카테고리:</strong>
-                            <span id="selected-category-names">없음</span>
-                        </div>
-                        <input type="hidden" id="categoryIds" name="categoryIds">
-                        <div id="category-tree-container"
-                             class="category-selector border p-3"
-                             style="max-height: 400px; overflow-y: auto;"
-                             th:attr="data-initial-ids='', data-initial-names=''">
-                            <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
+                <form th:action="@{/admin/books}" th:object="${bookCreationRequest}" method="post">
+
+                    <!-- Thumbnail Management -->
+                    <div class="card mb-4">
+                        <div class="card-header"><h5 class="mb-0">썸네일 이미지</h5></div>
+                        <div class="card-body">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <img id="thumbnail-preview"
+                                         th:src="${bookCreationRequest.thumbnailUrl() != null ? bookCreationRequest.thumbnailUrl() : '/img/no-image.jpeg'}"
+                                         class="img-fluid rounded"
+                                         alt="Thumbnail Preview"
+                                         style="max-height: 250px;">
+                                </div>
+                                <div class="col-md-9">
+                                    <div class="form-group">
+                                        <label for="thumbnail-upload-input">썸네일 파일 선택</label>
+                                        <input type="file" class="form-control-file" id="thumbnail-upload-input" accept="image/*">
+                                        <small id="thumbnail-status" class="form-text"></small>
+                                        <input type="hidden" id="new-thumbnail-url" name="thumbnailUrl" th:field="*{thumbnailUrl}">
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Tag Selector -->
-                    <div class="form-group">
-                        <label for="tagIds">태그</label>
-                        <div class="border p-2 mb-2 bg-light">
-                            <strong>선택된 태그:</strong>
-                            <span id="selected-tag-names">없음</span>
-                        </div>
-                        <input type="hidden" id="tagIds" name="tagIds">
-                        <div id="tag-tree-container"
-                             class="tag-selector border p-3"
-                             style="max-height: 400px; overflow-y: auto;"
-                             th:attr="data-initial-ids='', data-initial-names=''">
-                            <div th:replace="~{fragments/tag-tree :: tagTree(tags=${tags})}"></div>
+                    <!-- Detail Image Management -->
+                    <div class="card mb-4">
+                        <div class="card-header"><h5 class="mb-0">상세 이미지</h5></div>
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="detail-image-upload-input">추가할 이미지 파일 선택</label>
+                                <input type="file" class="form-control-file" id="detail-image-upload-input" accept="image/*">
+                                <small id="detail-image-status" class="form-text"></small>
+                            </div>
+                            <div id="new-detail-images-preview-container" class="row mt-3"></div>
                         </div>
                     </div>
 
-                    <div class="card-footer">
-                        <a th:href="@{/admin/books}" class="btn btn-secondary">목록으로</a>
-                        <button type="submit" class="btn btn-primary">도서 등록</button>
+                    <!-- Main Book Info -->
+                    <div class="card">
+                        <div class="card-header"><h5 class="mb-0">도서 정보</h5></div>
+                        <div class="card-body">
+                            <!-- Container for hidden URL inputs for detail images -->
+                            <div id="new-detail-urls-container">
+                                <!-- Hidden inputs for detailImageUrls will be added here by JS -->
+                            </div>
+
+                            <div class="form-group">
+                                <label for="title">제목</label>
+                                <input type="text" class="form-control" id="title" th:field="*{title}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="author">저자</label>
+                                <input type="text" class="form-control" id="author" th:field="*{author}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="publisher">출판사</label>
+                                <input type="text" class="form-control" id="publisher" minlength="1" maxlength="100" th:field="*{publisher}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="isbn">ISBN</label>
+                                <input type="text" class="form-control" id="isbn" th:field="*{isbn}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="publishedAt">출판일</label>
+                                <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">정가</label>
+                                <input type="number" class="form-control" id="price" th:field="*{price}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="salesPrice">판매가</label>
+                                <input type="number" class="form-control" id="salesPrice" th:field="*{salesPrice}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="stock">재고</label>
+                                <input type="number" class="form-control" id="stock" th:field="*{stock}" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="index">목차</label>
+                                <div id ="index-editor"></div>
+                                <input type="hidden" id="index" name="index" th:value="*{index}" />
+                            </div>
+                            <div class="form-group">
+                                <label for="description">설명</label>
+                                <div id="description-editor"></div>
+                                <input type="hidden" id="description" name="description" th:value="*{description}" />
+                            </div>
+                            <div class="form-check">
+                                <input type="checkbox" id="isWrappable" name="isWrappable" class="form-check-input" th:field="*{isWrappable}">
+                                <label class="form-check-label" for="isWrappable">포장 가능</label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input type="checkbox" id="isSaleEnd" name="isSaleEnd" class="form-check-input" th:field="*{isSaleEnd}">
+                                <label class="form-check-label" for="isSaleEnd">판매 종료</label>
+                            </div>
+
+                            <!-- Category Selector -->
+                            <div class="form-group">
+                                <label for="categoryIds">카테고리</label>
+                                <div class="border p-2 mb-2 bg-light">
+                                    <strong>선택된 카테고리:</strong>
+                                    <span id="selected-category-names">없음</span>
+                                </div>
+                                <input type="hidden" id="categoryIds" name="categoryIds">
+                                <div id="category-tree-container" class="category-selector border p-3" style="max-height: 400px; overflow-y: auto;"
+                                     th:attr="data-initial-ids='', data-initial-names=''">
+                                    <div th:replace="~{fragments/category-tree :: categoryTree(categories=${categories})}"></div>
+                                </div>
+                            </div>
+
+                            <!-- Tag Selector -->
+                            <div class="form-group">
+                                <label for="tagIds">태그</label>
+                                <div class="border p-2 mb-2 bg-light">
+                                    <strong>선택된 태그:</strong>
+                                    <span id="selected-tag-names">없음</span>
+                                </div>
+                                <input type="hidden" id="tagIds" name="tagIds">
+                                <div id="tag-tree-container" class="tag-selector border p-3" style="max-height: 400px; overflow-y: auto;"
+                                     th:attr="data-initial-ids='', data-initial-names=''">
+                                    <div th:replace="~{fragments/tag-tree :: tagTree(tags=${tags})}"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <a th:href="@{/admin/books}" class="btn btn-secondary">목록으로</a>
+                            <button type="submit" class="btn btn-primary">도서 등록</button>
+                        </div>
                     </div>
                 </form>
             </div>
         </div>
     </div>
-
+    <script th:src="@{/js/image-upload.js}"></script>
 </section>
 </html>
