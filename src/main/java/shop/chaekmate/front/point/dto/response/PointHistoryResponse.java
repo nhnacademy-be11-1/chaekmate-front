@@ -1,11 +1,12 @@
 package shop.chaekmate.front.point.dto.response;
 
-import java.lang.reflect.Member;
+import java.time.LocalDateTime;
 
 public record PointHistoryResponse (
         Long id,
-        String member,
+        Long member,
         String type,
         int point,
-        String source
+        String source,
+        LocalDateTime createdAt
 ){ }

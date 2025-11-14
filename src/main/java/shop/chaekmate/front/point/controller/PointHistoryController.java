@@ -30,6 +30,8 @@ public class PointHistoryController {
             return "admin/point/point-histories-management";
         } catch (Exception e) {
             log.error("포인트 히스토리 페이지 로드 실패", e);
+            // 에러 발생 시에도 빈 Page 객체를 추가하여 템플릿 에러 방지
+            model.addAttribute("pointHistory", Page.empty());
             model.addAttribute("error", "페이지 로드 중 오류가 발생했습니다: " + e.getMessage());
             return "admin/point/point-histories-management";
         }

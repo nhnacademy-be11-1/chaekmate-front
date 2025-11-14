@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.point.adaptor.PointHistoryAdaptor;
 import shop.chaekmate.front.point.dto.response.PointHistoryResponse;
+import shop.chaekmate.front.point.dto.response.PointResponse;
 
 @Service
 @RequiredArgsConstructor
@@ -16,6 +17,18 @@ public class PointHistoryService {
     public Page<PointHistoryResponse> getAllPointHistory(Pageable pageable) {
         CommonResponse<Page<PointHistoryResponse>> response =
                 pointHistoryAdaptor.getAllPointHistory(pageable);
+        return response.data();
+    }
+
+    public Page<PointHistoryResponse> getMemberPointHistory(Long memberId, Pageable pageable) {
+        CommonResponse<Page<PointHistoryResponse>> response =
+                pointHistoryAdaptor.getMemberPointHistory(memberId, pageable);
+        return response.data();
+    }
+
+    public PointResponse getMemberPoint(Long memberId) {
+        CommonResponse<PointResponse> response =
+                pointHistoryAdaptor.getMemberPoint(memberId);
         return response.data();
     }
 }
