@@ -20,6 +20,8 @@ public class AuthController {
 
     private static final String REDIRECT_HOME = "redirect:/";
     private static final String REDIRECT_LOGIN_ERROR = "redirect:/login?error=true";
+    private static final String REDIRECT_ADMIN_LOGIN_ERROR = "redirect:/admin/login?error=true";
+    private static final String REDIRECT_ADMIN_HOME = "redirect:/admin";
 
     private final AuthService authService;
 
@@ -33,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public String  login(@RequestParam String loginId,
+    public String login(@RequestParam String loginId,
                          @RequestParam String password,
                          HttpServletResponse response) {
         try {
@@ -56,6 +58,42 @@ public class AuthController {
             }
         } catch (Exception e) {
             return REDIRECT_LOGIN_ERROR;
+        }
+    }
+
+    @GetMapping("/admin/login")
+    public String adminLogin(@RequestParam(required = false, name = "error") String errorParam, Model model) {
+        model.addAttribute("title", "관리자 로그인 - Chaekmate");
+        if (errorParam != null) {
+            model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
+        }
+        return "admin/login";
+    }
+
+    @PostMapping("/admin/login")
+    public String adminLogin(@RequestParam String loginId,
+                             @RequestParam String password,
+                             HttpServletResponse response) {
+        try {
+            LoginRequest request = new LoginRequest(loginId, password);
+            ResponseEntity<LoginResponse> gatewayResponse = authService.adminLogin(request);
+
+            // Set-Cookie 헤더 추출하여 브라우저에 전달하려고
+            if (gatewayResponse.getHeaders().containsKey(HttpHeaders.SET_COOKIE)) {
+                List<String> cookieHeaders = gatewayResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+                if (cookieHeaders != null) {
+                    cookieHeaders.forEach(cookieHeader -> response.addHeader(HttpHeaders.SET_COOKIE, cookieHeader));
+                }
+            }
+
+            // 200대로 성공 여부 확인함
+            if (gatewayResponse.getStatusCode().is2xxSuccessful()) {
+                return REDIRECT_ADMIN_HOME;
+            } else {
+                return REDIRECT_ADMIN_LOGIN_ERROR;
+            }
+        } catch (Exception e) {
+            return REDIRECT_ADMIN_LOGIN_ERROR;
         }
     }
 }

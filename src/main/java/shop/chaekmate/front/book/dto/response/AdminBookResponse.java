@@ -14,7 +14,7 @@ public record AdminBookResponse(
         String isbn,
         Long price,
         Long salesPrice,
-        String imageUrl,
+        String imageUrl, // 썸네일
         boolean isWrappable,
         boolean isSaleEnd,
         Long stock,
