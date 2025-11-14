@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <h2 class="h2 font-weight-bold text-dark mb-4">포인트 히스토리 관리</h2>
+
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mt-4">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th>회원 ID</th>
+                            <th>변동 포인트</th>
+                            <th>잔여 포인트</th>
+                            <th>적립/차감 유형</th>
+                            <th>사용처</th>
+                            <th>생성일시</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${pointHistory == null or pointHistory.totalElements == 0}">
+                            <td colspan="6" class="text-center">포인트 이력이 없습니다.</td>
+                        </tr>
+                        <tr th:if="${pointHistory != null}" th:each="history : ${pointHistory.content}">
+                            <td th:text="${history.member != null ? history.member : '-'}"></td>
+                            <td th:text="${history.type == 'EARN' ? '+' + history.point : '-' + history.point}"
+                                th:classappend="${history.type == 'EARN' ? 'text-success' : 'text-danger'}"></td>
+                            <td>-</td>
+                            <td th:text="${history.type}"></td>
+                            <td th:text="${history.source}"></td>
+                            <td th:text="${history.createdAt != null ? #temporals.format(history.createdAt, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 -->
+                <nav aria-label="Page navigation" th:if="${pointHistory.totalPages > 0}">
+                    <ul class="pagination justify-content-center">
+                        <!-- 이전 페이지 -->
+                        <li class="page-item" th:classappend="${pointHistory.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/point-histories(page=${pointHistory.number - 1}, size=${pointHistory.size})}"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <!-- 페이지 번호 -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, pointHistory.totalPages - 1)}"
+                            th:classappend="${i == pointHistory.number} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/point-histories(page=${i}, size=${pointHistory.size})}"
+                               th:text="${i + 1}"></a>
+                        </li>
+
+                        <!-- 다음 페이지 -->
+                        <li class="page-item" th:classappend="${pointHistory.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/point-histories(page=${pointHistory.number + 1}, size=${pointHistory.size})}"
+                               aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- 페이지 정보 -->
+                <div class="text-center mt-3" th:if="${pointHistory.totalPages > 0}">
+                    <p>
+                        총 <span th:text="${pointHistory.totalElements}"></span>건 |
+                        <span th:text="${pointHistory.number + 1}"></span> / <span th:text="${pointHistory.totalPages}"></span> 페이지
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>

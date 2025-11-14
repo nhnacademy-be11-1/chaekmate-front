@@ -7,7 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import shop.chaekmate.front.book.adaptor.AdminBookAdaptor;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
+import shop.chaekmate.front.book.dto.request.BookCreationRequest;
+import shop.chaekmate.front.book.dto.request.BookModificationRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
+import shop.chaekmate.front.book.dto.response.AdminBookCreateResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookDetail;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
@@ -22,6 +25,7 @@ public class AdminBookService {
     private final AdminBookAdaptor adminBookAdaptor;
     private final CategoryService categoryService;
     private final TagService tagService;
+    private final BookImageService bookImageService;
 
     public List<AdminBookResponse> getRecentCreatedBooks(int limit){
         CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(limit);
@@ -37,19 +41,46 @@ public class AdminBookService {
     }
 
     // 도서 추가
-    public void createBook(BookCreateRequest request){
+    public void createBook(BookCreationRequest request){
 
-        adminBookAdaptor.createBook(request);
+
+        // 도서 엔티티 추가
+        CommonResponse<AdminBookCreateResponse> response = adminBookAdaptor.createBook(BookCreateRequest.of(request));
+        Long bookId = response.data().id();
+
+        // 섬네일 이미지 추가
+        if(request.thumbnailUrl() != null && !request.thumbnailUrl().trim().isBlank()) {
+            bookImageService.createBookThumbnail(bookId, request.thumbnailUrl());
+        }
+
+        // 상세 이미지 추가
+        if(request.newDetailImageUrls() != null && !request.newDetailImageUrls().isEmpty()){
+            request.newDetailImageUrls().forEach(imageUrl -> bookImageService.addBookImage(bookId, imageUrl));
+        }
 
     }
 
     // 도서 수정
-    public void modifyBookByBookDetail(Long bookId, AdminBookDetail adminBookDetail){
+    public void modifyBookByRequest(Long bookId , BookModificationRequest modificationRequest){
+        // 도서 엔티티 수정 요청
+        BookModifyRequest modifyRequest = BookModifyRequest.of(modificationRequest);
+        adminBookAdaptor.modifyBookById(bookId, modifyRequest);
 
-        BookModifyRequest request = BookModifyRequest.of(adminBookDetail);
+        // 도서 썸네일 수정
+        if(modificationRequest.newThumbnailUrl() !=  null && !modificationRequest.newThumbnailUrl().isBlank()) {
+            bookImageService.updateBookThumbnail(bookId, modificationRequest.newThumbnailUrl());
+        }
 
-        adminBookAdaptor.modifyBookById(bookId, request);
+        // 도서 상세 이미지 추가
+        if(modificationRequest.newDetailImageUrls() != null && !modificationRequest.newDetailImageUrls().isEmpty()) {
+            modificationRequest.newDetailImageUrls()
+                    .forEach(imageUrl -> bookImageService.addBookImage(bookId, imageUrl));
+        }
 
+        // 도서 상세 이미지 삭제
+        if(modificationRequest.deletedImageIds() != null && !modificationRequest.deletedImageIds().isEmpty()){
+            modificationRequest.deletedImageIds().forEach(imageId -> bookImageService.deleteBookImage(bookId, imageId));
+        }
     }
 
     // 도서 삭제

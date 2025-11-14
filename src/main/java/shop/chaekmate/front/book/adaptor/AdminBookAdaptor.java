@@ -8,6 +8,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
+import shop.chaekmate.front.book.dto.response.AdminBookCreateResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
 import shop.chaekmate.front.common.CommonResponse;
@@ -29,7 +30,7 @@ public interface AdminBookAdaptor {
 
     // 도서 생성 요청
     @PostMapping("/books")
-    CommonResponse<Void> createBook(@RequestBody BookCreateRequest bookCreateRequest);
+    CommonResponse<AdminBookCreateResponse> createBook(@RequestBody BookCreateRequest bookCreateRequest);
 
     // 도서 삭제 요청
     @DeleteMapping("/books/{bookId}")

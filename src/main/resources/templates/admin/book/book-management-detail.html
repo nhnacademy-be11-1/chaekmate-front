@@ -10,7 +10,9 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
-                                <img th:src="${book.imageUrl}" class="img-fluid" alt="Thumbnail">
+                                <img th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
+                                     class="img-fluid"
+                                     alt="Thumbnail">
                             </div>
                             <div class="col-md-8">
                                 <p><strong>ID:</strong> <span th:text="${book.id}"></span></p>
@@ -24,16 +26,24 @@
                                 <p><strong>태그:</strong> <span th:text="${#strings.listJoin(book.tagNames(), ', ')}"></span></p>
                                 <hr>
                                 <p><strong>설명:</strong></p>
-                                <p th:text="${book.description}"></p>
+                                <p th:utext="${book.description}"></p>
                             </div>
                         </div>
                         <hr>
                         <h4 class="h4">상세 이미지</h4>
                         <div class="row">
-                            <div class="col-md-3 mb-3" th:each="imageUrl : ${book.imageUrl}">
-                                <img th:src="${imageUrl}" class="img-fluid" alt="Detail">
+                            <div class="col-md-3 mb-3" th:each="imageUrl : ${detailImages}">
+                                <img th:src="${imageUrl.imageUrl()}" class="img-fluid" alt="Detail">
                             </div>
                         </div>
+
+                        <hr>
+                        <h4 class="h4">목차</h4>
+                        <div class="row">
+                            <div class="col-12" style="max-height: 400px; overflow-y: auto;"
+                                 th:utext="${book.index ?: '등록된 목차가 없습니다.'}"></div>
+                        </div>
+
                     </div>
                     <div class="card-footer">
                         <a th:href="@{/admin/books}" class="btn btn-secondary">목록으로</a>
