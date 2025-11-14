@@ -55,6 +55,14 @@ public class AdminBookController {
         return "admin/book/book-management-add-direct";
     }
 
+    // 알라딘 도서 등록 도서 추가 페이지 뷰 반환
+    @PostMapping("/admin/books/new-aladin")
+    public String bookManagementAddWithAladin(@ModelAttribute BookCreationRequest bookCreationRequest,
+                                              Model model){
+
+        return bookManagementAddDirectView(bookCreationRequest, model);
+    }
+
     // 관리자 알라딘 도서 검색 뷰
     @GetMapping("/admin/books/aladin")
     public String bookManagementAddAladinView(
