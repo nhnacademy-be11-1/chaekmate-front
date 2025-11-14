@@ -1,6 +1,7 @@
 package shop.chaekmate.front.search.controller;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -13,6 +14,7 @@ import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.search.adaptor.SearchAdaptor;
 import shop.chaekmate.front.search.dto.SearchResultResponse;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class SearchController {
