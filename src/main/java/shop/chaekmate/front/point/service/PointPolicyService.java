@@ -42,9 +42,15 @@ public class PointPolicyService {
             }
             PointPolicyCreateRequest request = new PointPolicyCreateRequest(earnedType, point);
             pointPolicyAdaptor.createPointPolicy(request);
+        } catch (FeignException.Conflict e) {
+            log.error("중복된 포인트 정책: {}", earnedType);
+            throw new RuntimeException("이미 존재하는 포인트 정책입니다.");
+        } catch (FeignException.BadRequest e) {
+            log.error("잘못된 요청: {}", e.getMessage());
+            throw new RuntimeException("잘못된 요청입니다. 입력값을 확인해주세요.");
         } catch (FeignException e) {
-            log.error("포인트 정책 생성 실패: {}", e.getMessage(), e);
-            throw new RuntimeException("포인트 정책 생성에 실패했습니다.", e);
+            log.error("포인트 정책 생성 실패 (상태코드: {}): {}", e.status(), e.getMessage(), e);
+            throw new RuntimeException("포인트 정책 생성에 실패했습니다.");
         }
     }
 
@@ -62,7 +68,7 @@ public class PointPolicyService {
             PointPolicyUpdateRequest request = new PointPolicyUpdateRequest(type, point);
             pointPolicyAdaptor.updatePointPolicy(type, request);
         } catch (FeignException e) {
-            log.error("포인트 정책 수정 실패: {}", e.getMessage(), e);
+            log.error("포인트 정책 수정 실패 (상태코드: {}): {}", e.status(), e.getMessage(), e);
             throw new RuntimeException("포인트 정책 수정에 실패했습니다.", e);
         }
     }
