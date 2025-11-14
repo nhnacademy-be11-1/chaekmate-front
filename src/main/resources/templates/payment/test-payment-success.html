@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="icon" href="https://static.toss.im/icons/png/4x/icon-toss-logo.png"/>
+    <link rel="stylesheet" th:href="@{/css/toss-style.css}"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>결제 완료</title>
+</head>
+<body>
+<div class="box_section" style="width: 640px">
+    <img width="100px" src="https://static.toss.im/illusts/check-blue-spot-ending-frame.png"/>
+    <h2>결제가 완료되었습니다 🎉</h2>
+
+    <!-- 주문 기본 정보 -->
+    <div class="p-grid typography--p" style="margin-top: 16px">
+        <div class="p-grid-col text--left"><b>주문번호</b></div>
+        <div class="p-grid-col text--right" th:text="${approveResponse.orderId}"></div>
+    </div>
+
+    <!-- 결제 방식 표시: 포인트 전액 / 혼합결제 / 토스 단독 -->
+    <div class="p-grid typography--p" style="margin-top: 8px">
+        <div class="p-grid-col text--left"><b>결제방식</b></div>
+        <div class="p-grid-col text--right">
+            <span th:if="${approveResponse.totalAmount == 0}">포인트 전액 결제</span>
+            <span th:if="${approveResponse.totalAmount > 0 and approveResponse.pointUsed > 0}">혼합결제 (TOSS + POINT)</span>
+            <span th:if="${approveResponse.totalAmount > 0 and approveResponse.pointUsed == 0}">TOSS</span>
+        </div>
+    </div>
+
+    <!-- 금액 요약: 총 주문금액 = 토스결제 + 포인트 -->
+    <div class="p-grid typography--p" style="margin-top: 24px">
+        <div class="p-grid-col text--left"><b>총 주문금액</b></div>
+        <div class="p-grid-col text--right"
+             th:text="${#numbers.formatInteger(approveResponse.totalAmount + approveResponse.pointUsed, 0, 'COMMA')} + '원'"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 8px" th:if="${approveResponse.pointUsed > 0}">
+        <div class="p-grid-col text--left"><b>포인트 사용</b></div>
+        <div class="p-grid-col text--right"
+             th:text="'-' + ${#numbers.formatInteger(approveResponse.pointUsed, 0, 'COMMA')} + '원'"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 8px">
+        <div class="p-grid-col text--left"><b>TOSS 결제금액</b></div>
+        <div class="p-grid-col text--right"
+             th:text="${#numbers.formatInteger(approveResponse.totalAmount, 0, 'COMMA')} + '원'"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 8px">
+        <div class="p-grid-col text--left"><b>승인 상태</b></div>
+        <div class="p-grid-col text--right" th:text="${approveResponse.status}"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 8px">
+        <div class="p-grid-col text--left"><b>승인 시각</b></div>
+        <div class="p-grid-col text--right"
+             th:text="${#temporals.format(approveResponse.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></div>
+    </div>
+</div>
+
+<div class="box_section" style="width: 640px; text-align: left; margin-top: 40px;">
+    <button onclick="location.href='/'">홈으로 가기</button>
+    <button onclick="location.href='/mypage'">주문 내역 보기</button>
+</div>
+</body>
+</html>

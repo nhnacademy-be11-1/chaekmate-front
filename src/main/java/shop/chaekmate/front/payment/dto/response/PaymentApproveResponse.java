@@ -6,9 +6,9 @@ public record PaymentApproveResponse(
 
         String orderId,
 
-//        String paymentKey,
-
         long totalAmount,
+
+        int pointUsed,
 
         String status,
 
