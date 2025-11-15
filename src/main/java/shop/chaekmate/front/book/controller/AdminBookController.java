@@ -22,6 +22,7 @@ import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
 import shop.chaekmate.front.book.service.BookImageService;
+import shop.chaekmate.front.common.StringToLocalDateTime;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
 
@@ -58,7 +59,10 @@ public class AdminBookController {
     // 알라딘 도서 등록 도서 추가 페이지 뷰 반환
     @PostMapping("/admin/books/new-aladin")
     public String bookManagementAddWithAladin(@ModelAttribute BookCreationRequest bookCreationRequest,
+                                              @RequestParam(value="publishedAtString") String publishedAtString,
                                               Model model){
+
+        bookCreationRequest.setPublishedAt(StringToLocalDateTime.parseToLocalDateTime(publishedAtString));
 
         return bookManagementAddDirectView(bookCreationRequest, model);
     }

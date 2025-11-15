@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
 <section>
+
     <div class="container-fluid">
         <div class="row px-xl-5">
             <div class="col-12">
@@ -16,7 +17,7 @@
                             <div class="row align-items-center">
                                 <div class="col-md-3">
                                     <img id="thumbnail-preview"
-                                         th:src="${bookCreationRequest.thumbnailUrl() != null ? bookCreationRequest.thumbnailUrl() : '/img/no-image.jpeg'}"
+                                         th:src="${bookCreationRequest.getThumbnailUrl() != null ? bookCreationRequest.getThumbnailUrl() : '/img/no-image.jpeg'}"
                                          class="img-fluid rounded"
                                          alt="Thumbnail Preview"
                                          style="max-height: 250px;">
@@ -73,7 +74,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="publishedAt">출판일</label>
-                                <input type="datetime-local" class="form-control" id="publishedAt" th:field="*{publishedAt}">
+                                <input type="text" th:field="*{publishedAt}" id="publishedAt"
+                                       class="flatpickr-input form-control datetime-picker" readonly>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button type="button" id="changePublishedAtBtn" class="btn btn-dark datetime-changer">바꾸기</button>
+                                    <button type="button" id="clearPublishedAtBtn" class="btn btn-danger ml-2 datetime-clear">초기화</button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="price">정가</label>
@@ -109,6 +115,12 @@
                             <!-- Category Selector -->
                             <div class="form-group">
                                 <label for="categoryIds">카테고리</label>
+                                <!-- 알라딘 카테고리 참고용 표시 -->
+                                <div class="mb-2 text-muted" th:if="${bookCreationRequest.getAladinCategoryName() != null}">
+                                    <strong>참고용 알라딘 카테고리:</strong>
+                                    <span th:text="${bookCreationRequest.getAladinCategoryName()}"></span>
+                                </div>
+
                                 <div class="border p-2 mb-2 bg-light">
                                     <strong>선택된 카테고리:</strong>
                                     <span id="selected-category-names">없음</span>
@@ -143,6 +155,6 @@
             </div>
         </div>
     </div>
-    <script th:src="@{/js/image-upload.js}"></script>
+
 </section>
 </html>
