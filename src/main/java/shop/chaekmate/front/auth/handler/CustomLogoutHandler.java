@@ -27,9 +27,10 @@ public class CustomLogoutHandler implements LogoutHandler {
         String accessToken = CookieUtil.extractAccessTokenFromCookie(request);
 
         // Auth Server에 logout 요청 (Redis에서 RefreshToken 삭제)
-        if (accessToken != null && !accessToken.trim().isEmpty()) {
+        String refreshToken = CookieUtil.extractRefreshTokenFromCookie(request);
+        if (accessToken != null && refreshToken != null) {
             try {
-                authService.logout(accessToken);
+                authService.logout(accessToken, refreshToken);
             } catch (Exception e) {
                 log.warn("로그아웃 중 Auth Server 호출 실패: {}", e.getMessage());
             }
