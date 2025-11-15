@@ -39,7 +39,7 @@ public class SecurityConfig {
                         .requestMatchers("/payments/**").permitAll() // 결제 페이지
                         .requestMatchers("/members/**").permitAll()     // 회원 비회원 경로 수정
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
-                                "/favicon.ico")
+                                "/favicon.ico","/mail/**", "/scss/**") // resources/static 아래 경로들 추가
                         .permitAll()
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
