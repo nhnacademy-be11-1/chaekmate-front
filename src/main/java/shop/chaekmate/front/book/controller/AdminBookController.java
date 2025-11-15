@@ -66,7 +66,7 @@ public class AdminBookController {
 
         // 알라딘 썸네일 이미지 고화질으로 변경
         String thumbnailUrl = bookCreationRequest.getThumbnailUrl();
-        String upscaledUrl = thumbnailUrl.replace("/cover/","/cover500/");
+        String upscaledUrl = thumbnailUrl.replaceAll("/cover[^/]*?/", "/cover500/");
         bookCreationRequest.setThumbnailUrl(upscaledUrl);
 
         return bookManagementAddDirectView(bookCreationRequest, model);
