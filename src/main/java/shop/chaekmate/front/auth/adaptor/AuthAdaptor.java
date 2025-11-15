@@ -27,7 +27,8 @@ public interface AuthAdaptor {
     );
 
     @PostMapping("/auth/logout")
-    ResponseEntity<LogoutResponse> logout(@CookieValue(value= "accessToken", required = false) String token);
+    ResponseEntity<LogoutResponse> logout(@CookieValue(value= "accessToken", required = false) String accessToken,
+                                          @CookieValue(value = "refreshToken", required = false) String refreshToken);
 
     @PostMapping("/auth/refresh")
     ResponseEntity<LoginResponse> refreshToken(@CookieValue("refreshToken") String refreshToken);
