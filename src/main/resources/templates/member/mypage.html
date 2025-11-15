@@ -17,12 +17,27 @@
                          th:text="${msg}"
                          style="display:none;"></div>
 
-                    <!-- 등급: 아직 DB 미정이므로 기본값 -->
+                    <!-- 등급 -->
                     <div class="mb-4">
-                        <h4 class="mb-3">내 등급</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">내 등급</h4>
+                            <!-- 등급 기준 보기 버튼 -->
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-toggle="modal"
+                                    data-target="#gradeModal">
+                                등급 기준 보기
+                            </button>
+                        </div>
                         <div class="p-3 border rounded bg-white">
-                            <p class="mb-1"><strong>등급:</strong> <span>BRONZE</span></p>
-                            <p class="mb-1"><strong>포인트 적립률:</strong> <span>0%</span></p>
+                            <p class="mb-1">
+                                <strong>등급:</strong>
+                                <span th:text="${memberGrade.name}"></span>
+                            </p>
+                            <p class="mb-1">
+                                <strong>포인트 적립률:</strong>
+                                <span th:text="${memberGrade.pointRate + '%'}"></span>
+                            </p>
                         </div>
                     </div>
 
@@ -98,6 +113,68 @@
                         </form>
                     </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 등급 기준 모달 -->
+    <div class="modal fade" id="gradeModal" tabindex="-1"
+         role="dialog" aria-labelledby="gradeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gradeModalLabel">회원 등급 기준</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-2">
+                        회원 등급은 <strong>최근 3개월 누적 순수 주문 금액</strong>을 기준으로 산정됩니다.
+                    </p>
+                    <p class="small text-muted mb-3">
+                        순수 주문 금액 =
+                        주문금액 − (쿠폰 + 배송비 + 취소금액 + 포장비)
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered mb-0 text-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>등급</th>
+                                <th>포인트 적립률</th>
+                                <th>승급 기준 금액<br>(최근 3개월 순수 주문 금액)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- gradePolicies: List<GradePolicy> 같은 형태라고 가정 -->
+                            <tr th:each="g : ${grades}">
+                                <td th:text="${g.name}">BRONZE</td>
+                                <td th:text="${g.pointRate + '%'}">1%</td>
+                                <td th:text="${#numbers.formatInteger(g.upgradeStandardAmount, 0, 'COMMA') + '원 이상'}">
+                                    100,000원 이상
+                                </td>
+                            </tr>
+
+                            <!-- 등급 정보가 없을 때 -->
+                            <tr th:if="${grades == null or #lists.isEmpty(grades)}">
+                                <td colspan="3" class="text-muted">
+                                    등록된 등급 기준 정보가 없습니다.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-dark"
+                            data-dismiss="modal">
+                        닫기
+                    </button>
                 </div>
             </div>
         </div>
