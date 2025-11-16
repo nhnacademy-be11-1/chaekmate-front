@@ -27,8 +27,17 @@ public class AdminBookService {
     private final TagService tagService;
     private final BookImageService bookImageService;
 
+    // 최근 추가된 도서 조회
     public List<AdminBookResponse> getRecentCreatedBooks(int limit){
         CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(limit);
+
+        return wrappedResponse.data();
+    }
+
+    // 관리자 도서 목록 조회
+    public Page<AdminBookResponse> getAdminBookPaged(Pageable pageable, String sortType, String keyword){
+
+        CommonResponse<Page<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getAdminBooksPaged(pageable.getPageNumber(),pageable.getPageSize(),sortType,keyword);
 
         return wrappedResponse.data();
     }

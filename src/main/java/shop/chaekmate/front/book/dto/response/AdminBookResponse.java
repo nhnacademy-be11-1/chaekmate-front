@@ -20,6 +20,7 @@ public record AdminBookResponse(
         Long stock,
         Long views,
         List<Long> categoryIds,
-        List<Long> tagIds
+        List<Long> tagIds,
+        Integer reviewCount
 ) {
 }

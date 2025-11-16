@@ -36,10 +36,18 @@ public class AdminBookController {
 
     // 도서 관리자 페이지 뷰
     @GetMapping("/admin/books")
-    public String bookManagementView(Model model) {
+    public String bookManagementView(@PageableDefault(size=5) Pageable pageable,
+                                     @RequestParam(defaultValue = "RECENT") String sortType,
+                                     @RequestParam(required = false) String keyword,
+                                     Model model) {
 
         List<AdminBookResponse> recentBooks = adminBookService.getRecentCreatedBooks(5);
         model.addAttribute("recentBooks", recentBooks);
+
+        Page<AdminBookResponse> pagedBooks = adminBookService.getAdminBookPaged(pageable,sortType,keyword);
+        model.addAttribute("pagedBooks",pagedBooks);
+        model.addAttribute("sortType", sortType);
+        model.addAttribute("keyword",keyword);
 
         return "admin/book/book-management";
     }
