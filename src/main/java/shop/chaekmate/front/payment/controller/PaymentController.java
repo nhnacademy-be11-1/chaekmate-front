@@ -36,9 +36,8 @@ public class PaymentController {
     @GetMapping("/success")
     public String success(@ModelAttribute PaymentCallbackRequest request, Model model) {
         try {
-            long amount = Long.parseLong(request.amount());
             CommonResponse<PaymentApproveResponse> approveResponse = paymentAdaptor.approve(
-                    new PaymentApproveRequest("TOSS", request.paymentKey(), request.orderId(), amount)
+                    new PaymentApproveRequest("TOSS", request.orderId(), request.amount(), request.pointUsed())
             );
 
             model.addAttribute("approveResponse", approveResponse.data());
