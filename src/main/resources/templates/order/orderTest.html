@@ -3,89 +3,9 @@
       th:replace="~{layout/layout :: html(~{::section})}">
 
 <section>
+    <link rel="stylesheet" th:href="@{/css/order.css}"/>
     <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script src="https://js.tosspayments.com/v2/standard"></script>
-    <style>
-        /* ------- 공통 카드 스타일 (기존 유지) ------- */
-        .cm-card {
-            background: var(--light);
-            border: 1px solid rgba(0, 0, 0, .06);
-            border-radius: .25rem;
-        }
-
-        .cm-section-title {
-            position: relative;
-            display: inline-block;
-            padding: .25rem .75rem;
-            background: var(--secondary);
-            color: var(--dark);
-            text-transform: uppercase;
-        }
-
-        .cm-total-row {
-            display: flex;
-            justify-content: space-between;
-            padding: .25rem 0;
-        }
-
-        .cm-total-row.cm-strong {
-            border-top: 1px solid rgba(0, 0, 0, .1);
-            margin-top: .5rem;
-            padding-top: .75rem;
-            font-weight: 600;
-        }
-
-        .cm-wrap-tile {
-            border: 1px solid rgba(0, 0, 0, .08);
-            border-radius: .25rem;
-            padding: .5rem;
-            cursor: pointer;
-        }
-
-        .cm-wrap-tile.active {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(255, 211, 51, .25);
-        }
-
-        @keyframes cm-shine {
-            0% {
-                background-position: 200% 0
-            }
-            100% {
-                background-position: -200% 0
-            }
-        }
-
-        .sticky-wrapper {
-            position: relative;
-        }
-
-        @media (min-width: 992px) {
-            .sticky-box {
-                position: sticky;
-                top: 100px;
-            }
-        }
-
-        #paymentModal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 9999;
-        }
-
-        #paymentModal .modal-content {
-            width: 420px;
-            margin: 80px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-        }
-    </style>
 
     <div class="container-fluid">
         <div class="row px-xl-5">
@@ -155,11 +75,11 @@
                                         <label class="mb-1 d-block">포장지 선택</label>
                                         <div class="d-flex">
                                             <label class="cm-wrap-tile mr-2">
-                                                <input type="radio" name="wrap" value="0" class="sr-only wrap-radio">
+                                                <input type="radio" name="wrap_${idx.index}" value="0" class="sr-only wrap-radio">
                                                 <span>기본 (무료)</span>
                                             </label>
                                             <label class="cm-wrap-tile">
-                                                <input type="radio" name="wrap" value="1500" class="sr-only wrap-radio">
+                                                <input type="radio" name="wrap_${idx.index}" value="1500" class="sr-only wrap-radio">
                                                 <span>선물 포장 (+1,500원)</span>
                                             </label>
                                         </div>
@@ -195,7 +115,7 @@
                             <label>이메일</label>
                             <input type="email" class="form-control" id="ordererEmail" name="ordererEmail"
                                    th:value="${member.email}">
-                            <small class="form-text text-muted">Dooray 메시지 전송용</small>
+                            <small class="form-text text-muted">* Dooray 메시지 전송용</small>
                         </div>
                     </div>
 
@@ -270,11 +190,11 @@
                     <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">결제 정보</span></h5>
                     <div class="cm-card p-3">
                         <!-- 서버에서 생성된 주문번호를 hidden으로 -->
-                        <input type="hidden" name="orderNumber" th:value="${orderNumber}">
-                        <input type="hidden" name="orderName" th:value="${orderItems[0].name}">
-                        <input type="hidden" name="price" th:value="${summary.payableTotal}">
-                        <input type="hidden" name="pointUsed" id="point-used-hidden"
-                               th:value="${summary.pointDiscount}">
+                        <input type="hidden" id="orderNumber" name="orderNumber" th:value="${orderNumber}">
+                        <input type="hidden" id="orderName" name="orderName" th:value="${orderItems[0].name}">
+                        <input type="hidden" id="price" name="price" th:value="${summary.payableTotal}">
+                        <input type="hidden" id="pointUsed" th:value="${summary.pointDiscount}">
+
 
                         <div class="cm-total-row"><span>상품 합계</span><span id="sum-products"
                                                                           th:text="${summary.productsTotal} + '원'"></span>
@@ -306,29 +226,23 @@
             </div>
         </div>
     </form>
-    <div id="paymentModal"
-         style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999;">
-
-        <div style="width:420px; margin:80px auto; padding:20px; background:white; border-radius:8px;">
-            <h4 class="mb-3">결제 진행</h4>
-
+    <!-- 결제 모달 -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <h4>결제 진행</h4>
             <!-- 결제 수단 UI -->
             <div id="payment-method"></div>
-
             <!-- 약관 UI -->
             <div id="agreement" class="mt-3"></div>
-
             <!-- 결제 버튼 -->
             <button id="payButton" class="btn btn-primary btn-block mt-4">결제하기</button>
-
             <!-- 취소 버튼 -->
             <button id="cancelModalBtn" class="btn btn-outline-secondary btn-block mt-2">닫기</button>
         </div>
     </div>
-
     <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', () => {
-            // 배달 정책
+            // 배송 정책
             const policy = {
                 freeStandardAmount: /*[[${deliveryPolicy.freeStandardAmount}]]*/,
                 deliveryFee: /*[[${deliveryPolicy.deliveryFee}]]*/
@@ -351,44 +265,52 @@
             };
 
             // DOM 헬퍼
-            const $ = (sel, root = document) => root.querySelector(sel);
-            const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-            // 포인트 총 최대치(보유 포인트). 행마다 data-max가 동일하다고 가정
+            // 보유 포인트 최대값 (member.remainingPoints)
             const getPointMaxTotal = () => {
                 const any = $('.point-input');
                 return any ? num(any.dataset.max || 0) : 0;
             };
 
-            // 합계 재계산(항상 전체를 다시 계산)
+            // 합계 재계산
             const recalc = () => {
-                // 1) 상품 총합: 각 행의 .subtotal 합
+                // 1) 상품 총합
                 summary.productsTotal = $$('.subtotal')
                     .map(td => num(td.textContent))
                     .reduce((a, b) => a + b, 0);
 
-                // 2) 쿠폰 합계: 선택된 옵션 값들의 합
+                // 2) 쿠폰 합계
                 summary.couponDiscount = $$('.coupon-select')
                     .map(sel => num(sel.value))
                     .reduce((a, b) => a + b, 0);
 
-                // 3) 포인트 합계: 각 입력값 합 -> 전체 보유포인트 한도로 clamp
+                // 3) 포인트 합계 (전체 보유 포인트 한도로 제한)
                 const rawPointSum = $$('.point-input')
                     .map(input => num(input.value))
                     .reduce((a, b) => a + b, 0);
                 summary.pointDiscount = Math.min(rawPointSum, getPointMaxTotal());
 
-                // 4) 포장비: 선택된 라디오 1개 값
+                // 4) 포장비
                 const checkedWrap = $('.wrap-radio:checked');
-                summary.wrapFeeTotal = checkedWrap ? num(checkedWrap.value) : 0;
+                // (각 행마다 선택된 포장지 합산)
+                summary.wrapFeeTotal = $$('.wrap-radio:checked')
+                    .map(r => {
+                        const row = r.closest('tr');
+                        const qty = num(row.querySelector('.qty').textContent);
+                        const wrapPrice = num(r.value);
+                        return qty * wrapPrice;
+                    })
+                    .reduce((a, b) => a + b, 0);
 
-                // 배송비 계산
+                // 5) 배송비 (무료배송 조건 체크)
                 summary.shippingFee =
                     summary.productsTotal >= policy.freeStandardAmount
                         ? 0
                         : policy.deliveryFee;
 
-                // 5) 총 결제금액
+                // 6) 총 결제금액
                 const total =
                     summary.productsTotal
                     - summary.couponDiscount
@@ -396,27 +318,13 @@
                     + summary.wrapFeeTotal
                     + summary.shippingFee;
 
-                // 6) 오른쪽 패널 반영
-                // const set = (id, val, prefix = '', sign = '') => {
-                //     const el = document.getElementById(id);
-                //     if (!el) return;
-                //     const text = (sign ? sign : '') + fmt(val);
-                //     el.textContent = prefix ? prefix + text : text;
-                // };
-
-                // 값 갱신
+                // 우측 요약 UI 업데이트
                 $('#sum-products').textContent = fmt(summary.productsTotal);
                 $('#sum-coupon').textContent = '-' + fmt(summary.couponDiscount);
                 $('#sum-point').textContent = '-' + fmt(summary.pointDiscount);
                 $('#sum-wrap').textContent = fmt(summary.wrapFeeTotal);
                 $('#sum-shipping').textContent = fmt(summary.shippingFee);
                 $('#sum-total').textContent = fmt(total);
-                // set('sum-products', summary.productsTotal);
-                // set('sum-coupon', summary.couponDiscount, '', '-');
-                // set('sum-point', summary.pointDiscount, '', '-');
-                // set('sum-wrap', summary.wrapFeeTotal);
-                // set('sum-shipping', summary.shippingFee);
-                // set('sum-total', total);
 
                 const infoEl = document.getElementById('free-shipping-info');
                 if (infoEl) {
@@ -427,17 +335,20 @@
                             policy.freeStandardAmount.toLocaleString() + '원 이상 구매 시 무료배송';
                     }
                 }
-                // 7) 폼 전송 hidden price, point 동기화 (최종 결제금액 숫자)
-                const priceHidden = $('input[name="price"]');
+
+                // hidden 값 동기화
+                const priceHidden = document.getElementById('price');
                 if (priceHidden) priceHidden.value = total;
 
-                const pointUsedHidden = $('input[name="pointUsed"]');
+                const pointUsedHidden = document.getElementById('pointUsed');
                 if (pointUsedHidden) pointUsedHidden.value = summary.pointDiscount;
+
+                return total;
             };
 
-            // 이벤트 바인딩 ----------------------------
+            //  주문자/수령인, 주소 관련 로직
 
-            // 주문자 동일 체크 -> 수령인 복사
+            // 주문자 정보 = 수령인 정보 복사
             const sameCheck = $('#sameAsOrderer');
             if (sameCheck) {
                 sameCheck.addEventListener('change', e => {
@@ -447,16 +358,18 @@
                 });
             }
 
-            // 배송일 min = 오늘 +3
+            // 배송일 기본값 = 오늘 + 3일
             const deliveryDate = $('#deliveryDate');
             if (deliveryDate) {
                 const today = new Date();
                 today.setDate(today.getDate() + 3);
                 deliveryDate.min = today.toISOString().split('T')[0];
-                if (!deliveryDate.value) deliveryDate.value = deliveryDate.min;
+                if (!deliveryDate.value) {
+                    deliveryDate.value = deliveryDate.min;
+                }
             }
 
-            // 배송지 선택 시 자동 채우기
+            // 저장된 배송지 선택 시 자동 채우기
             const addressSelect = document.getElementById("addressSelect");
             if (addressSelect) {
                 addressSelect.addEventListener("change", (e) => {
@@ -467,36 +380,30 @@
                     const road = selected.dataset.road || "";
                     const detail = selected.dataset.detail || "";
 
-                    // 폼에 반영
                     document.getElementById("postcode").value = postcode;
                     document.getElementById("roadAddress").value = road;
                     document.getElementById("detailAddress").value = detail;
 
-                    console.log("[배송지 선택]", {postcode, road, detail});
+                    console.log("[배송지 선택]", { postcode, road, detail });
                 });
             }
 
-            // 주소 검색
+            // 주소 검색 API
             window.findAddress = function () {
                 new daum.Postcode({
                     oncomplete: function (data) {
-                        // 주요 데이터 추출
-                        const roadAddr = data.roadAddress;    // 도로명 주소
-                        const jibunAddr = data.jibunAddress;  // 지번 주소
-                        const zonecode = data.zonecode;       // 우편번호
+                        const roadAddr = data.roadAddress;
+                        const jibunAddr = data.jibunAddress;
+                        const zonecode = data.zonecode;
                         const buildingName = data.buildingName || '';
 
-                        // 입력 필드 채우기
                         document.getElementById("postcode").value = zonecode;
                         document.getElementById("roadAddress").value = roadAddr;
 
-                        // 상세 주소 입력칸으로 포커스 이동
-                        document.getElementById("detailAddress").focus();
-
                         const detailInput = document.getElementById("detailAddress");
                         if (detailInput) {
-                            detailInput.value = "";     // 기존 값 제거
-                            detailInput.focus();        // 커서 이동
+                            detailInput.value = "";
+                            detailInput.focus();
                         }
 
                         const select = document.getElementById("addressSelect");
@@ -504,7 +411,6 @@
                             select.value = "";
                         }
 
-                        // 콘솔 확인용
                         console.log("선택된 주소:", {
                             도로명주소: roadAddr,
                             지번주소: jibunAddr,
@@ -515,12 +421,14 @@
                 }).open();
             };
 
-            // 쿠폰 변경 -> 재계산
+            //   이벤트 바인딩 (쿠폰/포인트/포장)
+
+            // 쿠폰 변경 시
             $$('.coupon-select').forEach(sel => {
                 sel.addEventListener('change', recalc);
             });
 
-            // 포인트 입력 -> 숫자 정규화 후 재계산
+            // 포인트 입력 시
             $$('.point-input').forEach(input => {
                 input.addEventListener('input', () => {
                     input.value = String(num(input.value)); // 숫자만 유지
@@ -528,57 +436,90 @@
                 });
             });
 
-            // 포장지 라디오 -> 재계산
-            $$('.wrap-radio').forEach(r => {
-                r.addEventListener('change', recalc);
+            // 포장지 선택 시
+            $$('.wrap-radio').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    const parentRow = radio.closest('td');
+                    const tiles = parentRow.querySelectorAll('.cm-wrap-tile');
+
+                    // 기존 테두리 제거
+                    tiles.forEach(t => t.classList.remove('selected'));
+
+                    // 선택된 라디오의 label에 스타일 추가
+                    radio.closest('.cm-wrap-tile').classList.add('selected');
+
+                    recalc();
+                });
             });
+
 
             // 포인트 최대 버튼
             window.useMaxPoint = (btn) => {
                 const input = btn.closest('.input-group')?.querySelector('.point-input');
                 if (!input) return;
-                const max = getPointMaxTotal();
 
-                // 현재 다른 행에서 이미 입력한 포인트 합
+                const max = getPointMaxTotal();
                 const others = $$('.point-input')
                     .filter(i => i !== input)
                     .map(i => num(i.value))
                     .reduce((a, b) => a + b, 0);
 
-                // 남은 한도만큼 현재 입력창에 세팅
                 const remain = Math.max(0, max - others);
                 input.value = remain;
                 recalc();
             };
 
-            // 초기 1회 계산
+            // 계산
             recalc();
 
-            // form submit 막고 → 결제 모달 열기
+            //   주문 submit (paymentType 분기)
             const checkoutForm = document.getElementById("checkoutForm");
             const paymentModal = document.getElementById("paymentModal");
             const cancelModalBtn = document.getElementById("cancelModalBtn");
 
-            checkoutForm.addEventListener("submit", function(e) {
+            checkoutForm.addEventListener("submit", function (e) {
                 e.preventDefault();
-                recalc(); // 최신 결제금액 반영
+                const total = recalc();
+
+                // 총 결제금액 0원 → 포인트 전액 결제
+                if (total === 0) {
+                    checkoutForm.action = "/payments/point";
+                    checkoutForm.method = "post";
+                    checkoutForm.submit();
+                    return;
+                }
+
+                // TOSS 결제 → 모달 열기
+                resetTossModal();
                 paymentModal.style.display = "block";
                 initTossPayment();
             });
 
-            cancelModalBtn.onclick = () => paymentModal.style.display = "none";
+            if (cancelModalBtn) {
+                cancelModalBtn.onclick = () => paymentModal.style.display = "none";
+                resetTossModal();
+            }
+
+            function resetTossModal() {
+                // toss 위젯 DOM 초기화
+                $("#payment-method").innerHTML = "";
+                $("#agreement").innerHTML = "";
+            }
         });
 
+        // Toss 결제 시작
         async function initTossPayment() {
-            const orderId = document.querySelector("input[name='orderNumber']").value;
-            const orderName = document.querySelector("input[name='orderName']").value;
-            const totalAmount = Number(document.querySelector("input[name='price']").value);
+            const $ = document.querySelector.bind(document);
+
+            const orderId = $('#orderNumber').value;
+            const orderName = $('#orderName').value;
+            const totalAmount = Number($('#price').value);
+            const pointUsed = $('#pointUsed').value;
 
             const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
-            const customerKey = orderId;
             const tossPayments = TossPayments(clientKey);
 
-            const widgets = tossPayments.widgets({ customerKey });
+            const widgets = tossPayments.widgets({ customerKey: orderId });
 
             await widgets.setAmount({
                 currency: "KRW",
@@ -595,24 +536,29 @@
                 variantKey: "AGREEMENT"
             });
 
-            document.getElementById("payButton").onclick = async function() {
-                await widgets.requestPayment({
-                    orderId: orderId,
-                    orderName: orderName,
-                    successUrl: window.location.origin + "/payments/success",
-                    failUrl: window.location.origin + "/payments/fail"
-                });
+            $("#payButton").onclick = async function () {
+                try{
+                    await widgets.requestPayment({
+                        orderId,
+                        orderName,
+                        // 포인트 사용량을 쿼리스트링으로 콜백에 전달
+                        successUrl: `${window.location.origin}/payments/success?pointUsed=${pointUsed}`,
+                        failUrl: `${window.location.origin}/payments/fail`
+                    });
+                }catch (err) {
+
+                    // 필수 약관 동의 안 함
+                    if (err && err.code === "NEED_AGREEMENT" || String(err.message).includes("필수")) {
+                        alert("필수 약관에 동의해야 결제가 가능합니다.");
+                        return;
+                    }
+
+                    // 그 외 토스 오류 출력
+                    console.error("결제 오류:", err);
+                    alert("결제 중 오류가 발생했습니다.\n다시 시도해주세요.");
+                }
             };
         }
-
-        // 폼 제출 시 안전 장치: 최종금액 다시 동기화
-        //     const form = document.getElementById('checkoutForm');
-        //     if (form) {
-        //         form.addEventListener('submit', () => {
-        //             recalc();
-        //         });
-        //     }
-        // });
     </script>
 
 </section>

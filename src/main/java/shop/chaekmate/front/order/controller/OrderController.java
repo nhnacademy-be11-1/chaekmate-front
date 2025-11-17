@@ -33,8 +33,7 @@ public class OrderController {
         int productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
 
         // 🏷️ 2. core 서버에서 현재 배송정책 조회
-        var response = orderAdaptor.getCurrentPolicy();
-        DeliveryPolicyResponse policy = response.data();
+        DeliveryPolicyResponse policy = orderAdaptor.getCurrentPolicy().data();
 
         // 🚚 3. 배송비 계산 (무료배송 기준 반영)
         int shippingFee = (productsTotal >= policy.freeStandardAmount()) ? 0 : policy.deliveryFee();

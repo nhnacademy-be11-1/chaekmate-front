@@ -8,6 +8,8 @@ public record PaymentApproveRequest(
         @NotBlank(message = "결제 수단 선택은 필수 값입니다.")
         String paymentType,
 
+        String paymentKey,
+
         @NotBlank(message = "주문 번호는 필수 입력 값입니다.")
         String orderId,
 
