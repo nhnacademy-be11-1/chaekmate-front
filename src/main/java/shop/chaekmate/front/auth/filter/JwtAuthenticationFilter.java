@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -33,6 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
 
         String accessToken = CookieUtil.extractAccessTokenFromCookie(request);
+        String refreshToken = CookieUtil.extractRefreshTokenFromCookie(request);
+
+        if(accessToken == null && refreshToken == null) {
+            clearSecurityContext();
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         if (accessToken != null) {
             try {
@@ -80,7 +88,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleTokenRefresh(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = CookieUtil.extractRefreshTokenFromCookie(request);
         if (refreshToken == null) {
-            SecurityContextHolder.clearContext();
+            clearSecurityContext();
             return;
         }
 
@@ -92,11 +100,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 if (newAccessToken != null) {
                     authenticateWithNewToken(newAccessToken);
+                } else {
+                    // 재발급 성공했지만 accessToken추출 실패하면
+                    clearSecurityContext();
                 }
             }
         } catch (Exception e) {
-            SecurityContextHolder.clearContext();
+            clearSecurityContext();
         }
+    }
+
+    private void clearSecurityContext() {
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        SecurityContextHolder.setContext(context);
     }
 
     private String extractAndSetCookies(ResponseEntity<LoginResponse> refreshResponse, HttpServletResponse response) {
@@ -131,9 +147,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (memberInfoResponse.getStatusCode().is2xxSuccessful() &&
                     memberInfoResponse.getBody() != null) {
                 setAuthentication(memberInfoResponse.getBody());
+            } else {
+                // 인증 정보 조회 실패하면
+                clearSecurityContext();
             }
         } catch (Exception e) {
-            SecurityContextHolder.clearContext();
+            clearSecurityContext();
         }
     }
 }

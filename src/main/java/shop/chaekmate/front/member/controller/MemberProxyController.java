@@ -1,11 +1,14 @@
 package shop.chaekmate.front.member.controller;
 
 import feign.FeignException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import shop.chaekmate.front.auth.service.AuthService;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
 
@@ -17,6 +20,7 @@ import java.util.Map;
 public class MemberProxyController {
 
     private final MemberAdaptor memberAdaptor;
+    private final AuthService authService;
     private static final int MAX_ADDRESS_COUNT = 10;
 
     @ResponseBody
@@ -62,8 +66,15 @@ public class MemberProxyController {
     }
 
     @PostMapping("/{memberId}/withdraw")
-    public String deleteMember(@PathVariable String memberId, RedirectAttributes redirectAttributes) {
+    public String deleteMember(@PathVariable String memberId,
+                               HttpServletRequest request,
+                               HttpServletResponse response,
+                               RedirectAttributes redirectAttributes) {
         memberAdaptor.deleteMember(Long.valueOf(memberId));
+
+        // auth 서버에서 만들어놓은 refreshToken 삭제 및 쿠키 삭제 이용하는 코드 추가
+        authService.clearAllTokens(request, response);
+
         redirectAttributes.addFlashAttribute("msg", "회원 탈퇴가 완료되었습니다.");
         return "redirect:/login";
     }
