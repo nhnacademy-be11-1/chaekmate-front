@@ -41,7 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/members").permitAll() // 회원가입은 허용
                         .requestMatchers("/members/**").authenticated() // 나머지는 모두 인증 필요
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
-                                "/favicon.ico")
+                                "/favicon.ico","/mail/**", "/scss/**") // resources/static 아래 경로들 추가
                         .permitAll()
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
