@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
 import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
+import shop.chaekmate.front.book.adaptor.BookViewCountAdaptor;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
@@ -23,6 +24,7 @@ public class BookController {
 
     private final BookAdaptor bookAdaptor;
     private final BookImageAdaptor bookImageAdaptor;
+    private final BookViewCountAdaptor bookViewCountAdaptor;
 
     @GetMapping("/categories/{categoryId}")
     public String getBookByCategory(
@@ -54,6 +56,8 @@ public class BookController {
         CommonResponse<List<BookImageResponse>> detailImagesResponse = bookImageAdaptor.getBookDetailImages(bookId);
         List<BookImageResponse> detailImages = detailImagesResponse.data() != null ? detailImagesResponse.data() : Collections.emptyList();
 
+        //조회수 증가 요청
+        bookViewCountAdaptor.increaseView(bookId);
 
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
