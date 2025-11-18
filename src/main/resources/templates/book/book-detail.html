@@ -28,7 +28,8 @@
 
         <div class="d-flex justify-content-center mt-3">
           <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기" th:data-book-id="${book.id}">
-            <i class="far fa-heart mr-1"></i> 찜하기
+            <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart mr-1"></i>
+            <span th:text="${likedBookIds != null and likedBookIds.contains(book.id)} ? ' 찜 취소' : ' 찜하기'"> 찜하기</span>
           </a>
           <a href="#" class="btn btn-outline-info" title="보관함">
             <i class="fa fa-archive mr-1"></i> 보관함

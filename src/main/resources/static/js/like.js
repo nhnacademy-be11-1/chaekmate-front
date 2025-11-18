@@ -47,15 +47,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(data => {
                 if (data) {
                     const icon = likeButton.querySelector('i');
+                    const textSpan = likeButton.querySelector('span');
+
                     if (data.liked) {
                         // '찜' 상태로 변경
                         icon.classList.remove('far'); // 빈 하트
                         icon.classList.add('fas'); // 꽉 찬 하트
                         icon.style.color = 'red';
-                        // 찜하기 버튼 텍스트가 있다면 변경 (예: book-detail)
-                        const textNode = likeButton.childNodes[likeButton.childNodes.length - 1];
-                        if (textNode.nodeType === Node.TEXT_NODE && textNode.textContent.includes('찜하기')) {
-                            textNode.textContent = ' 찜 취소';
+                        if (textSpan) {
+                            textSpan.textContent = ' 찜 취소';
                         }
 
                     } else {
@@ -63,9 +63,8 @@ document.addEventListener('DOMContentLoaded', function () {
                         icon.classList.remove('fas');
                         icon.classList.add('far');
                         icon.style.color = ''; // 원래 색상으로
-                        const textNode = likeButton.childNodes[likeButton.childNodes.length - 1];
-                        if (textNode.nodeType === Node.TEXT_NODE && textNode.textContent.includes('찜 취소')) {
-                            textNode.textContent = ' 찜하기';
+                        if (textSpan) {
+                            textSpan.textContent = ' 찜하기';
                         }
                     }
                 }
