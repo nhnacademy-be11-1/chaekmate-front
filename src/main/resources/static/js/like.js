@@ -22,15 +22,20 @@ document.addEventListener('DOMContentLoaded', function () {
                 headers[csrfHeader] = csrfToken;
             }
 
+            const icon = likeButton.querySelector('i');
+            const isCurrentlyLiked = icon.classList.contains('fas'); // Check if it's a solid heart
+            const actionType = isCurrentlyLiked ? 'unlike' : 'like'; // Determine action based on current state
+
             fetch('/likes/action', {
                 method: 'POST',
                 headers: headers,
-                body: JSON.stringify({ bookId: bookId })
+                credentials:"include",
+                body: JSON.stringify({ bookId: bookId, actionType: actionType })
             })
             .then(response => {
                 if (response.status === 401) {
                     alert('로그인이 필요합니다.');
-                    window.location.href = '/login';
+                    this.location.href = '/login';
                     return;
                 }
                 if (!response.ok) {
