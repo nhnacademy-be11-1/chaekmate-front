@@ -27,7 +27,7 @@ public class LikeService {
     }
 
     public List<Long> getMemberLikedBook(){
-        CommonResponse<List<LikeResponse>> wrappedLikes = null;
+        CommonResponse<List<LikeResponse>> wrappedLikes;
 
         try {
             wrappedLikes = likeAdaptor.getMemberLikes();
