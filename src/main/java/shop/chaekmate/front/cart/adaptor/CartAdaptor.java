@@ -5,8 +5,8 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import shop.chaekmate.front.cart.dto.request.CartItemCreateRequest;
 import shop.chaekmate.front.cart.dto.request.CartItemUpdateRequest;
 import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
@@ -26,7 +26,7 @@ public interface CartAdaptor {
     CommonResponse<CartItemListAdvancedResponse> getCart();
 
     // 장바구니 아이템 수량 변경
-    @PostMapping("/carts/items/{bookId}")
+    @PutMapping("/carts/items/{bookId}")
     CommonResponse<CartItemUpdateResponse> updateCartItem(@PathVariable(name = "bookId") Long bookId,
                                                           @RequestBody CartItemUpdateRequest request);
 

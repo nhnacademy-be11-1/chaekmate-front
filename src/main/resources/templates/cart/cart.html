@@ -176,23 +176,73 @@
         }
 
         // 수량 증가 버튼 이벤트
-        document.querySelectorAll('.btn-plus').forEach(button => {
-            button.addEventListener('click', function() {
+        // 수량 증가 버튼 이벤트
+        document.querySelectorAll('.btn-plus').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
                 const bookId = this.getAttribute('data-book-id');
-                const row = document.querySelector(`.cart-item[data-book-id="${bookId}"]`);
+                const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
                 const quantityInput = row.querySelector('.item-quantity');
 
-                let quantity = parseInt(row.getAttribute('data-quantity'));
-                quantity += 1;
+                const quantity = parseInt(row.getAttribute('data-quantity'));
+                const newQuantity = quantity + 1;
 
-                row.setAttribute('data-quantity', quantity);
-                quantityInput.value = quantity;
+                // 버튼 비활성화 (중복 클릭 방지)
+                this.disabled = true;
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
 
-                updateItemTotal(row);
-                calculateCartTotal();
+                // 서버에 수량 업데이트 API 호출
+                fetch('/carts/items/' + bookId, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quantity: newQuantity
+                    })
+                })
+                    .then(function(response) {
+                        console.log('응답 상태:', response.status);
 
-                // TODO: 서버에 수량 업데이트 API 호출
-                // updateCartItemQuantity(bookId, quantity);
+                        if (!response.ok) {
+                            return response.text().then(function(text) {
+                                throw new Error(text || '수량 변경 실패');
+                            });
+                        }
+
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        console.log('수량 변경 성공:', data);
+
+                        // 성공 시 DOM 업데이트
+                        row.setAttribute('data-quantity', newQuantity);
+                        quantityInput.value = newQuantity;
+
+                        updateItemTotal(row);
+                        calculateCartTotal();
+
+                        // 버튼 복원
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                    })
+                    .catch(function(error) {
+                        console.error('에러 발생:', error);
+
+                        if (error !== '로그인 필요') {
+                            alert('수량 변경 실패');
+                            // 원래 상태로 복구
+                            row.setAttribute('data-quantity', quantity);
+                            quantityInput.value = quantity;
+                        }
+
+                        // 버튼 복원
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                    });
             });
         });
 
