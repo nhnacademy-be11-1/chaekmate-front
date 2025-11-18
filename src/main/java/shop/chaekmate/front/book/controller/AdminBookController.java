@@ -22,6 +22,7 @@ import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.service.AdminBookService;
 import shop.chaekmate.front.book.service.BookImageService;
+import shop.chaekmate.front.common.StringToLocalDateTime;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
 
@@ -35,10 +36,18 @@ public class AdminBookController {
 
     // 도서 관리자 페이지 뷰
     @GetMapping("/admin/books")
-    public String bookManagementView(Model model) {
+    public String bookManagementView(@PageableDefault(size=5) Pageable pageable,
+                                     @RequestParam(defaultValue = "RECENT") String sortType,
+                                     @RequestParam(required = false) String keyword,
+                                     Model model) {
 
         List<AdminBookResponse> recentBooks = adminBookService.getRecentCreatedBooks(5);
         model.addAttribute("recentBooks", recentBooks);
+
+        Page<AdminBookResponse> pagedBooks = adminBookService.getAdminBookPaged(pageable,sortType,keyword);
+        model.addAttribute("pagedBooks",pagedBooks);
+        model.addAttribute("sortType", sortType);
+        model.addAttribute("keyword",keyword);
 
         return "admin/book/book-management";
     }
@@ -53,6 +62,22 @@ public class AdminBookController {
         model.addAttribute("bookCreationRequest", bookCreationRequest);
 
         return "admin/book/book-management-add-direct";
+    }
+
+    // 알라딘 도서 등록 도서 추가 페이지 뷰 반환
+    @PostMapping("/admin/books/new-aladin")
+    public String bookManagementAddWithAladin(@ModelAttribute BookCreationRequest bookCreationRequest,
+                                              @RequestParam(value="publishedAtString") String publishedAtString,
+                                              Model model){
+
+        bookCreationRequest.setPublishedAt(StringToLocalDateTime.parseToLocalDateTime(publishedAtString));
+
+        // 알라딘 썸네일 이미지 고화질으로 변경
+        String thumbnailUrl = bookCreationRequest.getThumbnailUrl();
+        String upscaledUrl = thumbnailUrl.replaceAll("/cover[^/]*?/", "/cover500/");
+        bookCreationRequest.setThumbnailUrl(upscaledUrl);
+
+        return bookManagementAddDirectView(bookCreationRequest, model);
     }
 
     // 관리자 알라딘 도서 검색 뷰
