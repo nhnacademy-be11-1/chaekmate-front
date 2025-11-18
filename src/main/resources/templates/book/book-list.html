@@ -194,7 +194,10 @@
 
                                     <!-- 액션 버튼 -->
                                     <div class="product-action">
-                                        <a class="btn btn-outline-dark btn-square" href="#" title="장바구니">
+                                        <a class="btn btn-outline-dark btn-square add-to-cart-btn"
+                                           href="#"
+                                           title="장바구니"
+                                           th:attr="data-book-id=${book.id}">
                                             <i class="fa fa-shopping-cart"></i>
                                         </a>
                                         <a class="btn btn-outline-dark btn-square"
@@ -349,6 +352,85 @@
         </div>
     </div>
     <!-- Shop End -->
+
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function() {
+
+            // 모든 장바구니 버튼에 이벤트 리스너 등록
+            const cartButtons = document.querySelectorAll('.add-to-cart-btn');
+
+            cartButtons.forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
+                    const bookId = this.getAttribute('data-book-id');
+
+                    if (!bookId) {
+                        alert('도서 정보를 찾을 수 없습니다.');
+                        return;
+                    }
+
+                    // 버튼 비활성화 (중복 클릭 방지)
+                    this.disabled = true;
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+                    // 장바구니 담기 요청
+                    fetch('/carts/items', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            bookId: parseInt(bookId),
+                            quantity: 1
+                        })
+                    })
+                        .then(function(response) {
+                            console.log('응답 상태:', response.status);
+
+                            if (response.status === 401) {
+                                // 로그인 필요
+                                alert('로그인이 필요한 서비스입니다.');
+                                window.location.href = '/login';
+                                return Promise.reject('로그인 필요');
+                            }
+
+                            if (!response.ok) {
+                                return response.text().then(function(text) {
+                                    throw new Error(text || '장바구니 담기 실패');
+                                });
+                            }
+
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            console.log('장바구니 담기 성공:', data);
+
+                            // 성공 알림
+                            if (confirm('장바구니에 상품이 담겼습니다.\n장바구니로 이동하시겠습니까?')) {
+                                window.location.href = '/carts';
+                            } else {
+                                // 버튼 복원
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('에러 발생:', error);
+
+                            if (error !== '로그인 필요') {
+                                alert('장바구니 담기 실패: ' + error.message);
+                                // 버튼 복원
+                                button.disabled = false;
+                                button.innerHTML = originalHTML;
+                            }
+                        });
+                });
+            });
+        });
+    </script>
 </section>
 </body>
 </html>
