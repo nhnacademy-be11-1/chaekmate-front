@@ -35,9 +35,9 @@ public interface MemberAdaptor {
     @DeleteMapping(value = "/members/{memberId}/addresses/{addressId}")
     CommonResponse<Void> deleteAddress(@PathVariable Long memberId, @PathVariable Long addressId);
 
-    @GetMapping(value = "members/{memberId}/grade")
+    @GetMapping(value = "/members/{memberId}/grade")
     CommonResponse<GradeResponse> getMemberGrade(@PathVariable Long memberId);
 
-    @GetMapping(value = "members/grades")
+    @GetMapping(value = "/members/grades")
     CommonResponse<List<GradeResponse>> getAllGrades();
 }

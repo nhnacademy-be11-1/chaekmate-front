@@ -1,0 +1,35 @@
+/* 재고 수량 입력 필드 너비 조정 */
+.quantity-input {
+  width: 80px;
+  text-align: center;
+}
+
+/* 책 이미지 영역 */
+.book-detail-img {
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #e9ecef;
+  border-radius: 5px;
+}
+
+/* 할인 정보 텍스트 크기 */
+.price-info h3 {
+  font-size: 2.5rem;
+}
+
+.price-info small {
+  font-size: 1.1rem;
+}
+
+/* 설명/목차 탭 내용 영역 */
+.tab-content {
+  padding: 20px 0;
+  border: 1px solid #dee2e6;
+  border-top: none;
+  white-space: pre-wrap; /* 줄 바꿈 유지 */
+}
+
+/* 재고 상태 표시 */
+.stock-status {
+  font-weight: bold;
+}
