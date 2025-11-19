@@ -1,3 +1,4 @@
+<!--안봐도 되는 파일 테스트용-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
@@ -43,14 +44,33 @@
                                          style="max-width:48px;">
                                 </td>
 
+
                                 <td>
-                                    <div class="font-weight-bold" th:text="${item.name}">책 제목</div>
+                                    <!-- 제목 -->
+                                    <div class="font-weight-bold" th:text="${item.title}">책 제목</div>
+
+                                    <!-- 저자 -->
                                     <small class="text-muted d-block" th:text="${item.author}">저자</small>
+
+                                    <!-- 정가 / 판매가 -->
+                                    <div class="mt-2">
+                                        <span class="text-muted text-decoration-line-through"
+                                              th:text="${#numbers.formatInteger(item.originalPrice,0,'COMMA')} + '원'">43,000원</span><br>
+                                        <span class="font-weight-bold text-danger"
+                                              th:text="${#numbers.formatInteger(item.salesPrice,0,'COMMA')} + '원'"> 38,700원 </span>
+                                    </div>
+
+                                    <!-- 할인율 / 절약 금액 -->
+                                    <div class="text-danger small mt-1">
+                                        <span th:text="${item.discountRate} + '%'">10%</span> 할인 |
+                                        <span th:text="${#numbers.formatInteger(item.discountAmount,0,'COMMA')} + '원'">4,300원</span>
+                                        절약
+                                    </div>
 
                                     <!-- 쿠폰 -->
                                     <div class="mt-2" th:if="${isLoggedIn}">
                                         <label class="mb-1 d-block">쿠폰 적용</label>
-                                        <select class="custom-select coupon-select" th:data-price="${item.price}">
+                                        <select class="custom-select coupon-select" th:data-price="${item.salesPrice}">
                                             <option value="">선택 안함</option>
                                             <option value="3000">3,000원 할인 쿠폰</option>
                                             <option value="5000">5,000원 할인 쿠폰</option>
@@ -65,8 +85,12 @@
                                                    placeholder="사용 포인트 입력"
                                                    th:data-max="${isLoggedIn} ? ${member.remainingPoints} : 0">
                                             <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary" type="button"
+                                                <button class="btn btn-outline-secondary btn-max-point" type="button"
                                                         onclick="useMaxPoint(this)">최대
+                                                </button>
+                                                <button class="btn btn-outline-primary ml-1 point-apply-btn"
+                                                        type="button"
+                                                        onclick="togglePointApply(this)">적용
                                                 </button>
                                             </div>
                                         </div>
@@ -212,8 +236,8 @@
                         <div class="cm-total-row"><span>상품 합계</span><span id="sum-products"
                                                                           th:text="${summary.productsTotal} + '원'"></span>
                         </div>
-                        <div class="cm-total-row"  th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
-                                                                                                 th:text="'-' + ${summary.couponDiscount} + '원'"></span>
+                        <div class="cm-total-row" th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
+                                                                                                th:text="'-' + ${summary.couponDiscount} + '원'"></span>
                         </div>
                         <div class="cm-total-row" th:if="${isLoggedIn}"><span>포인트 사용</span> <span id="sum-point"
                                                                                                   th:text="'-' + ${summary.pointDiscount} + '원'"></span>
@@ -269,6 +293,7 @@
             };
 
             // 합계 상태
+            // 합계 상태
             const summary = {
                 productsTotal: 0,
                 couponDiscount: 0,
@@ -276,6 +301,11 @@
                 wrapFeeTotal: 0,
                 shippingFee: policy.deliveryFee
             };
+
+            // 포인트 잠금 관련 상태
+            let pointLocked = false;         // true면 우측 포인트 값 고정
+            let lockedPointDiscount = 0;     // 잠금 시 저장해둘 포인트 값
+
 
             // DOM 헬퍼
             const $ = (sel) => document.querySelector(sel);
@@ -304,11 +334,18 @@
                     .map(sel => num(sel.value))
                     .reduce((a, b) => a + b, 0);
 
-                // 3) 포인트 합계 (전체 보유 포인트 한도로 제한)
-                const rawPointSum = $$('.point-input')
-                    .map(input => num(input.value))
-                    .reduce((a, b) => a + b, 0);
-                summary.pointDiscount = Math.min(rawPointSum, getPointMaxTotal());
+                // 3) 포인트 합계
+                if (!pointLocked) {
+                    // 🔓 아직 적용 안 된 상태 → input 값 기준으로 항상 재계산
+                    const rawPointSum = $$('.point-input')
+                        .map(input => num(input.value))
+                        .reduce((a, b) => a + b, 0);
+                    summary.pointDiscount = Math.min(rawPointSum, getPointMaxTotal());
+                } else {
+                    // 🔒 적용 버튼 눌러서 잠긴 상태 → 저장해 둔 값 그대로 사용
+                    summary.pointDiscount = lockedPointDiscount;
+                }
+
 
                 // (4) 포장비 계산 (항목별 * 수량 적용)
                 summary.wrapFeeTotal = 0;
@@ -331,12 +368,26 @@
                         : policy.deliveryFee;
 
                 // 6) 총 결제금액
-                const total =
+                let total =
                     summary.productsTotal
                     - summary.couponDiscount
                     - summary.pointDiscount
                     + summary.wrapFeeTotal
                     + summary.shippingFee;
+
+                if (total < 0) {
+                    total = 0;
+
+                    // 🔓 적용 전일 때만 자동으로 포인트 조정
+                    if (!pointLocked) {
+                        summary.pointDiscount =
+                            summary.productsTotal
+                            - summary.couponDiscount
+                            + summary.wrapFeeTotal
+                            + summary.shippingFee;
+                    }
+                }
+
 
                 // 우측 요약 UI 업데이트
                 $('#sum-products').textContent = fmt(summary.productsTotal);
@@ -452,6 +503,21 @@
             $$('.point-input').forEach(input => {
                 input.addEventListener('input', () => {
                     input.value = String(num(input.value)); // 숫자만 유지
+
+                    const max = getPointMaxTotal();       // 총 보유 포인트
+                    const values = $$('.point-input').map(i => num(i.value));
+                    const thisValue = num(input.value);
+                    const otherSum = values.reduce((a, b) => a + b, 0) - thisValue;
+
+                    // 남은 포인트 계산
+                    const remain = max - otherSum;
+
+                    // 초과 사용한 경우
+                    if (thisValue > remain) {
+                        alert("사용 가능한 포인트를 초과했습니다!");
+                        input.value = remain < 0 ? 0 : remain;
+                    }
+
                     recalc();
                 });
             });
@@ -475,19 +541,81 @@
             });
 
             // 포인트 최대 버튼
+            // - 보유 포인트 한도(getPointMaxTotal)
+            // - 현재 결제 금액 한도(상품합계 - 쿠폰 + 포장비 + 배송비)
+            // 둘 중 더 작은 값까지만 사용
             window.useMaxPoint = (btn) => {
                 const input = btn.closest('.input-group')?.querySelector('.point-input');
                 if (!input) return;
 
-                const max = getPointMaxTotal();
+                // 1) "포인트를 하나도 안 썼다고 가정했을 때" 결제 금액
+                const baseTotal =
+                    summary.productsTotal
+                    - summary.couponDiscount
+                    + summary.wrapFeeTotal
+                    + summary.shippingFee;
+
+                // 2) 보유 포인트 / 결제금액 기준 한도
+                const maxPointByPrice = baseTotal;
+                const maxPointByBalance = getPointMaxTotal();
+
+                // 3) 다른 input 들이 이미 사용 중인 포인트
                 const others = $$('.point-input')
                     .filter(i => i !== input)
                     .map(i => num(i.value))
                     .reduce((a, b) => a + b, 0);
 
-                const remain = Math.max(0, max - others);
+                // 4) 이 input 이 쓸 수 있는 남은 포인트
+                const remain = Math.max(
+                    0,
+                    Math.min(maxPointByPrice, maxPointByBalance) - others
+                );
+
                 input.value = remain;
                 recalc();
+            };
+
+            // 포인트 적용 / 수정 토글
+            window.togglePointApply = (btn) => {
+                const group = btn.closest('.input-group');
+                if (!group) return;
+
+                const input = group.querySelector('.point-input');
+                const maxBtn = group.querySelector('.btn-max-point');
+                if (!input) return;
+
+                const applied = btn.dataset.applied === 'true';
+
+                if (!applied) {
+                    // ✅ 적용 상태로 전환
+                    // 1) 현재 입력값 기준으로 포인트 계산
+                    recalc(); // summary.pointDiscount 최신화
+
+                    // 2) 그 값을 잠금 값으로 저장
+                    lockedPointDiscount = summary.pointDiscount;
+                    pointLocked = true;
+
+                    // 3) 입력/버튼 잠그기
+                    input.readOnly = true;
+                    if (maxBtn) maxBtn.disabled = true;
+
+                    btn.dataset.applied = 'true';
+                    btn.textContent = '수정';
+
+                } else {
+                    // 🔁 다시 수정 가능 상태로 전환
+                    pointLocked = false;
+                    lockedPointDiscount = 0;
+
+                    input.readOnly = false;
+                    if (maxBtn) maxBtn.disabled = false;
+
+                    btn.dataset.applied = 'false';
+                    btn.textContent = '적용';
+
+                    // 다시 자유롭게 변경할 수 있으니, 현재 input 기준으로 재계산
+                    recalc();
+                }
             };
 
             // 계산

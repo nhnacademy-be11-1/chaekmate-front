@@ -43,7 +43,8 @@
 </head>
 <body>
 <section>
-  <div class="container-fluid">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <div class="container-fluid">
     <div class="row px-xl-5">
       <div class="col-12">
         <nav class="breadcrumb bg-light mb-30">
@@ -251,9 +252,10 @@
     $('#buyNowBtn').on('click', function() {
       var bookId = [[${book.id}]];
       var quantity = parseInt($('#quantityInput').val());
-      // 실제 바로 주문 로직 (결제 페이지 이동 등)을 여기에 구현해!
-      alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
-      // 예: location.href = '/orders/checkout?bookId=' + bookId + '&quantity=' + quantity;
+
+      // get, post 수정
+      window.location.href = '/orders?bookId=' + bookId + '&quantity=' + quantity;
+      // alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
     });
 
   </script>

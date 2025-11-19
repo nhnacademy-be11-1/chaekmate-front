@@ -2,16 +2,22 @@ package shop.chaekmate.front.order.controller;
 
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
+import shop.chaekmate.front.book.adaptor.BookAdaptor;
+import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.order.adaptor.OrderAdaptor;
+import shop.chaekmate.front.order.dto.request.OrderItem;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 import shop.chaekmate.front.order.dto.response.WrapperResponse;
 import shop.chaekmate.front.point.adaptor.PointHistoryAdaptor;
@@ -23,10 +29,24 @@ public class OrderController {
 
     private final OrderAdaptor orderAdaptor;
     private final MemberAdaptor memberAdaptor;
+    private final BookAdaptor bookAdaptor;
     private final PointHistoryAdaptor pointHistoryAdaptor;
 
-    @GetMapping("/order")
-    public String orderPage(@AuthenticationPrincipal CustomPrincipal principal, Model model) {
+    @GetMapping("/orders")
+    public String orderPage(@AuthenticationPrincipal CustomPrincipal principal,
+//                            @RequestBody OrderRequest orderRequest,
+                            @RequestParam(required = false) Long bookId,
+                            @RequestParam(required = false) Integer quantity,
+                            Model model) {
+
+        List<OrderItem> orderItems = List.of();
+
+        if (bookId != null && quantity != null) {
+            BookDetailResponse book = bookAdaptor.getBookById(bookId).data();
+            orderItems = List.of(getOrderItem(book, quantity));
+        }
+        model.addAttribute("orderItems", orderItems);
+
         // orderNumber주문 번호 생성
         String orderNumber = NanoIdUtils.randomNanoId();
         model.addAttribute("orderNumber", orderNumber);
@@ -42,7 +62,8 @@ public class OrderController {
             PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
             var member = new Member("테스트사용자", "01012345678", "test@example.com", pointResponse.point());
             model.addAttribute("member", member);
-            // 회원 이름, 전화번호, 이메일 가져오기
+
+            /// todo 실제 회원 이름, 전화번호, 이메일 가져오기 (member 로직 구현 x)
 //            var memberResponse = orderAdaptor.getMemberInfo(memberId).data();
 //            model.addAttribute("member", memberResponse);
 
@@ -62,13 +83,9 @@ public class OrderController {
         model.addAttribute("deliveryPolicy", policy);
 
 
-        /// 더미값 주문 상품
-        var orderItems = List.of(
-                new OrderItem("이펙티브 자바 3판", "Joshua Bloch", 38000, 1, 38000, "/static/img/cat-1.jpg"),
-                new OrderItem("스프링 인 액션 6판", "Craig Walls", 42000, 2, 84000, "/static/img/cat-2.jpg")
-        );
-        model.addAttribute("orderItems", orderItems);
-        int productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
+        int productsTotal = 0;
+        productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
+
 
         // 배송비 계산 (무료배송 기준 반영)
         int shippingFee = (productsTotal >= policy.freeStandardAmount()) ? 0 : policy.deliveryFee();
@@ -77,7 +94,7 @@ public class OrderController {
         List<WrapperResponse> wrappers = orderAdaptor.getWrappers().data();
         model.addAttribute("wrappers", wrappers);
 
-        /// 결제 요약
+        /// 결제 요약 수정
         var summary = new Summary(
                 productsTotal,
                 0, // 쿠폰 할인
@@ -94,8 +111,28 @@ public class OrderController {
         return "order/orderPage";
     }
 
+    @NotNull
+    private static OrderItem getOrderItem(BookDetailResponse book, Integer quantity) {
+        int originalPrice = book.price();
+        int salesPrice = book.salesPrice();
+        int discountAmount = originalPrice - salesPrice;
+        int discountRate = Math.round((float) discountAmount / originalPrice * 100);
+
+        return new OrderItem(
+                book.id(),
+                book.title(),
+                book.author(),
+                book.publisher(),
+                originalPrice,
+                salesPrice,
+                discountRate,
+                discountAmount,
+                quantity,
+                salesPrice * quantity,
+                book.imageUrl()
+        );
+    }
     // --- DTO ---
-    record OrderItem(String name, String author, int price, int quantity, int subtotal, String thumbnailUrl) {}
     record Member(String name, String phone, String email, int remainingPoints) {}
     record Summary(int productsTotal, int couponDiscount, int pointDiscount, int wrapFeeTotal, int shippingFee, int payableTotal) {}
 }

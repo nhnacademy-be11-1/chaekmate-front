@@ -30,13 +30,13 @@ public class FeignCookieInterceptor implements RequestInterceptor {
         // 모든 쿠키를 Cookie 헤더로 전달
         StringBuilder cookieHeader = new StringBuilder();
         for (Cookie cookie : cookies) {
-            if (cookieHeader.isEmpty()) {
+            if (!cookieHeader.isEmpty()) {
                 cookieHeader.append("; ");
             }
             cookieHeader.append(cookie.getName()).append("=").append(cookie.getValue());
         }
 
-        if (cookieHeader.isEmpty()) {
+        if (!cookieHeader.isEmpty()) {
             requestTemplate.header("Cookie", cookieHeader.toString());
             log.debug("FeignCookieInterceptor 쿠키 자동 전달: {}", cookieHeader);
         }
