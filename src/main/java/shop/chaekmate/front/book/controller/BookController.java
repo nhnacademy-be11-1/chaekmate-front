@@ -49,7 +49,7 @@ public class BookController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("title", "도서 목록");
 
-        return "book/book-list";
+        return "book/book-category-list";
     }
 
     @GetMapping("/books/{bookId}")
