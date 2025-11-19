@@ -9,14 +9,93 @@
         <div class="row px-xl-5">
             <div class="col-lg-8">
                 <div id="header-carousel" class="carousel slide carousel-fade mb-30 mb-lg-0" data-ride="carousel">
+                    <ol class="carousel-indicators">
+                        <li data-target="#header-carousel" data-slide-to="0" class="active"></li>
+                        <li data-target="#header-carousel" data-slide-to="1"></li>
+                        <li data-target="#header-carousel" data-slide-to="2"></li>
+                    </ol>
                     <div class="carousel-inner">
-                        <div class="carousel-item active" style="height: 430px;">
-                            <img class="w-100 h-100" th:src="@{/img/carousel-1.jpg}" style="object-fit: cover;">
-                            <div class="carousel-caption d-flex flex-column align-items-center justify-content-center">
-                                <div class="p-3" style="max-width: 700px;">
-                                    <h1 class="display-4 text-white mb-3">Men Fashion</h1>
-                                    <p class="mx-md-5 px-5">Explore premium men’s collections now.</p>
-                                    <a class="btn btn-outline-light py-2 px-4 mt-3" href="#">Shop Now</a>
+                        <!-- Slide 1: 이순신과 명량대첩 -->
+                        <div class="carousel-item position-relative active" style="height: 430px; background-color: #34495e;">
+                            <div class="carousel-caption d-flex align-items-center h-100">
+                                <div class="container">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-5 text-center text-lg-right">
+                                            <img th:src="${slide1 != null and slide1.imageUrl != null ? slide1.imageUrl : 'https://image.aladin.co.kr/product/27082/36/cover500/e772538100_1.jpg'}"
+                                                 alt="이순신과 명량대첩"
+                                                 style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
+                                        </div>
+                                        <div class="col-lg-7 text-center text-lg-left">
+                                            <div class="p-3" style="max-width: 700px;">
+                                                <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
+                                                    th:text="${slide1 != null and slide1.subtitle != null ? slide1.subtitle : '체크메이트 추천'}">체크메이트 추천</h6>
+                                                <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
+                                                    th:text="${slide1 != null and slide1.title != null ? slide1.title : '이순신과 명량대첩'}">이순신과 명량대첩</h1>
+                                                <p class="text-white animate__animated animate__bounceIn"
+                                                   th:text="${slide1 != null and slide1.description != null ? slide1.description : '조선 수군의 찬란한 등불'}">조선 수군의 찬란한 등불</p>
+                                                <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
+                                                   th:href="@{/book/{bookId}(bookId=${slide1 != null and slide1.bookId != null ? slide1.bookId : '156861'})}">
+                                                    자세히 보기
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 2: 사탄탱고 -->
+                        <div class="carousel-item position-relative" style="height: 430px; background-color: #2d3436;">
+                            <div class="carousel-caption d-flex align-items-center h-100">
+                                <div class="container">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-5 text-center text-lg-right">
+                                            <img th:src="${slide2 != null and slide2.imageUrl != null ? slide2.imageUrl : 'https://image.aladin.co.kr/product/13133/29/cover500/s292032111_1.jpg'}"
+                                                 alt="사탄탱고"
+                                                 style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
+                                        </div>
+                                        <div class="col-lg-7 text-center text-lg-left">
+                                            <div class="p-3" style="max-width: 700px;">
+                                                <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
+                                                    th:text="${slide2 != null and slide2.subtitle != null ? slide2.subtitle : '이달의 추천 도서'}">이달의 추천 도서</h6>
+                                                <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
+                                                    th:text="${slide2 != null and slide2.title != null ? slide2.title : '사탄탱고'}">사탄탱고</h1>
+                                                <p class="text-white animate__animated animate__bounceIn"
+                                                   th:text="${slide2 != null and slide2.description != null ? slide2.description : '2025 노벨문학상 수상'}">2025 노벨문학상 수상</p>
+                                                <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
+                                                   th:href="@{/book/{bookId}(bookId=${slide2 != null and slide2.bookId != null ? slide2.bookId : 'BOOK_ID_HERE'})}">
+                                                    자세히 보기
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Slide 3: 너에게로 로그인 -->
+                        <div class="carousel-item position-relative" style="height: 430px; background-color: #535c68;">
+                            <div class="carousel-caption d-flex align-items-center h-100">
+                                <div class="container">
+                                    <div class="row align-items-center">
+                                        <div class="col-lg-5 text-center text-lg-right">
+                                            <img th:src="${slide3 != null and slide3.imageUrl != null ? slide3.imageUrl : 'https://image.aladin.co.kr/product/35382/50/cover500/k882035818_1.jpg'}"
+                                                 alt="너에게로 로그인"
+                                                 style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
+                                        </div>
+                                        <div class="col-lg-7 text-center text-lg-left">
+                                            <div class="p-3" style="max-width: 700px;">
+                                                <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
+                                                    th:text="${slide3 != null and slide3.subtitle != null ? slide3.subtitle : '실시간 조회수 급상승'}">실시간 조회수 급상승</h6>
+                                                <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
+                                                    th:text="${slide3 != null and slide3.title != null ? slide3.title : '너에게로 로그인'}">너에게로 로그인</h1>
+                                                <p class="text-white animate__animated animate__bounceIn"
+                                                   th:text="${slide3 != null and slide3.description != null ? slide3.description : '지금, 우리에게 필요한 위로와 공감의 메시지'}">지금, 우리에게 필요한 위로와 공감의 메시지</p>
+                                                <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
+                                                   th:href="@{/book/{bookId}(bookId=${slide3 != null and slide3.bookId != null ? slide3.bookId : '157132'})}">
+                                                    자세히 보기
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -27,16 +106,181 @@
             <!-- 오른쪽 배너 -->
             <div class="col-lg-4">
                 <div class="product-offer mb-30" style="height: 200px;">
-                    <img class="img-fluid" th:src="@{/img/offer-1.jpg}" alt="">
+                    <img class="img-fluid" th:src="@{/img/offer-3.jpg}" alt="배너1">
                     <div class="offer-text">
-                        <h6 class="text-white text-uppercase">Save 20%</h6>
-                        <h3 class="text-white mb-3">Special Offer</h3>
+                        <h6 class="text-white text-uppercase">금주의 베스트셀러</h6>
+                        <h3 class="text-white mb-3">채크메이트 추천</h3>
+                        <a href="#" class="btn btn-primary">Shop Now</a>
+                    </div>
+                </div>
+                <div class="product-offer mb-30" style="height: 200px;">
+                    <img class="img-fluid" th:src="@{/img/offer-4.png}" alt="배너2">
+                    <div class="offer-text">
+                        <h6 class="text-white text-uppercase">신간 알림</h6>
+                        <h3 class="text-white mb-3">새로운 책 보기</h3>
                         <a href="#" class="btn btn-primary">Shop Now</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- 최근 추가된 도서 -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">최근 추가된 도서</span></h2>
+        <div class="row px-xl-5">
+            <div class="col">
+                <div th:if="${recentBooks != null and not #lists.isEmpty(recentBooks)}" class="owl-carousel related-carousel">
+                    <div class="product-item bg-light" th:each="book : ${recentBooks}">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
+                                <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small th:if="${book.rating != null and book.rating >= 1}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 2}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 3}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 4}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 5}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:text="${book.reviewCount != null ? '(' + book.reviewCount + ')' : '(0)'}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${recentBooks == null or #lists.isEmpty(recentBooks)}" class="col-12 text-center py-5">
+                    <p class="h4 text-muted">최근 추가된 도서가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 맞춤 추천 -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">맞춤 추천</span></h2>
+        <div class="row px-xl-5">
+            <div class="col">
+                <div th:if="${recommendedBooks != null and not #lists.isEmpty(recommendedBooks)}" class="owl-carousel related-carousel">
+                    <div class="product-item bg-light" th:each="book : ${recommendedBooks}">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
+                                <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small th:if="${book.rating != null and book.rating >= 1}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 2}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 3}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 4}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 5}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:text="${book.reviewCount != null ? '(' + book.reviewCount + ')' : '(0)'}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${recommendedBooks == null or #lists.isEmpty(recommendedBooks)}" class="col-12 text-center py-5">
+                    <p class="h4 text-muted">맞춤 추천 도서가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pawn Section : 최근 30일간 리뷰 많은 책 -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">최근 30일간 리뷰 많은 책</span></h2>
+        <div class="row px-xl-5">
+            <div class="col">
+                <div th:if="${mostReviewedBooks != null and not #lists.isEmpty(mostReviewedBooks)}" class="owl-carousel related-carousel">
+                    <div class="product-item bg-light" th:each="book : ${mostReviewedBooks}">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
+                                <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small th:if="${book.rating != null and book.rating >= 1}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 2}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 3}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 4}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 5}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:text="${book.reviewCount != null ? '(' + book.reviewCount + ')' : '(0)'}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${mostReviewedBooks == null or #lists.isEmpty(mostReviewedBooks)}" class="col-12 text-center py-5">
+                    <p class="h4 text-muted">최근 30일간 리뷰가 많은 도서가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 얼리어답터들의 PICK : 구매량이 많은 회원이 찾은 책 -->
+    <div class="container-fluid pt-5 pb-3">
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">얼리어답터들의 PICK</span></h2>
+        <div class="row px-xl-5">
+            <div class="col">
+                <div th:if="${earlyAdopterPicks != null and not #lists.isEmpty(earlyAdopterPicks)}" class="owl-carousel related-carousel">
+                    <div class="product-item bg-light" th:each="book : ${earlyAdopterPicks}">
+                        <div class="product-img position-relative overflow-hidden">
+                            <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <div class="product-action">
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
+                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                            </div>
+                        </div>
+                        <div class="text-center py-4">
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <div class="d-flex align-items-center justify-content-center mt-2">
+                                <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
+                                <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
+                            </div>
+                            <div class="d-flex align-items-center justify-content-center mb-1">
+                                <small th:if="${book.rating != null and book.rating >= 1}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 2}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 3}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 4}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:if="${book.rating != null and book.rating >= 5}" class="fa fa-star text-primary mr-1"></small>
+                                <small th:text="${book.reviewCount != null ? '(' + book.reviewCount + ')' : '(0)'}"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${earlyAdopterPicks == null or #lists.isEmpty(earlyAdopterPicks)}" class="col-12 text-center py-5">
+                    <p class="h4 text-muted">얼리어답터들의 PICK 도서가 없습니다.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
 </section>
 </html>
