@@ -70,16 +70,8 @@
                             <a href="/recent" class="nav-item nav-link">신간 도서</a>
                             <a href="/books" class="nav-item nav-link">전체 도서</a>
                             <a href="/ranking" class="nav-item nav-link">랭킹</a>
-
-                            <div class="nav-item dropdown">
-                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
-                                    Pages <i class="fa fa-angle-down mt-1"></i>
-                                </a>
-                                <div class="dropdown-menu bg-primary rounded-0 border-0 m-0">
-                                    <a href="/cart" class="dropdown-item">Shopping Cart</a>
-                                    <a href="/checkout" class="dropdown-item">Checkout</a>
-                                </div>
-                            </div>
+                            <a sec:authorize="isAuthenticated()" href="/coupon-box" class="nav-item nav-link">쿠폰함</a>
+                            <a href="/mypage/orders" class="nav-item nav-link">주문 내역</a>
 
                         </div>
 
@@ -102,7 +94,7 @@
                                     <span class="badge text-secondary border border-secondary rounded-circle"
                                           style="padding-bottom: 2px;">0</span>
                                 </a>
-                                <a th:href="@{/order}" class="btn px-0" title="주문서로 이동">
+                                <a th:href="@{/carts}" class="btn px-0" title="장바구니로 이동">
                                     <i class="fas fa-shopping-cart text-primary"></i>
                                     <span class="badge text-secondary border border-secondary rounded-circle"
                                           style="padding-bottom: 2px;">0</span>
