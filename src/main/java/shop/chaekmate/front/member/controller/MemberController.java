@@ -21,7 +21,7 @@ public class MemberController {
 
     @GetMapping("/signup")
     public String signupView(){
-        return "/member/signup";
+        return "member/signup";
     }
 
     @PostMapping("/members")
@@ -41,6 +41,6 @@ public class MemberController {
         model.addAttribute("addressCreateRequest", new AddressCreateRequest("", "", "", 0));
         model.addAttribute("memberGrade", memberGrade);
         model.addAttribute("grades", grades);
-        return "/member/mypage";
+        return "member/mypage";
     }
 }
