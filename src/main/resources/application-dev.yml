@@ -8,3 +8,7 @@ chaekmate:
 
 server:
   port: 5173
+
+logging:
+  level:
+    shop: debug
