@@ -1,8 +1,8 @@
 <!-- header.html -->
-<header th:fragment="header" xmlns:sec="http://www.w3.org/1999/xhtml">
+<header th:fragment="header" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <div class="row align-items-center bg-light py-3 px-xl-5 d-none d-lg-flex">
         <div class="col-lg-4">
-            <a href="#" class="text-decoration-none">
+            <a href="/" class="text-decoration-none">
                 <span class="h1 text-uppercase text-primary bg-dark px-2">Chaek</span>
                 <span class="h1 text-uppercase text-dark bg-primary px-2 ml-n1">Mate</span>
             </a>
@@ -66,9 +66,10 @@
 
                     <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
                         <div class="navbar-nav mr-auto py-0">
-                            <a href="/static" class="nav-item nav-link active">Home</a>
-                            <a href="/shop" class="nav-item nav-link">Shop</a>
-                            <a href="/detail" class="nav-item nav-link">Book Detail</a>
+                            <a href="/bestseller" class="nav-item nav-link">베스트셀러</a>
+                            <a href="/recent" class="nav-item nav-link">신간 도서</a>
+                            <a href="/books" class="nav-item nav-link">전체 도서</a>
+                            <a href="/ranking" class="nav-item nav-link">랭킹</a>
 
                             <div class="nav-item dropdown">
                                 <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
@@ -80,7 +81,6 @@
                                 </div>
                             </div>
 
-                            <a href="/contact" class="nav-item nav-link">Contact</a>
                         </div>
 
                         <div class="navbar-nav ml-auto py-0 d-none d-lg-block">
