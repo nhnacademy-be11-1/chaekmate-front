@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
+import shop.chaekmate.front.book.adaptor.BookViewCountAdaptor;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
@@ -22,6 +23,7 @@ import shop.chaekmate.front.common.CommonResponse;
 public class BookController {
 
     private final BookAdaptor bookAdaptor;
+    private final BookViewCountAdaptor bookViewCountAdaptor;
     private final BookImageService bookImageService;
     private final LikeService likeService;
 
@@ -45,7 +47,7 @@ public class BookController {
         model.addAttribute("categoryId", categoryId);
         model.addAttribute("title", "도서 목록");
 
-        return "book/book-list";
+        return "book/book-category-list";
     }
 
     @GetMapping("/books/{bookId}")
@@ -57,6 +59,8 @@ public class BookController {
 
         List<BookImageResponse> detailImages = bookImageService.getDetailImagesByBookId(bookId);
 
+        //조회수 증가 요청
+        bookViewCountAdaptor.increaseView(bookId);
         // 좋아요 여부 확인
         List<Long> likedBookIds = likeService.getMemberLikedBook();
 
