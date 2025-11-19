@@ -9,7 +9,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
-import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
 import shop.chaekmate.front.book.adaptor.BookViewCountAdaptor;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
@@ -24,7 +23,6 @@ import shop.chaekmate.front.common.CommonResponse;
 public class BookController {
 
     private final BookAdaptor bookAdaptor;
-    private final BookImageAdaptor bookImageAdaptor;
     private final BookViewCountAdaptor bookViewCountAdaptor;
     private final BookImageService bookImageService;
     private final LikeService likeService;
