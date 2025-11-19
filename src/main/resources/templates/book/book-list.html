@@ -383,7 +383,7 @@
                             'Content-Type': 'application/json',
                         },
                         body: JSON.stringify({
-                            bookId: parseInt(bookId),
+                            bookId: Number(bookId),
                             quantity: 1
                         })
                     })

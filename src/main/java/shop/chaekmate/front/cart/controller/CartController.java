@@ -63,12 +63,14 @@ public class CartController {
 
     // 장바구니 아이템 삭제
     @DeleteMapping("/items/{bookId}")
+    @ResponseBody
     public void deleteCartItem(@PathVariable Long bookId) {
         this.cartService.deleteCartItem(bookId);
     }
 
     // 장바구니 비우기
     @DeleteMapping("/flush")
+    @ResponseBody
     public void flushCart() {
         this.cartService.flushCart();
     }

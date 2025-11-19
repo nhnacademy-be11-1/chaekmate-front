@@ -213,6 +213,8 @@
             });
 
             // 수량 증가
+            // TODO: 수량이 2개씩 증가되는 ㅈ버그 발생
+            // TODO: 재고 수량 초과시에도 계속 수량 증가 ㅈ버그 발생
             btnPlus.addEventListener('click', function() {
                 var now = parseInt(quantityInput.value);
                 if (maxStock > 0 && now < maxStock) {
@@ -227,6 +229,7 @@
             });
 
             // 직접 입력 시 유효성 검사 (재고 및 최소 1)
+            // TODO: 검사 유효한지 검사 필요
             quantityInput.addEventListener('change', function() {
                 var now = parseInt(quantityInput.value);
                 if (isNaN(now) || now < 1) {
@@ -271,7 +274,7 @@
                         'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({
-                        bookId: parseInt(bookId),
+                        bookId: Number(bookId),
                         quantity: quantity
                     })
                 })
