@@ -133,10 +133,64 @@ $(document).ready(function() {
     });
 
     // 바로 주문 버튼 클릭 이벤트
-    $buyNowBtn.on('click', function() {
+    // $buyNowBtn.on('click', function(e) {
+    //     e.preventDefault();
+    //     e.stopPropagation();
+    //
+    //     if (!bookId) {
+    //         alert('도서 정보를 찾을 수 없습니다.');
+    //         return;
+    //     }
+    //
+    //     let quantity = Number.parseInt($quantityInput.val());
+    //
+    //     // form POST로 전송할 payload 만들기
+    //     let payload = {
+    //         items: [
+    //             { bookId: Number(bookId), quantity: quantity }
+    //         ]
+    //     };
+    //
+    //     // JSON 문자열을 hidden input에 주입
+    //     $('#itemsJson').val(JSON.stringify(payload));
+    //
+    //     // 바로 form 제출
+    //     document.getElementById('buyNowForm').submit();
+    // });
+    $buyNowBtn.on('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!bookId) {
+            alert('도서 정보를 찾을 수 없습니다.');
+            return;
+        }
+
         let quantity = Number.parseInt($quantityInput.val());
-        // 실제 바로 주문 로직 (결제 페이지 이동 등)을 여기에 구현해!
-        alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
-        // 예: location.href = '/orders/checkout?bookId=' + bookId + '&quantity=' + quantity;
+
+        // JSON payload 생성
+        let payload = {
+            items: [
+                { bookId: Number(bookId), quantity: quantity }
+            ]
+        };
+
+        fetch('/orders', {
+            method: 'POST',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+            .then(res => res.json())
+            .then(data => {
+                // 서버에서 받은 redirect URL로 이동
+                const encoded = encodeURIComponent(JSON.stringify([
+                    { bookId: Number(bookId), quantity: quantity }
+                ]));
+                window.location.href = data.redirectUrl + `?items=${encoded}`;
+            })
+            .catch(err => console.error(err));
     });
+
 });

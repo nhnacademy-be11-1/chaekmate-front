@@ -25,6 +25,11 @@
     </div>
 
     <div class="p-grid typography--p" style="margin-top: 10px">
+        <div class="p-grid-col text--left"><b>사용한 포인트</b></div>
+        <div class="p-grid-col text--right" th:text="${approveResponse.pointUsed} + 'P'"></div>
+    </div>
+
+    <div class="p-grid typography--p" style="margin-top: 10px">
         <div class="p-grid-col text--left"><b>결제 승인 시각</b></div>
         <div class="p-grid-col text--right"
              th:text="${#temporals.format(approveResponse.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></div>

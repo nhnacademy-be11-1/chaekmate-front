@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- 체크박스 기반 카테고리 트리 -->
+<div th:fragment="categoryCheckboxTree(categories, depth)">
+  <div th:each="category : ${categories}">
+    <div class="category-item" th:style="'padding-left: ' + (${depth} * 20) + 'px;'">
+      <div class="form-check">
+        <input class="form-check-input category-checkbox"
+               type="checkbox"
+               name="categoryId"
+               th:id="'category-' + ${category.id}"
+               th:value="${category.id}"
+               th:data-depth="${depth}"
+               th:data-has-children="${!category.children.isEmpty()}">
+        <label class="form-check-label" th:for="'category-' + ${category.id}">
+          <strong th:if="${depth == 0}" th:text="${category.name}"></strong>
+          <span th:unless="${depth == 0}" th:text="${category.name}"></span>
+          <small th:if="${!category.children.isEmpty()}" class="text-muted">
+            (<span th:text="${category.children.size()}"></span>)
+          </small>
+        </label>
+      </div>
+    </div>
+
+    <!-- 자식 카테고리 (재귀) -->
+    <div th:if="${!category.children.isEmpty()}">
+      <div th:replace="~{admin/coupon/category-tree :: categoryCheckboxTree(${category.children}, ${depth + 1})}"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
