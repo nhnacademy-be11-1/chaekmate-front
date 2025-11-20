@@ -1,7 +1,12 @@
 package shop.chaekmate.front.order.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
@@ -10,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
@@ -40,23 +46,46 @@ public class OrderController {
     private final BookImageAdaptor bookImageAdaptor;
     private final PointHistoryAdaptor pointHistoryAdaptor;
 
+//    @PostMapping("/orders")
+//    public String orderPage(
+////            @RequestParam("itemsJson") String itemsJson,
+//            @RequestBody OrderItemsRequest itemsRequest,
+//            RedirectAttributes redirectAttributes) throws Exception {
+//
+
+    /// /        ObjectMapper mapper = new ObjectMapper(); /        OrderItemsRequest itemsRequest =
+    /// mapper.readValue(itemsJson, OrderItemsRequest.class);
+//
+//        redirectAttributes.addFlashAttribute("items", itemsRequest);
+//
+//        return "redirect:/orders/page";
+//    }
     @PostMapping("/orders")
-    public String orderPage(
-            @RequestBody OrderItemsRequest req,
+    @ResponseBody
+    public Map<String, String> orderPage(
+            @RequestBody OrderItemsRequest itemsRequest,
             RedirectAttributes redirectAttributes) {
 
-        redirectAttributes.addFlashAttribute("items", req.items());
+        redirectAttributes.addFlashAttribute("items", itemsRequest);
 
-        return "redirect:/orders/page";
+        Map<String, String> result = new HashMap<>();
+        result.put("redirectUrl", "/orders/page");
+
+        return result;
     }
 
     @GetMapping("/orders/page")
-    public String orderPageView(@ModelAttribute("items") List<OrderItemRequest> items,
-                                @AuthenticationPrincipal CustomPrincipal principal,
-                                Model model) {
-
+    public String orderPageView(
+//            @ModelAttribute("items") OrderItemsRequest itemsRequest,
+            @RequestParam("items") String itemsJson,
+            @AuthenticationPrincipal CustomPrincipal principal,
+            Model model) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+//        OrderItemsRequest itemsRequest = mapper.readValue(itemsJson, OrderItemsRequest.class);
+        List<OrderItemRequest> itemsRequest = mapper.readValue(itemsJson, new TypeReference<>() {
+        });
         // 여기서 기존의 orderItems 로직 실행하면 됨
-        List<OrderItem> orderItems = items.stream()
+        List<OrderItem> orderItems = itemsRequest.stream()
                 .map(item -> {
                     BookDetailResponse book = bookAdaptor.getBookById(item.bookId()).data();
                     BookThumbnailResponse thumbnail = bookImageAdaptor.getBookThumbnail(book.id()).data();
@@ -69,7 +98,7 @@ public class OrderController {
                             book.price(),
                             book.salesPrice(),
                             (book.price() - book.salesPrice()),
-                            (book.price() - book.salesPrice()) * 100 / book.price(),
+                            ((int) Math.round((double) book.price() - book.salesPrice()) / book.price()* 100 ),
                             item.quantity(),
                             book.salesPrice() * item.quantity(),
                             Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null
@@ -141,8 +170,6 @@ public class OrderController {
     public OrderSaveResponse saveOrder(@RequestBody OrderSaveRequest request) {
         return orderAdaptor.saveOrders(request).data();
     }
-
-
 
 
     /*

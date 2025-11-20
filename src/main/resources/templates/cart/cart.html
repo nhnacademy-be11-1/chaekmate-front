@@ -433,6 +433,9 @@
                     .then(function(data) {
                         console.log('주문 요청 성공:', data);
 
+                        const encoded = encodeURIComponent(JSON.stringify(orderItems));
+                        window.location.href = data.redirectUrl + `?items=${encoded}`;
+
                         // 버튼 복원
                         orderButton.disabled = false;
                         orderButton.innerHTML = originalHTML;

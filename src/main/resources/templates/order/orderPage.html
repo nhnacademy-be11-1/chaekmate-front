@@ -40,7 +40,7 @@
                             </thead>
                             <tbody th:each="item, idx : ${orderItems}">
                             <!-- ① 상품 정보 행 -->
-                            <tr>
+                            <tr class="order-item-row" th:data-book-id="${item.bookId}">
                                 <td class="text-center">
                                     <img th:src="${item.thumbnailUrl}" class="cm-thumb"/>
                                 </td>
@@ -59,7 +59,7 @@
 
                                 <td class="text-center">
         <span class="cm-discount"
-              th:text="${item.discountRate} + '%'"></span>
+              th:text="${T(java.lang.Math).round((item.originalPrice - item.salesPrice) * 100.0 / item.originalPrice)} + '%'"></span>
                                 </td>
 
                                 <td class="text-center">
@@ -78,7 +78,7 @@
                             </tr>
 
                             <!-- ② 상품 추가 옵션 행 (쿠폰 + 포인트 + 포장지) -->
-                            <tr class="bg-light">
+                            <tr class="order-item-row option-row">
                                 <td colspan="7" class="p-3">
 
                                     <!-- 쿠폰 -->
@@ -669,37 +669,41 @@
                 const requestText = document.querySelector("textarea[name=request]").value;
 
                 // 주문 상품 리스트
-                const orderedBooks = $$('.order-item-row').map((row, idx) => {
-                    const bookId = Number(row.dataset.bookId);
-                    const quantity = Number(row.querySelector(".qty").textContent);
-                    const originalPrice = num(row.querySelector(".price").textContent);
-                    const subtotal = num(row.querySelector(".subtotal").textContent);
+                const orderedBooks = $$('.order-item-row')
+                    .filter(row => !row.classList.contains("option-row"))
+                    .map(row => {
 
+                        const optionRow = row.nextElementSibling;  // ★ 각 row 마다 optionRow 가져오기
 
-                    const wrap = row.querySelector(".wrap-radio:checked");
-                    const wrapperId = wrap?.dataset.id ? Number(wrap.dataset.id) : null;
-                    const wrapperPrice = wrap ? Number(wrap.dataset.price) : 0;
+                        const bookId = Number(row.dataset.bookId);
+                        const quantity = Number(row.querySelector(".qty").textContent);
+                        const originalPrice = num(row.querySelector(".price").textContent);
+                        const subtotal = num(row.querySelector(".subtotal").textContent);
 
-                    const coupon = row.querySelector(".coupon-select");
-                    const couponDiscount = coupon?.value ? Number(coupon.value) : 0;
+                        const wrap = optionRow.querySelector(".wrap-radio:checked");
+                        const wrapperId = wrap?.dataset.id ? Number(wrap.dataset.id) : null;
+                        const wrapperPrice = wrap ? Number(wrap.dataset.price) : 0;
 
-                    const pointInput = row.querySelector(".point-input");
-                    const pointUsed = pointInput ? Number(pointInput.value) : 0;
+                        const coupon = optionRow.querySelector(".coupon-select");
+                        const couponDiscount = coupon?.value ? Number(coupon.value) : 0;
 
-                    return {
-                        bookId,
-                        quantity,
-                        originalPrice,
-                        salesPrice: null,
-                        discountPrice: null,
-                        wrapperId,
-                        wrapperPrice,
-                        issuedCouponId: null,
-                        couponDiscount,
-                        pointUsed,
-                        finalUnitPrice: subtotal / quantity
-                    };
-                });
+                        const pointInput = optionRow.querySelector(".point-input");
+                        const pointUsed = pointInput ? Number(pointInput.value) : 0;
+
+                        return {
+                            bookId,
+                            quantity,
+                            originalPrice,
+                            salesPrice: null,
+                            discountPrice: null,
+                            wrapperId,
+                            wrapperPrice,
+                            issuedCouponId: null,
+                            couponDiscount,
+                            pointUsed,
+                            finalUnitPrice: subtotal / quantity
+                        };
+                    });
 
                 // 최종 DTO (OrderSaveRequest)
                 return {
