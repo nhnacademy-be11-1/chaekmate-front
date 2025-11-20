@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/layout/admin-layout :: html(~{:: .admin-content})}">
+  <div class="admin-content">
+    <div class="container-fluid py-4">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>쿠폰 상세</h2>
+        <div>
+          <a th:href="@{/admin/coupons/{id}/edit(id=${coupon.couponPolicyId})}"
+             class="btn btn-primary">
+            <i class="fa fa-edit"></i> 수정
+          </a>
+          <a th:href="@{/admin/coupons}" class="btn btn-secondary">
+            <i class="fa fa-list"></i> 목록
+          </a>
+        </div>
+      </div>
+
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <table class="table table-bordered">
+            <tbody>
+            <tr>
+              <th width="20%" class="bg-light">쿠폰 ID</th>
+              <td th:text="${coupon.couponPolicyId}"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">쿠폰명</th>
+              <td th:text="${coupon.name}"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">쿠폰 타입</th>
+              <td>
+                <span class="badge badge-primary" th:text="${coupon.type}"></span>
+              </td>
+            </tr>
+            <tr th:if="${coupon.couponAppliedTargetNames != null && !coupon.couponAppliedTargetNames.isEmpty()}">
+              <th class="bg-light">적용 대상</th>
+              <td th:text="${coupon.couponAppliedTargetNames}"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">발급 기간 타입</th>
+              <td th:text="${coupon.couponAppliedPeriodType}"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">발급 기간</th>
+              <td>
+                <span th:if="${coupon.appliedStartedAt != null}">
+                    시작: <span th:text="${#temporals.format(coupon.appliedStartedAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </span>
+                <br th:if="${coupon.appliedStartedAt != null && coupon.appliedExpiredAt != null}">
+                <span th:if="${coupon.appliedExpiredAt != null}">
+                    종료: <span th:text="${#temporals.format(coupon.appliedExpiredAt, 'yyyy-MM-dd HH:mm')}"></span>
+                </span>
+                <span th:if="${coupon.appliedStartedAt == null && coupon.appliedExpiredAt == null}">
+                    제한 없음
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <th class="bg-light">할인 타입</th>
+              <td th:text="${coupon.discountType}"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">할인 값</th>
+              <td>
+                <strong class="text-primary h5" th:text="${coupon.discountDisplay()}"></strong>
+              </td>
+            </tr>
+            <tr>
+              <th class="bg-light">최소 사용 금액</th>
+              <td th:text="${#numbers.formatInteger(coupon.minAvailableAmount, 0, 'COMMA')} + '원'"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">최대 적용 금액</th>
+              <td th:text="${#numbers.formatInteger(coupon.maxAppliedAmount, 0, 'COMMA')} + '원'"></td>
+            </tr>
+            <tr>
+              <th class="bg-light">남은 수량</th>
+              <td>
+                <span th:if="${coupon.remainingQuantity != null}"
+                      th:text="${#numbers.formatInteger(coupon.remainingQuantity, 0, 'COMMA')}"></span>
+                <span th:unless="${coupon.remainingQuantity != null}"
+                      class="badge badge-success">무제한</span>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+</html>
