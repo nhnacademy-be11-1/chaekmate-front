@@ -12,6 +12,7 @@ import shop.chaekmate.front.auth.dto.response.PaycoTempInfoResponse;
 import shop.chaekmate.front.auth.service.AuthService;
 import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
+import shop.chaekmate.front.member.dto.response.GradeResponse;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.member.service.MemberService;
 
@@ -89,9 +90,13 @@ public class MemberController {
     @GetMapping("/members/{memberId}/mypage")
     public String mypageView(@PathVariable String memberId, Model model){
         List<MemberAddressResponse> addresses = memberService.getAddressesByMemberId(memberId);
+        GradeResponse memberGrade = memberService.getGradeByMemberId(memberId);
+        List<GradeResponse> grades = memberService.getAllGrades();
         model.addAttribute("memberId", memberId);
         model.addAttribute("addresses", addresses == null ? java.util.List.of() : addresses);
         model.addAttribute("addressCreateRequest", new AddressCreateRequest("", "", "", 0));
+        model.addAttribute("memberGrade", memberGrade);
+        model.addAttribute("grades", grades);
         return "member/mypage";
     }
 }
