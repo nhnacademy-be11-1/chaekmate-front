@@ -1,16 +1,16 @@
 package shop.chaekmate.front.payment.dto.response;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 public record PaymentApproveResponse(
 
         String orderId,
 
-//        String paymentKey,
-
         long totalAmount,
+
+        int pointUsed,
 
         String status,
 
-        OffsetDateTime approvedAt
+        LocalDateTime approvedAt
 ) {}
