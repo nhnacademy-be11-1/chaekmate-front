@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import shop.chaekmate.front.common.CommonResponse;
+import shop.chaekmate.front.point.dto.response.MemberPointHistoryResponse;
 import shop.chaekmate.front.point.dto.response.PointHistoryResponse;
 import shop.chaekmate.front.point.dto.response.PointResponse;
 
@@ -17,7 +18,7 @@ public interface PointHistoryAdaptor {
     CommonResponse<Page<PointHistoryResponse>> getAllPointHistory(@SpringQueryMap Pageable pageable);
 
     @GetMapping(value = "/members/{memberId}/point-histories")
-    CommonResponse<Page<PointHistoryResponse>> getMemberPointHistory(
+    CommonResponse<Page<MemberPointHistoryResponse>> getMemberPointHistory(
             @PathVariable("memberId") Long memberId,
             @SpringQueryMap Pageable pageable);
 
