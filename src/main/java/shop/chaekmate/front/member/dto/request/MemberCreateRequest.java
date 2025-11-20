@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public record MemberCreateRequest(
         @NotBlank(message = "ID는 필수입니다.")
-        @Size(max = 20, message = "ID는 20자 이하로 입력해주세요.")
+        @Size(max = 100, message = "ID는 100자 이하로 입력해주세요.")
         String loginId,
 
         @NotBlank(message = "비밀번호는 필수입니다.")
