@@ -33,7 +33,8 @@ public class SecurityConfig {
                         // 관리자 페이지는 ADMIN 권한 필요
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 비회원도 접근 되는 곳들
-                        .requestMatchers("/", "/login", "/signup").permitAll()
+                        .requestMatchers("/", "/login", "/signup", "/signup/payco").permitAll()
+                        .requestMatchers("/auth/payco/callback", "/auth/payco/temp/**", "/auth/payco/login").permitAll() // PAYCO OAuth 콜백, 임시 정보 조회/삭제, 자동 로그인                        .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/carts/**").permitAll() // 장바구니
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
