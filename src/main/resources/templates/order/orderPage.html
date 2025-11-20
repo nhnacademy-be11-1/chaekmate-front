@@ -28,66 +28,106 @@
                     <div class="table-responsive">
                         <table class="table table-borderless align-middle mb-0">
                             <thead>
-                            <tr class="text-dark">
-                                <th style="width:64px">표지</th>
-                                <th>상품명</th>
-                                <th class="text-right">가격</th>
-                                <th class="text-center">수량</th>
-                                <th class="text-right">소계</th>
+                            <tr class="text-center">
+                                <th style="width: 90px;">상품 이미지</th>
+                                <th style="width: 260px;">상품 정보</th>
+                                <th style="width: 110px;">정가</th>
+                                <th style="width: 100px;">할인율</th>
+                                <th style="width: 120px;">할인가격</th>
+                                <th style="width: 70px;">수량</th>
+                                <th style="width: 120px;">총합계</th>
                             </tr>
                             </thead>
-                            <tbody>
-                            <tr class="order-item-row" th:each="item,idx : ${orderItems}">
-                                <td>
-                                    <img th:src="@{${item.thumbnailUrl}}" class="img-fluid rounded"
-                                         style="max-width:48px;">
+                            <tbody th:each="item, idx : ${orderItems}">
+                            <!-- ① 상품 정보 행 -->
+                            <tr>
+                                <td class="text-center">
+                                    <img th:src="${item.thumbnailUrl}" class="cm-thumb"/>
                                 </td>
 
                                 <td>
-                                    <div class="font-weight-bold" th:text="${item.title}">책 제목</div>
-                                    <small class="text-muted d-block" th:text="${item.author}">저자</small>
+                                    <div class="cm-info">
+                                        <div class="cm-title" th:text="${item.title}"></div>
+                                        <div class="cm-author" th:text="${item.author}"></div>
+                                    </div>
+                                </td>
+
+                                <td class="text-center">
+        <span class="cm-price-original price"
+              th:text="${#numbers.formatInteger(item.originalPrice,3,'COMMA')} + '원'"></span>
+                                </td>
+
+                                <td class="text-center">
+        <span class="cm-discount"
+              th:text="${item.discountRate} + '%'"></span>
+                                </td>
+
+                                <td class="text-center">
+        <span class="cm-price-sale"
+              th:text="${#numbers.formatInteger(item.salesPrice,3,'COMMA')} + '원'"></span>
+                                </td>
+
+                                <td class="text-center">
+                                    <span class="qty" th:text="${item.quantity}"></span>
+                                </td>
+
+                                <td class="text-center">
+        <span class="subtotal cm-price-total"
+              th:text="${#numbers.formatInteger(item.subtotal,3,'COMMA')} + '원'"></span>
+                                </td>
+                            </tr>
+
+                            <!-- ② 상품 추가 옵션 행 (쿠폰 + 포인트 + 포장지) -->
+                            <tr class="bg-light">
+                                <td colspan="7" class="p-3">
 
                                     <!-- 쿠폰 -->
-                                    <div class="mt-2" th:if="${isLoggedIn}">
-                                        <label class="mb-1 d-block">쿠폰 적용</label>
-                                        <select class="custom-select coupon-select" th:data-price="${item.originalPrice}">
+                                    <div class="mb-3" th:if="${isLoggedIn}">
+                                        <label class="font-weight-bold d-block mb-1">쿠폰 적용</label>
+                                        <select class="custom-select coupon-select" style="width: 200px;">
                                             <option value="">선택 안함</option>
                                             <option value="3000">3,000원 할인 쿠폰</option>
-                                            <option value="5000">5,000원 할인 쿠폰</option>
                                         </select>
                                     </div>
 
-                                    <!-- 포인트 (회원/비회원)-->
-                                    <div class="mt-2" th:if="${isLoggedIn}">
-                                        <label class="mb-1">포인트 사용</label>
-                                        <div class="input-group">
+                                    <!-- 포인트 -->
+                                    <div class="mb-3" th:if="${isLoggedIn}">
+                                        <label class="font-weight-bold d-block mb-1">포인트 사용</label>
+
+                                        <div class="input-group" style="width: 280px;">
                                             <input type="number" class="form-control point-input"
                                                    placeholder="사용 포인트 입력"
-                                                   th:data-max="${isLoggedIn} ? ${member.remainingPoints} : 0">
+                                                   th:data-max="${member.remainingPoints}">
+
                                             <div class="input-group-append">
-                                                <button class="btn btn-outline-secondary btn-max-point" type="button"
-                                                        onclick="useMaxPoint(this)">최대
-                                                </button>
-                                                <button class="btn btn-outline-primary ml-1 point-apply-btn" type="button"
+                                                <button type="button" class="btn btn-outline-secondary btn-max-point"
+                                                        onclick="useMaxPoint(this)">최대</button>
+                                                <button type="button" class="btn btn-outline-primary ml-1 point-apply-btn"
                                                         onclick="togglePointApply(this)">적용</button>
                                             </div>
                                         </div>
-                                        <small class="text-muted">보유 포인트:
-                                            <b th:text="${isLoggedIn} ? ${member.remainingPoints} : 0"></b>P
+
+                                        <small class="text-muted">
+                                            보유 포인트: <b th:text="${member.remainingPoints}"></b>P
                                         </small>
                                     </div>
+
                                     <!-- 포장지 -->
-                                    <div class="mt-3">
-                                        <label class="mb-1 d-block">포장지 선택</label>
-                                        <div class="d-flex" th:with="wraps=${wrappers}">
-                                            <!-- 기본 -->
+                                    <div class="mt-2">
+                                        <label class="font-weight-bold d-block mb-1">포장지 선택</label>
+
+                                        <div class="d-flex flex-wrap" th:with="wraps=${wrappers}">
                                             <label class="cm-wrap-tile mr-2">
-                                                <input type="radio" th:name="'wrap_' + ${idx.index}" data-id=""
-                                                       data-price="0" value="0" class="sr-only wrap-radio" checked>
+                                                <input type="radio"
+                                                       th:name="'wrap_' + ${idx.index}"
+                                                       data-id=""
+                                                       data-price="0"
+                                                       value="0"
+                                                       class="sr-only wrap-radio"
+                                                       checked>
                                                 <span>기본 (무료)</span>
                                             </label>
 
-                                            <!-- 서버 포장지 -->
                                             <label class="cm-wrap-tile mr-2" th:each="wrapper : ${wraps}">
                                                 <input type="radio"
                                                        th:name="'wrap_' + ${idx.index}"
@@ -100,11 +140,9 @@
                                         </div>
                                     </div>
                                 </td>
-                                <td class="text-right price" th:text="${item.originalPrice}">38000</td>
-                                <td class="text-center qty" th:text="${item.quantity}">1</td>
-                                <td class="text-right subtotal" th:text="${item.subtotal}">38000</td>
                             </tr>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
@@ -175,12 +213,22 @@
                     <div class="form-group">
                         <label>직접 입력</label>
                         <div class="input-group mb-2">
-                            <input type="text" class="form-control" id="postcode" placeholder="우편번호" readonly>
+                            <input type="text"
+                                   class="form-control"
+                                   id="postcode"
+                                   placeholder="우편번호"
+                                   readonly>
+
                             <div class="input-group-append">
-                                <button type="button" class="btn btn-outline-secondary" onclick="findAddress()">주소 검색
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        style="white-space: nowrap;"
+                                        onclick="findAddress()">
+                                    주소 검색
                                 </button>
                             </div>
                         </div>
+
                         <input type="text" class="form-control mb-2" id="roadAddress" placeholder="도로명 주소" readonly>
                         <input type="text" class="form-control" id="detailAddress" placeholder="상세 주소 입력">
                     </div>
@@ -205,9 +253,9 @@
                     <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">결제 정보</span></h5>
                     <div class="cm-card p-3">
                         <!-- 서버에서 생성된 주문번호를 hidden으로 -->
-                        <input type="hidden" id="orderNumber" name="orderNumber" th:value="${orderNumber}">
+                        <input type="hidden" id="orderNumber" name="orderNumber">
                         <input type="hidden" id="orderName" name="orderName" th:value="${orderItems[0].title}">
-                        <input type="hidden" id="price" name="price" th:value="${summary.payableTotal}">
+                        <input type="hidden" id="price" name="price">
                         <input type="hidden" id="pointUsed" th:value="${summary.pointDiscount}">
 
 
@@ -215,7 +263,7 @@
                                                                           th:text="${summary.productsTotal} + '원'"></span>
                         </div>
                         <div class="cm-total-row"  th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
-                                                                          th:text="'-' + ${summary.couponDiscount} + '원'"></span>
+                                                                                                 th:text="'-' + ${summary.couponDiscount} + '원'"></span>
                         </div>
                         <div class="cm-total-row" th:if="${isLoggedIn}"><span>포인트 사용</span> <span id="sum-point"
                                                                                                   th:text="'-' + ${summary.pointDiscount} + '원'"></span>
@@ -252,7 +300,7 @@
             <!-- 결제 버튼 -->
             <button id="payButton" class="btn btn-primary btn-block mt-4">결제하기</button>
             <!-- 취소 버튼 -->
-            <button id="cancelModalBtn" class="btn btn-outline-secondary btn-block mt-2">닫기</button>
+            <button id="cancelModalBtn" class="btn btn-light border btn-block mt-2">닫기</button>
         </div>
     </div>
     <script th:inline="javascript">
@@ -604,9 +652,101 @@
             const paymentModal = document.getElementById("paymentModal");
             const cancelModalBtn = document.getElementById("cancelModalBtn");
 
-            checkoutForm.addEventListener("submit", function (e) {
+            function buildOrderSaveRequest() {
+                // orderer / receiver / address 등 form 값 읽기
+                const ordererName = document.getElementById("ordererName").value;
+                const ordererPhone = document.getElementById("ordererPhone").value;
+                const ordererEmail = document.getElementById("ordererEmail").value;
+
+                const receiverName = document.getElementById("receiverName").value;
+                const receiverPhone = document.getElementById("receiverPhone").value;
+
+                const zipcode = document.getElementById("postcode").value;
+                const streetName = document.getElementById("roadAddress").value;
+                const detail = document.getElementById("detailAddress").value;
+
+                const deliveryAt = document.getElementById("deliveryDate").value;
+                const requestText = document.querySelector("textarea[name=request]").value;
+
+                // 주문 상품 리스트
+                const orderedBooks = $$('.order-item-row').map((row, idx) => {
+                    const bookId = Number(row.dataset.bookId);
+                    const quantity = Number(row.querySelector(".qty").textContent);
+                    const originalPrice = num(row.querySelector(".price").textContent);
+                    const subtotal = num(row.querySelector(".subtotal").textContent);
+
+
+                    const wrap = row.querySelector(".wrap-radio:checked");
+                    const wrapperId = wrap?.dataset.id ? Number(wrap.dataset.id) : null;
+                    const wrapperPrice = wrap ? Number(wrap.dataset.price) : 0;
+
+                    const coupon = row.querySelector(".coupon-select");
+                    const couponDiscount = coupon?.value ? Number(coupon.value) : 0;
+
+                    const pointInput = row.querySelector(".point-input");
+                    const pointUsed = pointInput ? Number(pointInput.value) : 0;
+
+                    return {
+                        bookId,
+                        quantity,
+                        originalPrice,
+                        salesPrice: null,
+                        discountPrice: null,
+                        wrapperId,
+                        wrapperPrice,
+                        issuedCouponId: null,
+                        couponDiscount,
+                        pointUsed,
+                        finalUnitPrice: subtotal / quantity
+                    };
+                });
+
+                // 최종 DTO (OrderSaveRequest)
+                return {
+                    ordererName: ordererName,
+                    ordererPhone: ordererPhone,
+                    ordererEmail: ordererEmail,
+
+                    recipientName: receiverName,
+                    recipientPhone: receiverPhone,
+
+                    zipcode,
+                    streetName,
+                    detail,
+                    deliveryRequest: requestText,
+                    deliveryAt,
+
+                    deliveryFee: summary.shippingFee,
+                    totalPrice: summary.productsTotal
+                        - summary.couponDiscount
+                        - summary.pointDiscount
+                        + summary.wrapFeeTotal
+                        + summary.shippingFee,
+
+                    orderedBooks
+                };
+            }
+
+            checkoutForm.addEventListener("submit", async function (e) {
                 e.preventDefault();
                 const total = recalc();
+
+                // 서버로 보낼 주문 저장 DTO 구성
+                const saveRequest = buildOrderSaveRequest();  // ✨ 아래에서 만들어줄 함수
+
+                // 1) 주문 저장 API 호출 (프론트 → 프론트 OrderController → core)
+                const response = await fetch("/orders/save", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(saveRequest)
+                }).then(r => r.json());
+
+                const {orderNumber, totalPrice} = response;
+
+                // hidden 값 업데이트
+                document.getElementById("orderNumber").value = orderNumber;
+                document.getElementById("price").value = totalPrice;
+
 
                 // 총 결제금액 0원 → 포인트 전액 결제
                 if (total === 0) {

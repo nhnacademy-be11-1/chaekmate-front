@@ -1,24 +1,28 @@
 package shop.chaekmate.front.order.controller;
 
-import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
+import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
+import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.order.adaptor.OrderAdaptor;
 import shop.chaekmate.front.order.dto.request.OrderItem;
+import shop.chaekmate.front.order.dto.request.OrderSaveRequest;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
+import shop.chaekmate.front.order.dto.response.OrderSaveResponse;
 import shop.chaekmate.front.order.dto.response.WrapperResponse;
 import shop.chaekmate.front.point.adaptor.PointHistoryAdaptor;
 import shop.chaekmate.front.point.dto.response.PointResponse;
@@ -30,6 +34,7 @@ public class OrderController {
     private final OrderAdaptor orderAdaptor;
     private final MemberAdaptor memberAdaptor;
     private final BookAdaptor bookAdaptor;
+    private final BookImageAdaptor bookImageAdaptor;
     private final PointHistoryAdaptor pointHistoryAdaptor;
 
     @GetMapping("/orders")
@@ -47,10 +52,6 @@ public class OrderController {
         }
         model.addAttribute("orderItems", orderItems);
 
-        // orderNumber주문 번호 생성
-        String orderNumber = NanoIdUtils.randomNanoId();
-        model.addAttribute("orderNumber", orderNumber);
-
         // 회원식별자
         boolean isLoggedIn = (principal != null);
         model.addAttribute("isLoggedIn", isLoggedIn);
@@ -63,7 +64,7 @@ public class OrderController {
             var member = new Member("테스트사용자", "01012345678", "test@example.com", pointResponse.point());
             model.addAttribute("member", member);
 
-            /// todo 실제 회원 이름, 전화번호, 이메일 가져오기 (member 로직 구현 x)
+            // todo 실제 회원 이름, 전화번호, 이메일 가져오기 (member 로직 구현 x)
 //            var memberResponse = orderAdaptor.getMemberInfo(memberId).data();
 //            model.addAttribute("member", memberResponse);
 
@@ -72,7 +73,7 @@ public class OrderController {
             model.addAttribute("addresses", addressResponse);
 
         } else {
-             // 비회원이면 빈 값 전달
+            // 비회원이면 빈 값 전달
             model.addAttribute("member", null);
             model.addAttribute("addresses", null);
             model.addAttribute("remainingPoints", 0);
@@ -82,10 +83,7 @@ public class OrderController {
         DeliveryPolicyResponse policy = orderAdaptor.getCurrentPolicy().data();
         model.addAttribute("deliveryPolicy", policy);
 
-
-        int productsTotal = 0;
-        productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
-
+        int productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
 
         // 배송비 계산 (무료배송 기준 반영)
         int shippingFee = (productsTotal >= policy.freeStandardAmount()) ? 0 : policy.deliveryFee();
@@ -94,7 +92,7 @@ public class OrderController {
         List<WrapperResponse> wrappers = orderAdaptor.getWrappers().data();
         model.addAttribute("wrappers", wrappers);
 
-        /// 결제 요약 수정
+        // 결제 요약 수정
         var summary = new Summary(
                 productsTotal,
                 0, // 쿠폰 할인
@@ -111,8 +109,18 @@ public class OrderController {
         return "order/orderPage";
     }
 
-    @NotNull
-    private static OrderItem getOrderItem(BookDetailResponse book, Integer quantity) {
+    @PostMapping("/orders/save")
+    @ResponseBody
+    public OrderSaveResponse saveOrder(@RequestBody OrderSaveRequest request) {
+        return orderAdaptor.saveOrders(request).data();
+    }
+
+
+    private OrderItem getOrderItem(BookDetailResponse book, Integer quantity) {
+        BookThumbnailResponse thumbnail = bookImageAdaptor.getBookThumbnail(book.id()).data();
+
+        String thumbnailUrl = Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null;
+
         int originalPrice = book.price();
         int salesPrice = book.salesPrice();
         int discountAmount = originalPrice - salesPrice;
@@ -129,10 +137,15 @@ public class OrderController {
                 discountAmount,
                 quantity,
                 salesPrice * quantity,
-                book.imageUrl()
+                thumbnailUrl
         );
     }
+
     // --- DTO ---
-    record Member(String name, String phone, String email, int remainingPoints) {}
-    record Summary(int productsTotal, int couponDiscount, int pointDiscount, int wrapFeeTotal, int shippingFee, int payableTotal) {}
+    record Member(String name, String phone, String email, int remainingPoints) {
+    }
+
+    record Summary(int productsTotal, int couponDiscount, int pointDiscount, int wrapFeeTotal, int shippingFee,
+                   int payableTotal) {
+    }
 }
