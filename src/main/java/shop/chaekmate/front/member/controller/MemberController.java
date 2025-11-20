@@ -31,7 +31,7 @@ public class MemberController {
         return "redirect:/login";
     }
 
-    @GetMapping("/{memberId}/mypage")
+    @GetMapping("/members/{memberId}/mypage")
     public String mypageView(@PathVariable String memberId, Model model){
         List<MemberAddressResponse> addresses = memberService.getAddressesByMemberId(memberId);
         GradeResponse memberGrade = memberService.getGradeByMemberId(memberId);
