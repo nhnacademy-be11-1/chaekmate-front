@@ -31,7 +31,7 @@ public class SecurityConfig {
                         // 관리자 로그인 페이지는 누구나 접근 가능
                         .requestMatchers("/admin/login").permitAll()
                         // 관리자 페이지는 ADMIN 권한 필요
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN")                        
                         // 비회원도 접근 되는 곳들
                         .requestMatchers("/", "/login", "/signup").permitAll()
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
