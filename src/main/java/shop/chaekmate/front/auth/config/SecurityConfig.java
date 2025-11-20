@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 비회원도 접근 되는 곳들
                         .requestMatchers("/", "/login", "/signup").permitAll()
+                        .requestMatchers("/auth/payco/callback").permitAll() // PAYCO OAuth 콜백
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
                         .requestMatchers("/payments/**").permitAll() // 결제 페이지

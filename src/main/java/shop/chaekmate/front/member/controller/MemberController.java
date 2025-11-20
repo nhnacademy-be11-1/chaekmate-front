@@ -2,9 +2,12 @@ package shop.chaekmate.front.member.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import shop.chaekmate.front.auth.dto.response.PaycoTempInfoResponse;
+import shop.chaekmate.front.auth.service.AuthService;
 import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
@@ -17,9 +20,25 @@ import java.util.List;
 @Slf4j
 public class MemberController {
     private final MemberService memberService;
+    private final AuthService authService;
 
     @GetMapping("/signup")
-    public String signupView(){
+    public String signupView(@RequestParam(required = false) String payco,
+                             @RequestParam(required = false) String tempKey,
+                             Model model){
+        // PAYCO 회원가입인 경우 PAYCO 정보 조회
+        if ("true".equals(payco) && tempKey != null) {
+            try {
+                ResponseEntity<PaycoTempInfoResponse> response = authService.getPaycoTempInfo(tempKey);
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    PaycoTempInfoResponse paycoInfo = response.getBody();
+                    model.addAttribute("paycoInfo", paycoInfo);
+                    model.addAttribute("isPaycoSignup", true);
+                }
+            } catch (Exception e) {
+                log.error("PAYCO 정보 조회 실패", e);
+            }
+        }
         return "member/signup";
     }
 

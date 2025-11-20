@@ -12,6 +12,8 @@ import shop.chaekmate.front.auth.dto.request.LoginRequest;
 import shop.chaekmate.front.auth.dto.response.LoginResponse;
 import shop.chaekmate.front.auth.dto.response.LogoutResponse;
 import shop.chaekmate.front.auth.dto.response.MemberInfoResponse;
+import shop.chaekmate.front.auth.dto.response.PaycoAuthorizationResponse;
+import shop.chaekmate.front.auth.dto.response.PaycoTempInfoResponse;
 import shop.chaekmate.front.auth.util.CookieUtil;
 import shop.chaekmate.front.auth.util.ResponseCookieUtil;
 
@@ -40,6 +42,22 @@ public class AuthService {
 
     public ResponseEntity<LoginResponse> refreshToken(String refreshToken) {
         return authAdaptor.refreshToken(refreshToken);
+    }
+
+    public ResponseEntity<PaycoAuthorizationResponse> getPaycoAuthorizationUrl() {
+        return authAdaptor.getPaycoAuthorizationUrl();
+    }
+
+    public ResponseEntity<PaycoTempInfoResponse> paycoCallback(String code) {
+        return authAdaptor.paycoCallback(code);
+    }
+
+    public ResponseEntity<PaycoTempInfoResponse> getPaycoTempInfo(String tempKey) {
+        return authAdaptor.getPaycoTempInfo(tempKey);
+    }
+
+    public void deletePaycoTempInfo(String tempKey) {
+        authAdaptor.deletePaycoTempInfo(tempKey);
     }
 
     // 회원 탈퇴 시 모든 토큰 제거되도록

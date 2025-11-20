@@ -12,8 +12,18 @@
         <div class="bg-light p-30">
           <h2 class="mb-4">회원가입</h2>
 
+          <!-- PAYCO 회원가입 안내 -->
+          <div th:if="${isPaycoSignup}" class="alert alert-info mb-3">
+            <strong>PAYCO로 회원가입</strong>
+            <p class="mb-0">PAYCO에서 가져온 정보는 자동으로 입력되었습니다. 추가 정보를 입력해주세요.</p>
+          </div>
+
           <!-- 브라우저 기본 검증 사용: novalidate 삭제 -->
           <form id="signupForm" th:action="@{/members}" method="post">
+            <!-- PAYCO tempKey 숨김 필드 -->
+            <input type="hidden" id="paycoTempKey" th:value="${paycoInfo?.tempKey}">
+            <input type="hidden" id="isPaycoSignup" th:value="${isPaycoSignup}">
+
             <div class="row">
 
               <!-- 로그인 아이디 (<=20, required) -->
@@ -48,7 +58,10 @@
               <div class="col-md-12 form-group">
                 <label for="name">이름</label>
                 <input type="text" class="form-control" id="name" name="name"
-                       maxlength="50" required autocomplete="name" placeholder="홍길동">
+                       maxlength="50" required autocomplete="name" placeholder="홍길동"
+                       th:value="${paycoInfo?.name}"
+                       th:readonly="${isPaycoSignup}">
+                <small th:if="${isPaycoSignup}" class="text-muted">PAYCO에서 가져온 정보입니다.</small>
               </div>
 
               <!-- 전화번호 (<=20, required) -->
@@ -57,7 +70,10 @@
                 <input type="tel" class="form-control" id="phone" name="phone"
                        inputmode="numeric" autocomplete="tel"
                        maxlength="20"
-                       pattern="^[0-9\-]{9,20}$" required placeholder="010-1234-5678">
+                       pattern="^[0-9\-]{9,20}$" required placeholder="010-1234-5678"
+                       th:value="${paycoInfo?.phone}"
+                       th:readonly="${paycoInfo?.phone != null and isPaycoSignup}">
+                <small th:if="${paycoInfo?.phone != null and isPaycoSignup}" class="text-muted">PAYCO에서 가져온 정보입니다.</small>
               </div>
 
               <!-- 이메일 (<=50, required) -->
@@ -65,10 +81,13 @@
                 <label for="email">이메일</label>
                 <div class="input-group">
                   <input type="email" class="form-control" id="email" name="email"
-                         maxlength="50" required autocomplete="email" placeholder="user@example.com">
-                  <button type="button" class="btn btn-primary" id="btnCheckEmail">중복확인</button>
+                         maxlength="50" required autocomplete="email" placeholder="user@example.com"
+                         th:value="${paycoInfo?.email}"
+                         th:readonly="${paycoInfo?.email != null and isPaycoSignup}">
+                  <button type="button" class="btn btn-primary" id="btnCheckEmail"
+                          th:disabled="${paycoInfo?.email != null and isPaycoSignup}">중복확인</button>
                 </div>
-                <small id="emailMsg" class="d-block mt-1" aria-live="polite"></small>
+                <small th:if="${paycoInfo?.email != null and isPaycoSignup}" class="text-muted">PAYCO에서 가져온 정보입니다.</small>
               </div>
 
               <!-- 생년월일 (required) -->
@@ -94,7 +113,11 @@
     </div>
   </div>
 
-  <script>
+  <script th:inline="javascript">
+    // PAYCO 정보 (서버에서 전달받은 값)
+    const paycoInfo = /*[[${paycoInfo}]]*/ null;
+    const isPaycoSignup = /*[[${isPaycoSignup}]]*/ false;
+
     // 요소
     const $form = document.getElementById('signupForm');
     const $submit = document.getElementById('btnSubmit');
@@ -120,6 +143,16 @@
     let emailChecked = false;
     let lastCheckedId = null;
     let lastCheckedEmail = null;
+
+    // PAYCO 회원가입인 경우, PAYCO에서 제공한 정보는 이미 중복확인 완료된 것으로 처리
+    if (isPaycoSignup && paycoInfo) {
+      // PAYCO에서 제공한 이메일이 있으면 중복확인 완료 처리
+      if (paycoInfo.email) {
+        emailChecked = true;
+        lastCheckedEmail = paycoInfo.email;
+        setMsg($emailMsg, 'PAYCO에서 가져온 정보입니다.', 'ok');
+      }
+    }
 
     // msg helper
     function setMsg($el, text, type) {
@@ -279,9 +312,10 @@
         e.preventDefault(); e.stopPropagation(); validatePasswords(); return;
       }
 
-      // 3) 중복검사 결과 확인
-      if (!idChecked || $loginId.value.trim() !== lastCheckedId) {
-        e.preventDefault(); e.stopPropagation(); setMsg($loginIdMsg, '아이디 중복확인을 해주세요.', 'err'); return;
+      // 3) 중복검사 결과 확인 (PAYCO 회원가입인 경우 loginId는 사용자가 직접 입력하므로 중복확인 필요)
+      const isPaycoSignupEl = document.getElementById('isPaycoSignup');
+      const isPaycoSignup = isPaycoSignupEl && isPaycoSignupEl.value === 'true';
+      if (!isPaycoSignup && (!idChecked || $loginId.value.trim() !== lastCheckedId)) {        e.preventDefault(); e.stopPropagation(); setMsg($loginIdMsg, '아이디 중복확인을 해주세요.', 'err'); return;
       }
       if (!emailChecked || $email.value.trim() !== lastCheckedEmail) {
         e.preventDefault(); e.stopPropagation(); setMsg($emailMsg, '이메일 중복확인을 해주세요.', 'err'); return;
@@ -292,6 +326,9 @@
 
       // DB 저장용: 하이픈 제거(숫자만 남김)
       const cleanPhone = $phone.value.replaceAll(/\D/g, '');
+
+      const paycoTempKeyEl = document.getElementById('paycoTempKey');
+      const paycoTempKey = paycoTempKeyEl ? paycoTempKeyEl.value : null;
 
       const body = {
         loginId: $loginId.value.trim(),
@@ -311,6 +348,17 @@
         });
 
         if (res.status === 201 || res.status === 200) {
+          // PAYCO 회원가입인 경우 임시 정보 삭제
+          if (paycoTempKey) {
+            try {
+              await fetch(`/auth/payco/temp/${paycoTempKey}`, {
+                method: 'DELETE'
+              });
+            } catch (e) {
+              // PAYCO 임시 정보 삭제 실패해도 회원가입은 성공한 것으로 처리
+              console.error('PAYCO 임시 정보 삭제 실패:', e);
+            }
+          }
           globalThis.location.href = '/login';
           return;
         }
