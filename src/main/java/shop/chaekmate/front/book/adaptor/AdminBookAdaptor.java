@@ -20,6 +20,13 @@ public interface AdminBookAdaptor {
     @GetMapping("/admin/books/recent")
     CommonResponse<List<AdminBookResponse>> getBooks(@RequestParam int limit);
 
+    // 관리자용 도서 목록 조회
+    @GetMapping("/admin/books/paged")
+    CommonResponse<Page<AdminBookResponse>> getAdminBooksPaged(@RequestParam int page,
+                                                               @RequestParam int size,
+                                                               @RequestParam String sortType,
+                                                               @RequestParam(required = false) String keyword);
+
     // 특정 도서 상세 조회
     @GetMapping("/books/{bookId}")
     CommonResponse<AdminBookResponse> getBookById(@PathVariable(value = "bookId") Long bookId );

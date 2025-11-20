@@ -35,14 +35,16 @@ public class SecurityConfig {
                         // 비회원도 접근 되는 곳들
                         .requestMatchers("/", "/login", "/signup").permitAll()
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
+                        .requestMatchers("/carts/**").permitAll() // 장바구니
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
+                        .requestMatchers("/likes/**").permitAll() // 좋아요 요청 (인증 별도)
                         .requestMatchers("/payments/**").permitAll() // 결제 페이지
                         .requestMatchers("/orders/**").permitAll()   // 주문 페이지
                         .requestMatchers("/members/check-*").permitAll() // 중복 체크는 허용
                         .requestMatchers("/members").permitAll() // 회원가입은 허용
                         .requestMatchers("/members/**").authenticated() // 나머지는 모두 인증 필요
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
-                                "/favicon.ico")
+                                "/favicon.ico","/mail/**", "/scss/**") // resources/static 아래 경로들 추가
                         .permitAll()
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()

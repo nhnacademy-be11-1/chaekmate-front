@@ -27,8 +27,17 @@ public class AdminBookService {
     private final TagService tagService;
     private final BookImageService bookImageService;
 
+    // 최근 추가된 도서 조회
     public List<AdminBookResponse> getRecentCreatedBooks(int limit){
         CommonResponse<List<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getBooks(limit);
+
+        return wrappedResponse.data();
+    }
+
+    // 관리자 도서 목록 조회
+    public Page<AdminBookResponse> getAdminBookPaged(Pageable pageable, String sortType, String keyword){
+
+        CommonResponse<Page<AdminBookResponse>> wrappedResponse = adminBookAdaptor.getAdminBooksPaged(pageable.getPageNumber(),pageable.getPageSize(),sortType,keyword);
 
         return wrappedResponse.data();
     }
@@ -49,13 +58,13 @@ public class AdminBookService {
         Long bookId = response.data().id();
 
         // 섬네일 이미지 추가
-        if(request.thumbnailUrl() != null && !request.thumbnailUrl().trim().isBlank()) {
-            bookImageService.createBookThumbnail(bookId, request.thumbnailUrl());
+        if(request.getThumbnailUrl() != null && !request.getThumbnailUrl().trim().isBlank()) {
+            bookImageService.createBookThumbnail(bookId, request.getThumbnailUrl());
         }
 
         // 상세 이미지 추가
-        if(request.newDetailImageUrls() != null && !request.newDetailImageUrls().isEmpty()){
-            request.newDetailImageUrls().forEach(imageUrl -> bookImageService.addBookImage(bookId, imageUrl));
+        if(request.getNewDetailImageUrls() != null && !request.getNewDetailImageUrls().isEmpty()){
+            request.getNewDetailImageUrls().forEach(imageUrl -> bookImageService.addBookImage(bookId, imageUrl));
         }
 
     }

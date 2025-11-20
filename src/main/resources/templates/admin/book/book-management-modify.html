@@ -2,6 +2,14 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
 <section>
+    <!-- 날짜선택기 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <!-- TOAST UI CSS -->
+    <link rel="stylesheet" href="https://uicdn.toast.com/editor/latest/toastui-editor.min.css" />
+
+
     <div class="container-fluid" th:with="bookId=${book.id}">
         <div class="row px-xl-5">
             <div class="col-12">
@@ -60,8 +68,9 @@
                                 </div>
                             </div>
                             <hr>
-                            <h6>새 상세 이미지 추가</h6>
-                            <div class="form-group">
+                            <h6 class="mb-1">새 이미지 추가</h6>
+                            <small class="text-muted">이미지가 없으면 처음 추가된 이미지가 썸네일이 됩니다</small>
+                            <div class="form-group mt-3">
                                 <label for="detail-image-upload-input">추가할 이미지 파일 선택</label>
                                 <input type="file" class="form-control-file" id="detail-image-upload-input" accept="image/*">
                                 <small id="detail-image-status" class="form-text"></small>
@@ -100,7 +109,7 @@
                             </div>
                             <div class="form-group">
                                 <label for="publishedAt">출판일</label>
-                                <input type="text" id="publishedAt" name="publishedAt" class="form-control" th:value="${book.publishedAt}">
+                                <input type="text" id="publishedAt" name="publishedAt" class="form-control datetime-picker" th:value="${book.publishedAt}">
                             </div>
                             <div class="form-group">
                                 <label for="price">정가</label>
@@ -165,5 +174,13 @@
         </div>
     </div>
     <script th:src="@{/js/image-upload.js}"></script>
+
+    <!-- 날짜 선택기 -->
+    <script th:src="@{/js/admin-date-selector.js}"></script>
+
+
+    <!-- Toast UI (WYSIWYG) -->
+    <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
 </section>
 </html>

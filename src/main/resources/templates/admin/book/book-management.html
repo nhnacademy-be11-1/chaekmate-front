@@ -13,25 +13,61 @@
                     <a href="/admin/books/aladin" class="btn btn-info">알라딘 도서 검색</a>
                 </div>
 
-                <!-- Recent Books List -->
-                <h4 class="h4 font-weight-bold text-dark mb-3">최근 추가된 도서 (최대 5개)</h4>
-                <div th:if="${#lists.isEmpty(recentBooks)}" class="alert alert-info">최근 추가된 도서가 없습니다.</div>
-                <table class="table table-bordered text-center" th:unless="${#lists.isEmpty(recentBooks)}">
+
+                <!-- 관리자용 도서 목록 -->
+                <div th:if="${#lists.isEmpty(pagedBooks.getContent())}" class="alert alert-info">도서가 없습니다.</div>
+
+
+                <!-- 검색어 입력 -->
+                <form method="get" class="mb-3 d-flex align-items-center">
+                    <input type="hidden" name="page" value="0"/>
+                    <input type="hidden" name="size" th:value="${pagedBooks.size}"/>
+                    <input type="hidden" name="sortType" th:value="${sortType}"/>
+
+                    <div class="row g-2">
+                        <div class="col-auto">
+                            <input aria-label="keyword" id="keyword" type="text" name="keyword" class="form-control"
+                                   placeholder="제목으로 검색" th:value="${keyword}"/>
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- 정렬 선택 -->
+                <form method="get" class="mb-3">
+                    <input type="hidden" name="page" value="0"/>
+                    <input type="hidden" name="size" th:value="${pagedBooks.size}"/>
+                    <input type="hidden" name="keyword" th:value="${keyword}"/>
+
+                    <select aria-label="sortType" name="sortType" class="form-select d-inline-block w-auto" onchange="this.form.submit()" th:value="${sortType}">
+                        <option value="RECENT" th:selected="${sortType == 'RECENT'}">최근순</option>
+                        <option value="TITLE" th:selected="${sortType == 'TITLE'}">이름순</option>
+                        <option value="REVIEW_COUNT" th:selected="${sortType == 'REVIEW_COUNT'}">리뷰수 순</option>
+                    </select>
+                </form>
+
+                <table class="table table-bordered text-center" th:unless="${#lists.isEmpty(pagedBooks.getContent())}">
                     <thead class="thead-dark">
                     <tr>
                         <th>ID</th>
                         <th>이미지</th>
                         <th>제목</th>
                         <th>저자</th>
+                        <th>리뷰수</th>
                         <th>관리</th>
                     </tr>
                     </thead>
                     <tbody>
-                    <tr th:each="book : ${recentBooks}">
+                    <tr th:each="book : ${pagedBooks.getContent()}">
                         <td th:text="${book.id}"></td>
                         <td><img th:src="${book.imageUrl()}" alt="도서 표지" style="width: 100px; height: auto;"></td>
                         <td th:text="${book.title}" class="text-left"></td>
                         <td th:text="${book.author}"></td>
+                        <td th:text="${book.reviewCount}"></td>
                         <td>
                             <a th:href="@{/admin/books/{id}(id=${book.id})}" class="btn btn-sm btn-secondary">상세</a>
                             <a th:href="@{/admin/books/{id}/modify(id=${book.id})}" class="btn btn-sm btn-success">수정</a>
@@ -40,6 +76,69 @@
                     </tr>
                     </tbody>
                 </table>
+
+                <!-- 페이징 -->
+                <div class="col-12" th:if="${pagedBooks.totalPages != null and pagedBooks.totalPages > 1}">
+                    <nav>
+                        <ul class="pagination justify-content-center">
+                            <!-- 처음 -->
+                            <li class="page-item"
+                                th:classappend="${pagedBooks.getNumber() == 0} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/books(page=0, size=${pagedBooks.size}, sortType=${sortType},keyword=${keyword})}">
+                                    <i class="fa fa-angle-double-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- 이전 -->
+                            <li class="page-item"
+                                th:classappend="${pagedBooks.getNumber() == 0} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/books(page=${pagedBooks.getNumber() - 1}, size=${pagedBooks.size} , sortType=${sortType},keyword=${keyword})}">
+                                    <i class="fa fa-angle-left"></i>
+                                </a>
+                            </li>
+
+                            <!-- 페이지 번호 -->
+                            <th:block th:each="i : ${#numbers.sequence(
+                                    T(java.lang.Math).max(0, pagedBooks.getNumber() - 2),
+                                    T(java.lang.Math).min(pagedBooks.totalPages - 1, pagedBooks.getNumber() + 2)
+                                )}">
+                                <li class="page-item"
+                                    th:classappend="${i == pagedBooks.getNumber()} ? 'active'">
+                                    <a class="page-link"
+                                       th:href="@{/admin/books(page=${i}, size=${pagedBooks.size} , sortType=${sortType},keyword=${keyword})}"
+                                       th:text="${i + 1}">1</a>
+                                </li>
+                            </th:block>
+
+                            <!-- 다음 -->
+                            <li class="page-item"
+                                th:classappend="${pagedBooks.getNumber() + 1 >= pagedBooks.totalPages} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/books(page=${pagedBooks.getNumber() + 1}, size=${pagedBooks.size} , sortType=${sortType},keyword=${keyword})}">
+                                    <i class="fa fa-angle-right"></i>
+                                </a>
+                            </li>
+
+                            <!-- 마지막 -->
+                            <li class="page-item"
+                                th:classappend="${pagedBooks.getNumber() + 1 >= pagedBooks.totalPages} ? 'disabled'">
+                                <a class="page-link"
+                                   th:href="@{/admin/books(page=${pagedBooks.totalPages - 1}, size=${pagedBooks.getNumber()} , sortType=${sortType},keyword=${keyword} )}">
+                                    <i class="fa fa-angle-double-right"></i>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- 페이지 정보 -->
+                    <div class="text-center text-muted small mb-4">
+                        <span th:text="${pagedBooks.getNumber() + 1}">1</span> /
+                        <span th:text="${pagedBooks.totalPages}">1</span> 페이지
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
