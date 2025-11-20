@@ -17,12 +17,50 @@
                          th:text="${msg}"
                          style="display:none;"></div>
 
-                    <!-- 등급: 아직 DB 미정이므로 기본값 -->
+                    <!-- 등급 -->
                     <div class="mb-4">
-                        <h4 class="mb-3">내 등급</h4>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">내 등급</h4>
+                            <!-- 등급 기준 보기 버튼 -->
+                            <button type="button"
+                                    class="btn btn-secondary btn-sm"
+                                    data-toggle="modal"
+                                    data-target="#gradeModal">
+                                등급 기준 보기
+                            </button>
+                        </div>
                         <div class="p-3 border rounded bg-white">
-                            <p class="mb-1"><strong>등급:</strong> <span>BRONZE</span></p>
-                            <p class="mb-1"><strong>포인트 적립률:</strong> <span>0%</span></p>
+                            <p class="mb-1">
+                                <strong>등급:</strong>
+                                <span th:text="${memberGrade.name}"></span>
+                            </p>
+                            <p class="mb-1">
+                                <strong>포인트 적립률:</strong>
+                                <span th:text="${memberGrade.pointRate + '%'}"></span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 포인트 정보 섹션 -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">내 포인트</h4>
+                        </div>
+                        <div class="p-3 border rounded bg-white">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p class="mb-1 text-muted small">보유 포인트</p>
+                                    <h3 class="mb-0 font-weight-bold" id="totalPoint">
+                                        <span class="spinner-border spinner-border-sm" role="status" style="width: 1.5rem; height: 1.5rem;"></span>
+                                        <span class="ml-2">조회 중...</span>
+                                    </h3>
+                                </div>
+                                <div class="text-right">
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#pointHistoryModal">
+                                        <i class="fas fa-history mr-1"></i> 상세 내역 조회
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -98,6 +136,68 @@
                         </form>
                     </div>
 
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 등급 기준 모달 -->
+    <div class="modal fade" id="gradeModal" tabindex="-1"
+         role="dialog" aria-labelledby="gradeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="gradeModalLabel">회원 등급 기준</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <p class="mb-2">
+                        회원 등급은 <strong>최근 3개월 누적 순수 주문 금액</strong>을 기준으로 산정됩니다.
+                    </p>
+                    <p class="small text-muted mb-3">
+                        순수 주문 금액 =
+                        주문금액 − (쿠폰 + 배송비 + 취소금액 + 포장비)
+                    </p>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered mb-0 text-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>등급</th>
+                                <th>포인트 적립률</th>
+                                <th>승급 기준 금액<br>(최근 3개월 순수 주문 금액)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!-- gradePolicies: List<GradePolicy> 같은 형태라고 가정 -->
+                            <tr th:each="g : ${grades}">
+                                <td th:text="${g.name}">BRONZE</td>
+                                <td th:text="${g.pointRate + '%'}">1%</td>
+                                <td th:text="${#numbers.formatInteger(g.upgradeStandardAmount, 0, 'COMMA') + '원 이상'}">
+                                    100,000원 이상
+                                </td>
+                            </tr>
+
+                            <!-- 등급 정보가 없을 때 -->
+                            <tr th:if="${grades == null or #lists.isEmpty(grades)}">
+                                <td colspan="3" class="text-muted">
+                                    등록된 등급 기준 정보가 없습니다.
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-outline-dark"
+                            data-dismiss="modal">
+                        닫기
+                    </button>
                 </div>
             </div>
         </div>
@@ -206,6 +306,52 @@
         </div>
     </div>
 
+    <!-- 포인트 내역 모달 -->
+    <div class="modal fade" id="pointHistoryModal" tabindex="-1" role="dialog" aria-labelledby="pointHistoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pointHistoryModalLabel">
+                        <i class="fas fa-coins mr-2"></i>포인트 사용 내역
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="닫기">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>날짜</th>
+                                <th>유형</th>
+                                <th>내용</th>
+                                <th class="text-right">포인트</th>
+                            </tr>
+                            </thead>
+                            <tbody id="pointHistoryTableBody">
+                            <tr>
+                                <td colspan="4" class="text-center">
+                                    <span class="spinner-border spinner-border-sm mr-2" role="status"></span>
+                                    로딩 중...
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnPrevPage" disabled>이전</button>
+                            <span class="mx-2" id="pageInfo">페이지 1</span>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="btnNextPage" disabled>다음</button>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 카카오(다음) 우편번호 -->
     <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
     <script>
@@ -271,6 +417,141 @@
                 }
             }
         });
+    </script>
+
+    <!-- 포인트 조회 스크립트 -->
+    <script th:inline="javascript">
+        const memberId = /*[[${memberId}]]*/ 1;
+        let currentPage = 0;
+        const pageSize = 10;
+
+        // 페이지 로드 시 포인트 잔액 조회
+        document.addEventListener('DOMContentLoaded', function() {
+            loadPointBalance();
+        });
+
+        // jQuery가 로드된 후 모달 이벤트 등록
+        function initPointHistoryModal() {
+            if (typeof jQuery !== 'undefined') {
+                $('#pointHistoryModal').on('show.bs.modal', function() {
+                    console.log('포인트 내역 모달 열림');
+                    loadPointHistory(0);
+                });
+            } else {
+                // jQuery가 아직 로드되지 않았으면 잠시 후 다시 시도
+                setTimeout(initPointHistoryModal, 100);
+            }
+        }
+
+        // 페이지 로드 완료 후 초기화
+        window.addEventListener('load', function() {
+            initPointHistoryModal();
+        });
+
+        // 포인트 잔액 조회
+        function loadPointBalance() {
+            fetch('/api/mypage/points')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('포인트 조회 실패');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const pointEl = document.getElementById('totalPoint');
+                    if (pointEl && data && data.point !== undefined) {
+                        pointEl.innerHTML = data.point.toLocaleString() + 'P';
+                    } else {
+                        pointEl.innerHTML = '<span class="text-warning">조회 실패</span>';
+                    }
+                })
+                .catch(error => {
+                    console.error('포인트 잔액 조회 실패:', error);
+                    const pointEl = document.getElementById('totalPoint');
+                    if (pointEl) {
+                        pointEl.innerHTML = '<span class="text-warning">조회 실패</span>';
+                    }
+                });
+        }
+
+        // 포인트 내역 조회
+        function loadPointHistory(page) {
+            const tbody = document.getElementById('pointHistoryTableBody');
+            const btnPrev = document.getElementById('btnPrevPage');
+            const btnNext = document.getElementById('btnNextPage');
+            const pageInfo = document.getElementById('pageInfo');
+
+            // 로딩 표시
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center"><span class="spinner-border spinner-border-sm mr-2" role="status"></span>로딩 중...</td></tr>';
+
+            const url = `/api/mypage/point-histories?page=${page}&size=${pageSize}`;
+            console.log('포인트 내역 조회 URL:', url);
+            fetch(url)
+                .then(response => {
+                    console.log('포인트 내역 응답 상태:', response.status);
+                    if (!response.ok) {
+                        throw new Error('포인트 내역 조회 실패: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('포인트 내역 응답 데이터:', data);
+                    currentPage = data.number;
+                    const totalPages = data.totalPages;
+                    const content = data.content || [];
+
+                    // 테이블 내용 업데이트
+                    if (content.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted">포인트 내역이 없습니다.</td></tr>';
+                    } else {
+                        console.log('포인트 내역 데이터:', content);
+                        tbody.innerHTML = content.map(history => {
+                            const isEarn = history.type === 'EARN';
+                            const sign = isEarn ? '+' : '-';
+                            const pointClass = isEarn ? 'text-success' : 'text-danger';
+                            const typeText = isEarn ? '적립' : '사용';
+                            const date = new Date(history.createdAt).toLocaleString('ko-KR');
+                            const source = history.source || '-';
+
+                            return `
+                                <tr>
+                                    <td>${date}</td>
+                                    <td><span class="badge ${isEarn ? 'badge-success' : 'badge-danger'}">${typeText}</span></td>
+                                    <td>${source}</td>
+                                    <td class="text-right ${pointClass} font-weight-bold">${sign}${history.point.toLocaleString()}P</td>
+                                </tr>
+                            `;
+                        }).join('');
+                    }
+
+                    // 페이지네이션 버튼 업데이트
+                    if (btnPrev) {
+                        btnPrev.disabled = currentPage === 0;
+                        btnPrev.onclick = () => {
+                            if (currentPage > 0) {
+                                loadPointHistory(currentPage - 1);
+                            }
+                        };
+                    }
+
+                    if (btnNext) {
+                        btnNext.disabled = currentPage >= totalPages - 1;
+                        btnNext.onclick = () => {
+                            if (currentPage < totalPages - 1) {
+                                loadPointHistory(currentPage + 1);
+                            }
+                        };
+                    }
+
+                    if (pageInfo) {
+                        pageInfo.textContent = `페이지 ${currentPage + 1} / ${totalPages || 1}`;
+                    }
+                })
+                .catch(error => {
+                    console.error('포인트 내역 조회 실패:', error);
+                    tbody.innerHTML = '<tr><td colspan="4" class="text-center text-danger">조회 중 오류가 발생했습니다.</td></tr>';
+                });
+        }
     </script>
 </section>
 </html>

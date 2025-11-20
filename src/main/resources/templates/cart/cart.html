@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+    <title>장바구니</title>
+</head>
+
+<section>
+    <!-- Breadcrumb Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="#">Home</a>
+                    <a class="breadcrumb-item text-dark" href="#">Shop</a>
+                    <span class="breadcrumb-item active">Shopping Cart</span>
+                </nav>
+            </div>
+        </div>
+    </div>
+    <!-- Breadcrumb End -->
+
+    <!-- Cart Start -->
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8 table-responsive mb-5">
+                <table class="table table-light table-borderless table-hover text-center mb-0" id="cartTable">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>Products</th>
+                        <th>Price</th>
+                        <th>Quantity</th>
+                        <th>Total</th>
+                        <th>Remove</th>
+                    </tr>
+                    </thead>
+                    <!-- 장바구니에 아이템이 있을 때 -->
+                    <tbody class="align-middle" th:if="${cart != null and cart.items != null and !#lists.isEmpty(cart.items)}">
+                        <tr th:each="item : ${cart.items}" class="cart-item"
+                            th:attr="data-book-id=${item.bookId},
+                                     data-price=${item.bookSalesPrice},
+                                     data-quantity=${item.quantity}">
+                            <td class="align-middle">
+                                <img th:src="${item.bookImageUrl}" alt="" style="width: 50px;">
+                                <span th:text="${item.bookTitle}">Product Name</span>
+                            </td>
+
+                            <td class="align-middle">
+                                <div class="d-flex flex-column align-items-center">
+                                    <!-- 할인이 있는 경우 -->
+                                    <div th:if="${item.bookPrice > item.bookSalesPrice}">
+                                        <!-- 정가 (취소선) -->
+                                        <small class="text-muted" style="text-decoration: line-through; font-size: 0.75em;">
+                                            <span th:text="${#numbers.formatInteger(item.bookPrice, 1, 'COMMA')} + '원'">20,000원</span>
+                                        </small>
+                                        <!-- 판매가 (강조) -->
+                                        <span class="item-price font-weight-bold text-danger"
+                                          th:text="${#numbers.formatInteger(item.bookSalesPrice, 1, 'COMMA')} + '원'">17,500원</span>
+                                        <!-- 할인율 -->
+                                        <small class="text-danger" style="font-size: 0.8em;">
+                                            <span th:text="${#numbers.formatInteger((item.bookPrice - item.bookSalesPrice) * 100 / item.bookPrice, 0)} + '%'">12%</span>
+                                            <span th:text="'(-' + ${#numbers.formatInteger(item.bookPrice - item.bookSalesPrice, 1, 'COMMA')} + '원)'">(-2,500원)</span>
+                                        </small>
+                                    </div>
+
+                                    <!-- 할인이 없는 경우 -->
+                                    <div th:if="${item.bookPrice == item.bookSalesPrice}">
+                                        <span class="item-price"
+                                            th:text="${#numbers.formatInteger(item.bookSalesPrice, 1, 'COMMA')} + '원'">17,500원</span>
+                                    </div>
+                                </div>
+                            </td>
+
+
+
+                            <td class="align-middle">
+                                <div class="input-group quantity mx-auto" style="width: 100px;">
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-sm btn-primary btn-minus"
+                                                th:attr="data-book-id=${item.bookId}">
+                                            <i class="fa fa-minus"></i>
+                                        </button>
+                                    </div>
+                                    <input type="text" class="form-control form-control-sm bg-secondary border-0 text-center item-quantity"
+                                           th:value="${item.quantity}" readonly>
+                                    <div class="input-group-btn">
+                                        <button class="btn btn-sm btn-primary btn-plus"
+                                                th:attr="data-book-id=${item.bookId}">
+                                            <i class="fa fa-plus"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td class="align-middle item-total" th:text="${#numbers.formatInteger(item.bookSalesPrice * item.quantity, 1, 'COMMA')} + '원'">0원</td>
+
+                            <td class="align-middle">
+                                <button class="btn btn-sm btn-danger btn-remove" th:attr="data-book-id=${item.bookId}">
+                                    <i class="fa fa-times"></i>
+                                </button>
+                            </td>
+                        </tr>
+
+                    </tbody>
+
+                    <!-- 장바구니가 비어있을 때 -->
+                    <tbody th:if="${cart == null or cart.items == null or #lists.isEmpty(cart.items) or cart.cartId == null}">
+                    <tr>
+                        <td colspan="5" class="text-center py-5">
+                            <p class="mb-0">장바구니가 비어 있습니다.</p>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="col-lg-4">
+                <!-- TODO: STICKY 처리 필요 -->
+                <h5 class="section-title position-relative text-uppercase mb-3">
+                    <span class="bg-secondary pr-3">Cart Summary</span>
+                </h5>
+                <div class="bg-light p-30 mb-5">
+                    <!-- 장바구니에 아이템이 있을 때만 요약 정보 표시 -->
+                    <!-- TODO: 배송비 처리 필요 -->
+                    <div id="cartSummary" th:if="${cart != null and cart.items != null and !#lists.isEmpty(cart.items)}">
+                        <div class="border-bottom pb-2">
+                            <div class="d-flex justify-content-between mb-3">
+                                <h6>Subtotal</h6>
+                                <h6 id="subtotal">0원</h6>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <h6 class="font-weight-medium">Shipping</h6>
+                                <h6 class="font-weight-medium" id="shipping">10원</h6>
+                            </div>
+                        </div>
+                        <div class="pt-2">
+                            <div class="d-flex justify-content-between mt-2">
+                                <h5>Total</h5>
+                                <h5 id="total">0원</h5>
+                            </div>
+                            <button class="btn btn-block btn-primary btn-order font-weight-bold my-3 py-3">주문하기</button>
+                        </div>
+                    </div>
+                    <!-- 장바구니가 비어있을 때 -->
+                    <div id="emptyCart" th:if="${cart == null or cart.items == null or #lists.isEmpty(cart.items)}">
+                        <div class="text-center py-3">
+                            <p class="mb-0">장바구니에 담긴 상품이 없습니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Cart End -->
+
+    <!-- Script Start -->
+    <script th:inline="javascript">
+        // 숫자 포맷팅 함수 (천단위 콤마)
+        function formatNumber(num) {
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + "원";
+        }
+
+        // 장바구니 총합 계산 함수
+        function calculateCartTotal() {
+            const cartItems = document.querySelectorAll('.cart-item');
+            let subtotal = 0;
+
+            cartItems.forEach(item => {
+                const price = parseInt(item.getAttribute('data-price'));
+                const quantity = parseInt(item.getAttribute('data-quantity'));
+                subtotal += price * quantity;
+            });
+
+            const shipping = 10;
+            const total = subtotal + shipping;
+
+            // DOM 업데이트
+            const subtotalElement = document.getElementById('subtotal');
+            const totalElement = document.getElementById('total');
+
+            if (subtotalElement) {
+                subtotalElement.textContent = formatNumber(subtotal);
+            }
+            if (totalElement) {
+                totalElement.textContent = formatNumber(total);
+            }
+        }
+
+        // 개별 아이템 총액 업데이트 함수
+        function updateItemTotal(row) {
+            const price = parseInt(row.getAttribute('data-price'));
+            const quantity = parseInt(row.getAttribute('data-quantity'));
+            const total = price * quantity;
+
+            const totalElement = row.querySelector('.item-total');
+            if (totalElement) {
+                totalElement.textContent = formatNumber(total);
+            }
+        }
+
+        // 수량 증가 버튼 이벤트
+        document.querySelectorAll('.btn-plus').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const bookId = this.getAttribute('data-book-id');
+                const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
+                const quantityInput = row.querySelector('.item-quantity');
+
+                const quantity = parseInt(row.getAttribute('data-quantity'));
+                const newQuantity = quantity + 1;
+
+                // 버튼 비활성화 (중복 클릭 방지)
+                this.disabled = true;
+                const originalHTML = this.innerHTML;
+                this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+                // 서버에 수량 업데이트 API 호출
+                fetch('/carts/items/' + bookId, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        quantity: newQuantity
+                    })
+                })
+                    .then(function(response) {
+                        console.log('응답 상태:', response.status);
+
+                        if (!response.ok) {
+                            return response.text().then(function(text) {
+                                throw new Error(text || '수량 변경 실패');
+                            });
+                        }
+
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        console.log('수량 변경 성공:', data);
+
+                        // 성공 시 DOM 업데이트
+                        row.setAttribute('data-quantity', newQuantity);
+                        quantityInput.value = newQuantity;
+
+                        updateItemTotal(row);
+                        calculateCartTotal();
+
+                        // 버튼 복원
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                    })
+                    .catch(function(error) {
+                        console.error('에러 발생:', error);
+
+                        // 버튼 복원
+                        button.disabled = false;
+                        button.innerHTML = originalHTML;
+                    });
+            });
+        });
+
+        // 수량 감소 버튼 이벤트
+        document.querySelectorAll('.btn-minus').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const bookId = this.getAttribute('data-book-id');
+                const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
+                const quantityInput = row.querySelector('.item-quantity');
+
+                const quantity = parseInt(row.getAttribute('data-quantity'));
+
+                if (quantity > 1) {
+                    const newQuantity = quantity - 1;
+
+                    // 버튼 비활성화 (중복 클릭 방지)
+                    this.disabled = true;
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+                    // 서버에 수량 업데이트 API 호출
+                    fetch('/carts/items/' + bookId, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            quantity: newQuantity
+                        })
+                    })
+                        .then(function(response) {
+                            console.log('응답 상태:', response.status);
+
+                            if (!response.ok) {
+                                return response.text().then(function(text) {
+                                    throw new Error(text || '수량 변경 실패');
+                                });
+                            }
+
+                            return response.json();
+                        })
+                        .then(function(data) {
+                            console.log('수량 변경 성공:', data);
+
+                            // 성공 시 DOM 업데이트
+                            row.setAttribute('data-quantity', newQuantity);
+                            quantityInput.value = newQuantity;
+
+                            updateItemTotal(row);
+                            calculateCartTotal();
+
+                            // 버튼 복원
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        })
+                        .catch(function(error) {
+                            console.error('에러 발생:', error);
+
+                            // 버튼 복원
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        });
+                }
+            });
+        });
+
+        // 아이템 삭제 버튼 이벤트
+        document.querySelectorAll('.btn-remove').forEach(function(button) {
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const bookId = this.getAttribute('data-book-id');
+
+                if (confirm('이 상품을 장바구니에서 삭제하시겠습니까?')) {
+                    // 버튼 비활성화 (중복 클릭 방지)
+                    this.disabled = true;
+                    const originalHTML = this.innerHTML;
+                    this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+                    // 서버에 삭제 API 호출
+                    fetch('/carts/items/' + bookId, {
+                        method: 'DELETE'
+                    })
+                        .then(function(response) {
+                            console.log('응답 상태:', response.status);
+
+                            if (!response.ok) {
+                                return response.text().then(function(text) {
+                                    throw new Error(text || '삭제 실패');
+                                });
+                            }
+
+                            // DELETE 요청은 응답 본문이 없을 수 있으므로 상태 코드만 확인
+                            return true;
+                        })
+                        .then(function() {
+                            console.log('삭제 성공');
+
+                            // 성공 시 DOM에서 제거
+                            const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
+                            row.remove();
+
+                            calculateCartTotal();
+
+                            // 장바구니가 비었는지 확인
+                            if (document.querySelectorAll('.cart-item').length === 0) {
+                                location.reload(); // 페이지 새로고침
+                            }
+                        })
+                        .catch(function(error) {
+                            console.error('에러 발생:', error);
+
+                            // 버튼 복원
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
+                        });
+                }
+            });
+        });
+
+        // 주문하기 버튼 클릭 이벤트
+        document.querySelector('.btn-order')
+            .addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const orderButton = this;
+
+                // 장바구니 비어있으면 요청 막기
+                const cartItems = document.querySelectorAll('.cart-item');
+                if (cartItems.length === 0) {
+                    alert('장바구니가 비어 있습니다.');
+                    return;
+                }
+
+                // 버튼 중복 클릭 방지
+                orderButton.disabled = true;
+                const originalHTML = orderButton.innerHTML;
+                orderButton.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+                // 장바구니 데이터 추출
+                const orderItems = [];
+
+                cartItems.forEach(item => {
+                    const bookId = Number(item.getAttribute('data-book-id'));
+                    const quantity = parseInt(item.getAttribute('data-quantity'));
+
+                    orderItems.push({
+                        bookId: bookId,
+                        quantity: quantity
+                    });
+                });
+
+                // 서버에 주문 생성 요청
+                fetch('/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        items: orderItems
+                    })
+                })
+                    .then(function(response) {
+                        console.log('응답 상태:', response.status);
+
+                        return response.json();
+                    })
+                    .then(function(data) {
+                        console.log('주문 요청 성공:', data);
+
+                        const encoded = encodeURIComponent(JSON.stringify(orderItems));
+                        window.location.href = data.redirectUrl + `?items=${encoded}`;
+
+                        // 버튼 복원
+                        orderButton.disabled = false;
+                        orderButton.innerHTML = originalHTML;
+                    })
+                    .catch(function(error) {
+                        console.error('에러 발생:', error);
+                        alert('주문 요청 중 오류가 발생했습니다.');
+
+                        // 버튼 복원
+                        orderButton.disabled = false;
+                        orderButton.innerHTML = originalHTML;
+                    });
+            });
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateCartTotal();   // 총합 계산
+        });
+    </script>
+    <!-- Script End -->
+</section>
+</html>
