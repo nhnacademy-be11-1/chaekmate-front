@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="~{admin/layout/admin-layout :: html(~{:: .admin-content})}">
+  <div class="admin-content">
+    <div class="container-fluid py-4">
+      <h2 class="mb-4" th:text="${coupon != null ? '쿠폰 수정' : '쿠폰 생성'}"></h2>
+
+      <form th:action="@{${coupon != null ? '/admin/coupons/' + coupon.couponPolicyId : '/admin/coupons'}}"
+            method="post" id="couponForm">
+
+        <div class="card shadow-sm">
+          <div class="card-body">
+
+            <!-- 쿠폰명 -->
+            <div class="form-group">
+              <label for="name">쿠폰명 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="name" name="name"
+                     th:value="${coupon?.name}" required maxlength="100">
+            </div>
+
+            <!-- 쿠폰 타입 -->
+            <div class="form-group">
+              <label for="type">쿠폰 타입 <span class="text-danger">*</span></label>
+              <select class="form-control" id="type" name="type" required>
+                <option value="">선택하세요</option>
+                <option th:each="t : ${couponTypes}"
+                        th:value="${t}"
+                        th:text="${t.displayName}"
+                        th:selected="${coupon?.type == t.name()}">
+                </option>
+              </select>
+            </div>
+
+            <!-- 카테고리 선택 영역 (CATEGORY 타입일 때만 표시) -->
+            <div class="form-group" id="categorySection" style="display: none;">
+              <label>적용 카테고리 <span class="text-danger">*</span></label>
+
+              <!-- 전체 선택/해제 버튼 -->
+              <div class="mb-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllCategories()">
+                  <i class="fa fa-check-square"></i> 전체 선택
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllCategories()">
+                  <i class="fa fa-square"></i> 전체 해제
+                </button>
+              </div>
+
+              <!-- 카테고리 트리 -->
+              <div class="border rounded p-3 bg-light" style="max-height: 400px; overflow-y: auto;">
+                <div th:replace="~{admin/coupon/category-tree :: categoryCheckboxTree(${categories}, 0)}"></div>
+              </div>
+              <small class="form-text text-muted">
+                하나 이상의 카테고리를 선택하세요.
+              </small>
+            </div>
+
+            <!-- 발급 기간 타입 -->
+            <div class="form-group">
+              <label for="appliedPeriodType">발급 기간 타입 <span class="text-danger">*</span></label>
+              <select class="form-control" id="appliedPeriodType" name="appliedPeriodType" required>
+                <option value="">선택하세요</option>
+                <option th:each="t : ${periodTypes}"
+                        th:value="${t}"
+                        th:text="${t.displayName}"
+                        th:selected="${coupon?.couponAppliedPeriodType == t.name()}">
+                </option>
+              </select>
+            </div>
+
+            <div class="row">
+              <!-- 할인 타입 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="discountType">할인 타입 <span class="text-danger">*</span></label>
+                  <select class="form-control" id="discountType" name="discountType" required>
+                    <option value="">선택하세요</option>
+                    <option th:each="t : ${discountTypes}"
+                            th:value="${t}"
+                            th:text="${t.displayName}"
+                            th:selected="${coupon?.discountType == t.name()}">
+                    </option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- 할인 값 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="discountValue">할인 값 <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="discountValue" name="discountValue"
+                         th:value="${coupon?.discountValue}" required min="1">
+                  <small class="form-text text-muted">
+                    정액: 원 단위, 정률: % 단위
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- 최소 사용 금액 -->
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="minAvailableAmount">최소 사용 금액 <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="minAvailableAmount" name="minAvailableAmount"
+                         th:value="${coupon?.minAvailableAmount}" required min="0">
+                </div>
+              </div>
+
+              <!-- 최대 적용 금액 -->
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="maxAppliedAmount">최대 적용 금액 <span class="text-danger">*</span></label>
+                  <input type="number" class="form-control" id="maxAppliedAmount" name="maxAppliedAmount"
+                         th:value="${coupon?.maxAppliedAmount}" required min="0">
+                </div>
+              </div>
+
+              <!-- 발급 수량 -->
+              <div class="col-md-4">
+                <div class="form-group">
+                  <label for="remainingQuantity">발급 수량</label>
+                  <input type="number" class="form-control" id="remainingQuantity" name="remainingQuantity"
+                         th:value="${coupon?.remainingQuantity}" min="0">
+                  <small class="form-text text-muted">미입력 시 무제한</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="row">
+              <!-- 발급 시작일 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="appliedStartedAt">발급 시작일</label>
+                  <input type="datetime-local" class="form-control" id="appliedStartedAt" name="appliedStartedAt">
+                </div>
+              </div>
+
+              <!-- 발급 종료일 -->
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="appliedExpiredAt">발급 종료일</label>
+                  <input type="datetime-local" class="form-control" id="appliedExpiredAt" name="appliedExpiredAt">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <div class="card-footer bg-light">
+            <button type="submit" class="btn btn-primary">
+              <i class="fa fa-save"></i> 저장
+            </button>
+            <a th:href="@{/admin/coupons}" class="btn btn-secondary">
+              <i class="fa fa-times"></i> 취소
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</th:block>
+
+<script th:inline="javascript">
+  // 쿠폰 타입 변경 시 카테고리 영역 토글
+  document.getElementById('type').addEventListener('change', function() {
+    const categorySection = document.getElementById('categorySection');
+    categorySection.style.display = this.value === 'CATEGORY' ? 'block' : 'none';
+  });
+
+  // 전체 선택
+  function selectAllCategories() {
+    document.querySelectorAll('input[name="categoryId"]').forEach(cb => cb.checked = true);
+  }
+
+  // 전체 해제
+  function clearAllCategories() {
+    document.querySelectorAll('input[name="categoryId"]').forEach(cb => cb.checked = false);
+  }
+
+  // 폼 제출 시 선택된 카테고리 ID 수집
+  document.getElementById('couponForm').addEventListener('submit', function(e) {
+    const type = document.getElementById('type').value;
+
+    if (type === 'CATEGORY') {
+      const checkboxes = document.querySelectorAll('input[name="categoryId"]:checked');
+
+      if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('카테고리를 하나 이상 선택해주세요.');
+        return;
+      }
+
+      // 선택된 카테고리 ID들을 hidden input으로 추가
+      checkboxes.forEach(checkbox => {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'ids';
+        hiddenInput.value = checkbox.value;
+        this.appendChild(hiddenInput);
+      });
+    }
+  });
+
+  // 페이지 로드 시 타입 확인
+  window.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.getElementById('type');
+    typeSelect.dispatchEvent(new Event('change'));
+  });
+</script>
+
+</html>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<th:block th:replace="~{admin/layout/admin-layout :: html(~{:: .admin-content})}">
+  <div class="admin-content">
+    <div class="container-fluid py-4">
+      <h2 class="mb-4">쿠폰 관리</h2>
+
+      <!-- 성공 메시지 -->
+      <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${message}"></span>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <!-- 새 쿠폰 생성 버튼 -->
+      <div class="mb-3">
+        <a th:href="@{/admin/coupons/new}" class="btn btn-primary">
+          <i class="fa fa-plus"></i> 새 쿠폰 생성
+        </a>
+      </div>
+
+      <!-- 쿠폰 목록 테이블 -->
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="bg-light">
+              <tr>
+                <th>ID</th>
+                <th>쿠폰명</th>
+                <th>할인</th>
+                <th>발급 기간</th>
+                <th>생성일</th>
+                <th class="text-center">액션</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="coupon : ${coupons}">
+                <td th:text="${coupon.couponPolicyId}"></td>
+                <td>
+                  <a th:href="@{/admin/coupons/{id}(id=${coupon.couponPolicyId})}"
+                     th:text="${coupon.name}"
+                     class="text-decoration-none font-weight-bold"></a>
+                </td>
+                <td>
+                  <span class="badge badge-info" th:text="${coupon.discountDisplay()}"></span>
+                </td>
+                <td>
+                  <small>
+                                            <span th:if="${coupon.appliedStartedAt != null}">
+                                                <span th:text="${#temporals.format(coupon.appliedStartedAt, 'yyyy-MM-dd')}"></span>
+                                                ~
+                                            </span>
+                    <span th:if="${coupon.appliedExpiredAt != null}">
+                                                <span th:text="${#temporals.format(coupon.appliedExpiredAt, 'yyyy-MM-dd')}"></span>
+                                            </span>
+                    <span th:if="${coupon.appliedStartedAt == null && coupon.appliedExpiredAt == null}">
+                                                제한 없음
+                                            </span>
+                  </small>
+                </td>
+                <td>
+                  <small th:text="${#temporals.format(coupon.createdAt, 'yyyy-MM-dd HH:mm')}"></small>
+                </td>
+                <td class="text-center">
+                  <div class="btn-group btn-group-sm" role="group">
+                    <a th:href="@{/admin/coupons/{id}(id=${coupon.couponPolicyId})}"
+                       class="btn btn-outline-info">
+                      <i class="fa fa-eye"></i> 상세
+                    </a>
+                    <a th:href="@{/admin/coupons/{id}/edit(id=${coupon.couponPolicyId})}"
+                       class="btn btn-outline-primary">
+                      <i class="fa fa-edit"></i> 수정
+                    </a>
+                    <form th:action="@{/admin/coupons/{id}/delete(id=${coupon.couponPolicyId})}"
+                          method="post" style="display:inline;">
+                      <button type="submit" class="btn btn-outline-danger btn-sm"
+                              onclick="return confirm('정말 삭제하시겠습니까?')">
+                        <i class="fa fa-trash"></i> 삭제
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+
+              <!-- 데이터가 없을 때 -->
+              <tr th:if="${#lists.isEmpty(coupons)}">
+                <td colspan="6" class="text-center text-muted py-5">
+                  등록된 쿠폰이 없습니다.
+                </td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- 전체 개수 표시 -->
+        <div class="card-footer bg-light">
+          <small class="text-muted">
+            총 <strong th:text="${#lists.size(coupons)}"></strong>개의 쿠폰
+          </small>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+</html>
