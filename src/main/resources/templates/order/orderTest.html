@@ -1,24 +1,826 @@
 <!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>주문서 작성</title>
-</head>
-<body>
-<h2>주문서 페이지</h2>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
 
-<form action="/payments" method="post">
-    <label>주문번호:</label>
-    <input type="text" name="orderNumber" value="zMC4yMjA0NDQzNjU3" required><br><br>
+<section>
+    <link rel="stylesheet" th:href="@{/css/order.css}"/>
+    <script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+    <script src="https://js.tosspayments.com/v2/standard"></script>
 
-    <label>상품명:</label>
-    <input type="text" name="orderName" value="책 이름" required><br><br>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+                <nav class="breadcrumb bg-light mb-30">
+                    <a class="breadcrumb-item text-dark" href="/">홈</a>
+                    <a class="breadcrumb-item text-dark" href="/shop">서점</a>
+                    <span class="breadcrumb-item active">주문서</span>
+                </nav>
+            </div>
+        </div>
+    </div>
 
-    <label>결제금액:</label>
-    <input type="number" name="price" value="29800" required><br><br>
+    <form id="checkoutForm" class="container-fluid">
+        <div class="row px-xl-5">
+            <!-- 좌측: 주문 상품 -->
+            <div class="col-lg-8">
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">주문 상품</span></h5>
+                <div class="cm-card p-3 mb-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                            <tr class="text-center">
+                                <th style="width: 90px;">상품 이미지</th>
+                                <th style="width: 260px;">상품 정보</th>
+                                <th style="width: 110px;">정가</th>
+                                <th style="width: 100px;">할인율</th>
+                                <th style="width: 120px;">할인가격</th>
+                                <th style="width: 70px;">수량</th>
+                                <th style="width: 120px;">총합계</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="order-item-row"
+                                th:each="item,idx : ${orderItems}"
+                                th:data-book-id="${item.bookId}">
 
-    <button type="submit">결제 페이지로 이동</button>
-</form>
+                                <!-- 상품 이미지 -->
+                                <td class="text-center">
+                                    <img th:src="${item.thumbnailUrl}"
+                                         alt="도서 표지"
+                                         class="cm-thumb">
+                                </td>
 
-</body>
+                                <!-- 상품 정보: 제목 + 저자 (같은 칸) -->
+                                <td>
+                                    <div class="cm-info">
+                                        <div class="cm-title" th:text="${item.title}">도서 제목</div>
+                                        <div class="cm-author" th:text="${item.author}">저자명</div>
+                                    </div>
+
+                                    <!-- 쿠폰 -->
+                                    <div class="mt-2" th:if="${isLoggedIn}">
+                                        <label class="mb-1 d-block">쿠폰 적용</label>
+                                        <select class="custom-select coupon-select">
+                                            <option value="">선택 안함</option>
+                                            <option value="3000">3,000원 할인 쿠폰</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- 포인트 -->
+                                    <div class="mt-2" th:if="${isLoggedIn}">
+                                        <label class="mb-1">포인트 사용</label>
+                                        <div class="input-group">
+                                            <input type="number" class="form-control point-input"
+                                                   placeholder="사용 포인트 입력"
+                                                   th:data-max="${member.remainingPoints}">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-outline-secondary btn-max-point" type="button"
+                                                        onclick="useMaxPoint(this)">최대</button>
+                                                <button class="btn btn-outline-primary ml-1 point-apply-btn" type="button"
+                                                        onclick="togglePointApply(this)">적용</button>
+                                            </div>
+                                        </div>
+                                        <small class="text-muted">보유 포인트: <b th:text="${member.remainingPoints}"></b>P</small>
+                                    </div>
+
+                                    <!-- 포장지 -->
+                                    <div class="mt-3">
+                                        <label class="mb-1 d-block">포장지 선택</label>
+                                        <div class="d-flex" th:with="wraps=${wrappers}">
+                                            <label class="cm-wrap-tile mr-2">
+                                                <input type="radio" th:name="'wrap_' + ${idx.index}" data-id=""
+                                                       data-price="0" value="0" class="sr-only wrap-radio" checked>
+                                                <span>기본 (무료)</span>
+                                            </label>
+
+                                            <label class="cm-wrap-tile mr-2" th:each="wrapper : ${wraps}">
+                                                <input type="radio"
+                                                       th:name="'wrap_' + ${idx.index}"
+                                                       th:data-id="${wrapper.id}"
+                                                       th:data-price="${wrapper.price}"
+                                                       th:value="${wrapper.price}"
+                                                       class="sr-only wrap-radio">
+                                                <span th:text="${wrapper.name + ' (+' + wrapper.price + '원)'}"></span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                </td>
+
+                                <!-- 정가 -->
+                                <td class="text-center">
+            <span class="cm-price-original price"
+                  th:text="${#numbers.formatInteger(item.originalPrice, 3, 'COMMA')} + '원'">
+            </span>
+                                </td>
+
+                                <!-- 할인율 -->
+                                <td class="text-center">
+            <span class="cm-discount"
+                  th:text="${item.discountRate} + '%'"></span>
+                                </td>
+
+                                <!-- 할인가격 -->
+                                <td class="text-center">
+            <span class="cm-price-sale"
+                  th:text="${#numbers.formatInteger(item.salesPrice, 3, 'COMMA')} + '원'"></span>
+                                </td>
+
+                                <!-- 수량 -->
+                                <td class="text-center">
+                                    <span class="qty" th:text="${item.quantity}">1</span>
+                                </td>
+
+                                <!-- 총합계 -->
+                                <td class="text-center">
+            <span class="subtotal cm-price-total"
+                  th:text="${#numbers.formatInteger(item.subtotal, 3, 'COMMA')} + '원'"></span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 🚚 배송 정보 -->
+                <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">배송 정보</span></h5>
+                <div class="cm-card p-3 mb-5">
+
+                    <!-- 주문자 -->
+                    <h6 class="font-weight-bold mb-3">주문자 정보</h6>
+                    <div class="form-row">
+                        <div class="form-group col-md-4">
+                            <label>이름</label>
+                            <input type="text" class="form-control" id="ordererName" name="ordererName"
+                                   th:value="${isLoggedIn} ? ${member.name} : ''">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>전화번호</label>
+                            <input type="text" class="form-control" id="ordererPhone" name="ordererPhone"
+                                   th:value="${isLoggedIn} ? ${member.phone} : ''">
+                        </div>
+                        <div class="form-group col-md-4">
+                            <label>이메일</label>
+                            <input type="email" class="form-control" id="ordererEmail" name="ordererEmail"
+                                   th:value="${isLoggedIn} ? ${member.email} : ''">
+                            <small class="form-text text-muted">* Dooray 메시지 전송용</small>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- 수령인 -->
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="font-weight-bold mb-0">수령인 정보</h6>
+                        <div>
+                            <input type="checkbox" id="sameAsOrderer" class="mr-1">
+                            <label for="sameAsOrderer" class="mb-0 small text-muted">주문자 정보와 동일</label>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>이름</label>
+                            <input type="text" class="form-control" id="receiverName" name="receiverName">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>전화번호</label>
+                            <input type="text" class="form-control" id="receiverPhone" name="receiverPhone">
+                        </div>
+                    </div>
+
+                    <!-- 주소 -->
+                    <div class="form-group" th:if="${isLoggedIn}">
+                        <label>배송지 선택</label>
+                        <select class="custom-select" id="addressSelect" name="addressId">
+                            <option value="">배송지 선택</option>
+                            <option th:each="addr : ${addresses}"
+                                    th:value="${addr.id}"
+                                    th:data-road="${addr.streetName}"
+                                    th:data-detail="${addr.detail}"
+                                    th:data-postcode="${addr.zipcode}"
+                                    th:text="${addr.memo + ' - ' + addr.streetName + ' ' + addr.detail}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- 직접 입력 -->
+                    <div class="form-group">
+                        <label>직접 입력</label>
+                        <div class="input-group mb-2">
+                            <input type="text"
+                                   class="form-control"
+                                   id="postcode"
+                                   placeholder="우편번호"
+                                   readonly>
+
+                            <div class="input-group-append">
+                                <button type="button"
+                                        class="btn btn-outline-secondary"
+                                        style="white-space: nowrap;"
+                                        onclick="findAddress()">
+                                    주소 검색
+                                </button>
+                            </div>
+                        </div>
+
+                        <input type="text" class="form-control mb-2" id="roadAddress" placeholder="도로명 주소" readonly>
+                        <input type="text" class="form-control" id="detailAddress" placeholder="상세 주소 입력">
+                    </div>
+
+                    <div class="form-group">
+                        <label>배송 요청사항</label>
+                        <textarea class="form-control" name="request" rows="2" placeholder="예: 문 앞에 놓아주세요."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>배송일 지정</label>
+                        <input type="date" class="form-control" id="deliveryDate" name="deliveryDate"
+                               th:value="${defaultDeliveryDate}" th:attr="min=${defaultDeliveryDate}">
+                        <small class="text-muted">* 기본 배송일은 주문일 +3일입니다.</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 우: 결제 정보 -->
+            <div class="col-lg-4 sticky-wrapper">
+                <div class="sticky-box">
+                    <h5 class="section-title text-uppercase mb-3"><span class="cm-section-title">결제 정보</span></h5>
+                    <div class="cm-card p-3">
+                        <!-- 서버에서 생성된 주문번호를 hidden으로 -->
+                        <input type="hidden" id="orderNumber" name="orderNumber">
+                        <input type="hidden" id="orderName" name="orderName" th:value="${orderItems[0].title}">
+                        <input type="hidden" id="price" name="price">
+                        <input type="hidden" id="pointUsed" th:value="${summary.pointDiscount}">
+
+
+                        <div class="cm-total-row"><span>상품 합계</span><span id="sum-products"
+                                                                          th:text="${summary.productsTotal} + '원'"></span>
+                        </div>
+                        <div class="cm-total-row"  th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
+                                                                                                 th:text="'-' + ${summary.couponDiscount} + '원'"></span>
+                        </div>
+                        <div class="cm-total-row" th:if="${isLoggedIn}"><span>포인트 사용</span> <span id="sum-point"
+                                                                                                  th:text="'-' + ${summary.pointDiscount} + '원'"></span>
+                        </div>
+                        <div class="cm-total-row"><span>포장비</span><span id="sum-wrap"
+                                                                        th:text="${summary.wrapFeeTotal} + '원'"></span>
+                        </div>
+                        <div class="cm-total-row"><span>배송비</span><span id="sum-shipping"
+                                                                        th:text="${summary.shippingFee} + '원'"></span>
+                        </div>
+                        <small id="free-shipping-info" class="text-muted d-block mt-1">
+                            [[${deliveryPolicy.freeStandardAmount}]]원 이상 구매 시 무료배송
+                        </small>
+                        <div class="cm-total-row cm-strong">
+                            <span>총 결제금액</span><span id="sum-total" th:text="${summary.payableTotal} + '원'"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-block btn-primary font-weight-bold py-3 mt-3">
+                            결제하기
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- 결제 모달 -->
+    <div id="paymentModal" class="modal-overlay">
+        <div class="modal-content">
+            <h4>결제 진행</h4>
+            <!-- 결제 수단 UI -->
+            <div id="payment-method"></div>
+            <!-- 약관 UI -->
+            <div id="agreement" class="mt-3"></div>
+            <!-- 결제 버튼 -->
+            <button id="payButton" class="btn btn-primary btn-block mt-4">결제하기</button>
+            <!-- 취소 버튼 -->
+            <button id="cancelModalBtn" class="btn btn-light border btn-block mt-2">닫기</button>
+        </div>
+    </div>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            // 배송 정책
+            const policy = {
+                freeStandardAmount: /*[[${deliveryPolicy.freeStandardAmount}]]*/,
+                deliveryFee: /*[[${deliveryPolicy.deliveryFee}]]*/
+            };
+
+            // 숫자 포맷/파싱
+            const fmt = n => (isNaN(n) ? 0 : n).toLocaleString('ko-KR') + '원';
+            const num = v => {
+                const n = parseInt(String(v).replace(/[^\d-]/g, ''), 10);
+                return isNaN(n) ? 0 : n;
+            };
+
+            // 합계 상태
+            // 합계 상태
+            const summary = {
+                productsTotal: 0,
+                couponDiscount: 0,
+                pointDiscount: 0,
+                wrapFeeTotal: 0,
+                shippingFee: policy.deliveryFee
+            };
+
+            // 포인트 잠금 관련 상태
+            let pointLocked = false;         // true면 우측 포인트 값 고정
+            let lockedPointDiscount = 0;     // 잠금 시 저장해둘 포인트 값
+
+
+            // DOM 헬퍼
+            const $ = (sel) => document.querySelector(sel);
+            const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+            // 보유 포인트 최대값 (member.remainingPoints)
+            const getPointMaxTotal = () => {
+                const any = $('.point-input');
+                return any ? num(any.dataset.max || 0) : 0;
+            };
+
+            const setText = (sel, text) => {
+                const el = document.querySelector(sel);
+                if (el) el.textContent = text;
+            };
+
+            // 합계 재계산
+            const recalc = () => {
+                // 1) 상품 총합
+                summary.productsTotal = $$('.subtotal')
+                    .map(td => num(td.textContent))
+                    .reduce((a, b) => a + b, 0);
+
+                // 2) 쿠폰 합계
+                summary.couponDiscount = $$('.coupon-select')
+                    .map(sel => num(sel.value))
+                    .reduce((a, b) => a + b, 0);
+
+                // 3) 포인트 합계
+                if (!pointLocked) {
+                    // 🔓 아직 적용 안 된 상태 → input 값 기준으로 항상 재계산
+                    const rawPointSum = $$('.point-input')
+                        .map(input => num(input.value))
+                        .reduce((a, b) => a + b, 0);
+                    summary.pointDiscount = Math.min(rawPointSum, getPointMaxTotal());
+                } else {
+                    // 🔒 적용 버튼 눌러서 잠긴 상태 → 저장해 둔 값 그대로 사용
+                    summary.pointDiscount = lockedPointDiscount;
+                }
+
+
+                // (4) 포장비 계산 (항목별 * 수량 적용)
+                summary.wrapFeeTotal = 0;
+
+                // 각 주문 행 기준으로만 계산
+                $$('.order-item-row').forEach(row => {
+                    const selected = row.querySelector('.wrap-radio:checked');
+                    if (!selected) return; // 선택 안 했으면 스킵
+
+                    const wrapPrice = num(selected.dataset.price); // 선택한 포장지 가격
+
+                    // 수량 곱하지 않음 → 행당 포장비 1번만 부과
+                    summary.wrapFeeTotal += wrapPrice;
+                });
+
+                // 5) 배송비 (무료배송 조건 체크)
+                summary.shippingFee =
+                    summary.productsTotal >= policy.freeStandardAmount
+                        ? 0
+                        : policy.deliveryFee;
+
+                // 6) 총 결제금액
+                let total =
+                    summary.productsTotal
+                    - summary.couponDiscount
+                    - summary.pointDiscount
+                    + summary.wrapFeeTotal
+                    + summary.shippingFee;
+
+                if (total < 0) {
+                    total = 0;
+
+                    // 🔓 적용 전일 때만 자동으로 포인트 조정
+                    if (!pointLocked) {
+                        summary.pointDiscount =
+                            summary.productsTotal
+                            - summary.couponDiscount
+                            + summary.wrapFeeTotal
+                            + summary.shippingFee;
+                    }
+                }
+
+
+                // 우측 요약 UI 업데이트
+                $('#sum-products').textContent = fmt(summary.productsTotal);
+                setText('#sum-coupon', '-' + fmt(summary.couponDiscount));
+                setText('#sum-point', '-' + fmt(summary.pointDiscount));
+                $('#sum-wrap').textContent = fmt(summary.wrapFeeTotal);
+                $('#sum-shipping').textContent = fmt(summary.shippingFee);
+                $('#sum-total').textContent = fmt(total);
+
+                const infoEl = document.getElementById('free-shipping-info');
+                if (infoEl) {
+                    if (summary.shippingFee === 0) {
+                        infoEl.textContent = '무료배송 적용됨 🎉';
+                    } else {
+                        infoEl.textContent =
+                            policy.freeStandardAmount.toLocaleString() + '원 이상 구매 시 무료배송';
+                    }
+                }
+
+                // hidden 값 동기화
+                const priceHidden = document.getElementById('price');
+                if (priceHidden) priceHidden.value = total;
+
+                const pointUsedHidden = document.getElementById('pointUsed');
+                if (pointUsedHidden) pointUsedHidden.value = summary.pointDiscount;
+
+                return total;
+            };
+
+            //  주문자/수령인, 주소 관련 로직
+
+            // 주문자 정보 = 수령인 정보 복사
+            const sameCheck = $('#sameAsOrderer');
+            if (sameCheck) {
+                sameCheck.addEventListener('change', e => {
+                    const on = e.target.checked;
+                    $('#receiverName').value = on ? ($('#ordererName').value || '') : '';
+                    $('#receiverPhone').value = on ? ($('#ordererPhone').value || '') : '';
+                });
+            }
+
+            // 배송일 기본값 = 오늘 + 3일
+            const deliveryDate = $('#deliveryDate');
+            if (deliveryDate) {
+                const today = new Date();
+                today.setDate(today.getDate() + 3);
+                deliveryDate.min = today.toISOString().split('T')[0];
+                if (!deliveryDate.value) {
+                    deliveryDate.value = deliveryDate.min;
+                }
+            }
+
+            // 저장된 배송지 선택 시 자동 채우기
+            const addressSelect = document.getElementById("addressSelect");
+            if (addressSelect) {
+                addressSelect.addEventListener("change", (e) => {
+                    const selected = e.target.selectedOptions[0];
+                    if (!selected) return;
+
+                    const postcode = selected.dataset.postcode || "";
+                    const road = selected.dataset.road || "";
+                    const detail = selected.dataset.detail || "";
+
+                    document.getElementById("postcode").value = postcode;
+                    document.getElementById("roadAddress").value = road;
+                    document.getElementById("detailAddress").value = detail;
+
+                    console.log("[배송지 선택]", {postcode, road, detail});
+                });
+            }
+
+            // 주소 검색 API
+            window.findAddress = function () {
+                new daum.Postcode({
+                    oncomplete: function (data) {
+                        const roadAddr = data.roadAddress;
+                        const jibunAddr = data.jibunAddress;
+                        const zonecode = data.zonecode;
+                        const buildingName = data.buildingName || '';
+
+                        document.getElementById("postcode").value = zonecode;
+                        document.getElementById("roadAddress").value = roadAddr;
+
+                        const detailInput = document.getElementById("detailAddress");
+                        if (detailInput) {
+                            detailInput.value = "";
+                            detailInput.focus();
+                        }
+
+                        const select = document.getElementById("addressSelect");
+                        if (select) {
+                            select.value = "";
+                        }
+
+                        console.log("선택된 주소:", {
+                            도로명주소: roadAddr,
+                            지번주소: jibunAddr,
+                            건물명: buildingName,
+                            우편번호: zonecode
+                        });
+                    }
+                }).open();
+            };
+
+            //   이벤트 바인딩 (쿠폰/포인트/포장)
+
+            // 쿠폰 변경 시
+            $$('.coupon-select').forEach(sel => {
+                sel.addEventListener('change', recalc);
+            });
+
+            // 포인트 입력 시
+            $$('.point-input').forEach(input => {
+                input.addEventListener('input', () => {
+                    input.value = String(num(input.value)); // 숫자만 유지
+
+                    const max = getPointMaxTotal();       // 총 보유 포인트
+                    const values = $$('.point-input').map(i => num(i.value));
+                    const thisValue = num(input.value);
+                    const otherSum = values.reduce((a, b) => a + b, 0) - thisValue;
+
+                    // 남은 포인트 계산
+                    const remain = max - otherSum;
+
+                    // 초과 사용한 경우
+                    if (thisValue > remain) {
+                        alert("사용 가능한 포인트를 초과했습니다!");
+                        input.value = remain < 0 ? 0 : remain;
+                    }
+
+                    recalc();
+                });
+            });
+
+            // 포장지 선택 시
+            $$('.wrap-radio').forEach(radio => {
+                radio.addEventListener('change', () => {
+
+                    // ✔ wrap 선택 UI 는 td 내부에 있으므로 td 기준으로 잡아야 한다
+                    const wrapTd = radio.closest('td');
+                    const tiles = wrapTd.querySelectorAll('.cm-wrap-tile');
+
+                    // 기존 테두리 제거
+                    tiles.forEach(t => t.classList.remove('selected'));
+
+                    // 선택된 라벨만 활성화
+                    radio.closest('.cm-wrap-tile').classList.add('selected');
+
+                    recalc(); // 가격 재계산
+                });
+            });
+
+            // 포인트 최대 버튼
+            // - 보유 포인트 한도(getPointMaxTotal)
+            // - 현재 결제 금액 한도(상품합계 - 쿠폰 + 포장비 + 배송비)
+            // 둘 중 더 작은 값까지만 사용
+            window.useMaxPoint = (btn) => {
+                const input = btn.closest('.input-group')?.querySelector('.point-input');
+                if (!input) return;
+
+                // 1) "포인트를 하나도 안 썼다고 가정했을 때" 결제 금액
+                const baseTotal =
+                    summary.productsTotal
+                    - summary.couponDiscount
+                    + summary.wrapFeeTotal
+                    + summary.shippingFee;
+
+                // 2) 보유 포인트 / 결제금액 기준 한도
+                const maxPointByPrice = baseTotal;
+                const maxPointByBalance = getPointMaxTotal();
+
+                // 3) 다른 input 들이 이미 사용 중인 포인트
+                const others = $$('.point-input')
+                    .filter(i => i !== input)
+                    .map(i => num(i.value))
+                    .reduce((a, b) => a + b, 0);
+
+                // 4) 이 input 이 쓸 수 있는 남은 포인트
+                const remain = Math.max(
+                    0,
+                    Math.min(maxPointByPrice, maxPointByBalance) - others
+                );
+
+                input.value = remain;
+                recalc();
+            };
+
+            // 포인트 적용 / 수정 토글
+            window.togglePointApply = (btn) => {
+                const group = btn.closest('.input-group');
+                if (!group) return;
+
+                const input = group.querySelector('.point-input');
+                const maxBtn = group.querySelector('.btn-max-point');
+                if (!input) return;
+
+                const applied = btn.dataset.applied === 'true';
+
+                if (!applied) {
+                    // ✅ 적용 상태로 전환
+                    // 1) 현재 입력값 기준으로 포인트 계산
+                    recalc(); // summary.pointDiscount 최신화
+
+                    // 2) 그 값을 잠금 값으로 저장
+                    lockedPointDiscount = summary.pointDiscount;
+                    pointLocked = true;
+
+                    // 3) 입력/버튼 잠그기
+                    input.readOnly = true;
+                    if (maxBtn) maxBtn.disabled = true;
+
+                    btn.dataset.applied = 'true';
+                    btn.textContent = '수정';
+
+                } else {
+                    // 🔁 다시 수정 가능 상태로 전환
+                    pointLocked = false;
+                    lockedPointDiscount = 0;
+
+                    input.readOnly = false;
+                    if (maxBtn) maxBtn.disabled = false;
+
+                    btn.dataset.applied = 'false';
+                    btn.textContent = '적용';
+
+                    // 다시 자유롭게 변경할 수 있으니, 현재 input 기준으로 재계산
+                    recalc();
+                }
+            };
+
+            // 계산
+            recalc();
+
+            //   주문 submit (paymentType 분기)
+            const checkoutForm = document.getElementById("checkoutForm");
+            const paymentModal = document.getElementById("paymentModal");
+            const cancelModalBtn = document.getElementById("cancelModalBtn");
+
+            function buildOrderSaveRequest() {
+                // orderer / receiver / address 등 form 값 읽기
+                const ordererName = document.getElementById("ordererName").value;
+                const ordererPhone = document.getElementById("ordererPhone").value;
+                const ordererEmail = document.getElementById("ordererEmail").value;
+
+                const receiverName = document.getElementById("receiverName").value;
+                const receiverPhone = document.getElementById("receiverPhone").value;
+
+                const zipcode = document.getElementById("postcode").value;
+                const streetName = document.getElementById("roadAddress").value;
+                const detail = document.getElementById("detailAddress").value;
+
+                const deliveryAt = document.getElementById("deliveryDate").value;
+                const requestText = document.querySelector("textarea[name=request]").value;
+
+                // 주문 상품 리스트
+                const orderedBooks = $$('.order-item-row').map((row, idx) => {
+                    const bookId = Number(row.dataset.bookId);
+                    const quantity = Number(row.querySelector(".qty").textContent);
+                    const originalPrice = num(row.querySelector(".price").textContent);
+                    const subtotal = num(row.querySelector(".subtotal").textContent);
+
+
+                    const wrap = row.querySelector(".wrap-radio:checked");
+                    const wrapperId = wrap?.dataset.id ? Number(wrap.dataset.id) : null;
+                    const wrapperPrice = wrap ? Number(wrap.dataset.price) : 0;
+
+                    const coupon = row.querySelector(".coupon-select");
+                    const couponDiscount = coupon?.value ? Number(coupon.value) : 0;
+
+                    const pointInput = row.querySelector(".point-input");
+                    const pointUsed = pointInput ? Number(pointInput.value) : 0;
+
+                    return {
+                        bookId,
+                        quantity,
+                        originalPrice,
+                        salesPrice: null,
+                        discountPrice: null,
+                        wrapperId,
+                        wrapperPrice,
+                        issuedCouponId: null,
+                        couponDiscount,
+                        pointUsed,
+                        finalUnitPrice: subtotal / quantity
+                    };
+                });
+
+                // 최종 DTO (OrderSaveRequest)
+                return {
+                    ordererName: ordererName,
+                    ordererPhone: ordererPhone,
+                    ordererEmail: ordererEmail,
+
+                    recipientName: receiverName,
+                    recipientPhone: receiverPhone,
+
+                    zipcode,
+                    streetName,
+                    detail,
+                    deliveryRequest: requestText,
+                    deliveryAt,
+
+                    deliveryFee: summary.shippingFee,
+                    totalPrice: summary.productsTotal
+                        - summary.couponDiscount
+                        - summary.pointDiscount
+                        + summary.wrapFeeTotal
+                        + summary.shippingFee,
+
+                    orderedBooks
+                };
+            }
+
+            checkoutForm.addEventListener("submit", async function (e) {
+                e.preventDefault();
+                const total = recalc();
+
+                // 서버로 보낼 주문 저장 DTO 구성
+                const saveRequest = buildOrderSaveRequest();  // ✨ 아래에서 만들어줄 함수
+
+                // 1) 주문 저장 API 호출 (프론트 → 프론트 OrderController → core)
+                const response = await fetch("/orders/save", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify(saveRequest)
+                }).then(r => r.json());
+
+                const {orderNumber, totalPrice} = response;
+
+                // hidden 값 업데이트
+                document.getElementById("orderNumber").value = orderNumber;
+                document.getElementById("price").value = totalPrice;
+
+
+                // 총 결제금액 0원 → 포인트 전액 결제
+                if (total === 0) {
+                    checkoutForm.action = "/payments/point";
+                    checkoutForm.method = "post";
+                    checkoutForm.submit();
+                    return;
+                }
+
+                // TOSS 결제 → 모달 열기
+                resetTossModal();
+                paymentModal.style.display = "block";
+                initTossPayment();
+            });
+
+            if (cancelModalBtn) {
+                cancelModalBtn.onclick = () => paymentModal.style.display = "none";
+                resetTossModal();
+            }
+
+            function resetTossModal() {
+                // toss 위젯 DOM 초기화
+                $("#payment-method").innerHTML = "";
+                $("#agreement").innerHTML = "";
+            }
+        });
+
+        // Toss 결제 시작
+        async function initTossPayment() {
+            const $ = document.querySelector.bind(document);
+
+            const orderId = $('#orderNumber').value;
+            const orderName = $('#orderName').value;
+            const totalAmount = Number($('#price').value);
+            const pointUsed = $('#pointUsed').value;
+
+            const clientKey = "test_gck_docs_Ovk5rk1EwkEbP0W43n07xlzm";
+            const tossPayments = TossPayments(clientKey);
+
+            const widgets = tossPayments.widgets({customerKey: orderId});
+
+            await widgets.setAmount({
+                currency: "KRW",
+                value: totalAmount
+            });
+
+            await widgets.renderPaymentMethods({
+                selector: "#payment-method",
+                variantKey: "DEFAULT"
+            });
+
+            await widgets.renderAgreement({
+                selector: "#agreement",
+                variantKey: "AGREEMENT"
+            });
+
+            $("#payButton").onclick = async function () {
+                try {
+                    await widgets.requestPayment({
+                        orderId,
+                        orderName,
+                        // 포인트 사용량을 쿼리스트링으로 콜백에 전달
+                        successUrl: `${window.location.origin}/payments/success?pointUsed=${pointUsed}`,
+                        failUrl: `${window.location.origin}/payments/fail`
+                    });
+                } catch (err) {
+
+                    // 필수 약관 동의 안 함
+                    if (err && err.code === "NEED_AGREEMENT" || String(err.message).includes("필수")) {
+                        alert("필수 약관에 동의해야 결제가 가능합니다.");
+                        return;
+                    }
+
+                    // 그 외 토스 오류 출력
+                    console.error("결제 오류:", err);
+                    alert("결제 중 오류가 발생했습니다.\n다시 시도해주세요.");
+                }
+            };
+        }
+    </script>
+
+</section>
 </html>
