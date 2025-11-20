@@ -51,4 +51,7 @@ public interface AuthAdaptor {
 
     @DeleteMapping("/auth/payco/temp/{tempKey}")
     ResponseEntity<Void> deletePaycoTempInfo(@PathVariable String tempKey);
+
+    @PostMapping("/auth/payco/login")
+    ResponseEntity<LoginResponse> paycoAutoLogin(@RequestParam("paycoId") String paycoId);
 }

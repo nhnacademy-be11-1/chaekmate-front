@@ -3,6 +3,7 @@ package shop.chaekmate.front.auth.controller;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import shop.chaekmate.front.auth.dto.response.PaycoAuthorizationResponse;
 import shop.chaekmate.front.auth.dto.response.PaycoTempInfoResponse;
 import shop.chaekmate.front.auth.service.AuthService;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class AuthController {
@@ -120,8 +122,22 @@ public class AuthController {
             // 200대로 성공 여부 확인
             if (gatewayResponse.getStatusCode().is2xxSuccessful() && gatewayResponse.getBody() != null) {
                 PaycoTempInfoResponse paycoInfo = gatewayResponse.getBody();
-                // tempKey를 쿼리 파라미터로 전달하여 회원가입 페이지로 리다이렉트
-                return "redirect:/signup?payco=true&tempKey=" + paycoInfo.tempKey();
+
+                // Set-Cookie 헤더 추출하여 브라우저에 전달
+                if (gatewayResponse.getHeaders().containsKey(HttpHeaders.SET_COOKIE)) {
+                    List<String> cookieHeaders = gatewayResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+                    if (cookieHeaders != null) {
+                        cookieHeaders.forEach(cookieHeader -> response.addHeader(HttpHeaders.SET_COOKIE, cookieHeader));
+                    }
+                }
+
+                // 기존 회원이면 홈으로, 신규 회원이면 PAYCO 회원가입 페이지로
+                if (Boolean.TRUE.equals(paycoInfo.isExistingMember())) {
+                    return REDIRECT_HOME;
+                } else {
+                    // tempKey를 쿼리 파라미터로 전달하여 PAYCO 회원가입 페이지로 리다이렉트
+                    return "redirect:/signup/payco?tempKey=" + paycoInfo.tempKey();
+                }
             } else {
                 return REDIRECT_LOGIN_ERROR;
             }
@@ -136,6 +152,33 @@ public class AuthController {
             authService.deletePaycoTempInfo(tempKey);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
+            return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @PostMapping("/auth/payco/login")
+    public ResponseEntity<LoginResponse> paycoAutoLogin(@RequestParam("paycoId") String paycoId,
+                                                        HttpServletResponse response) {
+        try {
+            ResponseEntity<LoginResponse> gatewayResponse = authService.paycoAutoLogin(paycoId);
+
+            // Set-Cookie 헤더 추출하여 브라우저에 전달
+            if (gatewayResponse.getHeaders().containsKey(HttpHeaders.SET_COOKIE)) {
+                List<String> cookieHeaders = gatewayResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+                log.info("PAYCO 자동 로그인 - Set-Cookie 헤더 개수: {}", cookieHeaders != null ? cookieHeaders.size() : 0);
+                if (cookieHeaders != null) {
+                    cookieHeaders.forEach(cookieHeader -> {
+                        log.info("PAYCO 자동 로그인 - Set-Cookie: {}", cookieHeader);
+                        response.addHeader(HttpHeaders.SET_COOKIE, cookieHeader);
+                    });
+                }
+            } else {
+                log.warn("PAYCO 자동 로그인 - Set-Cookie 헤더가 없습니다.");
+            }
+
+            return gatewayResponse;
+        } catch (Exception e) {
+            log.error("PAYCO 자동 로그인 실패", e);
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }

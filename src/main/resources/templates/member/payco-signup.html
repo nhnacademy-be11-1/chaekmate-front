@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+    <title>PAYCO 회원가입</title>
+</head>
+<section>
+
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8 mb-5 mx-auto">
+                <div class="bg-light p-30">
+                    <h2 class="mb-4">PAYCO 회원가입</h2>
+
+                    <!-- PAYCO 회원가입 안내 -->
+                    <div class="alert alert-info mb-3">
+                        <strong>PAYCO로 회원가입</strong>
+                        <p class="mb-0">PAYCO에서 가져온 정보는 자동으로 입력되었습니다. 추가 정보를 입력해주세요.</p>
+                    </div>
+
+                    <!-- 브라우저 기본 검증 사용: novalidate 삭제 -->
+                    <form id="signupForm" th:action="@{/members}" method="post">
+                        <!-- PAYCO 정보 숨김 필드 -->
+                        <input type="hidden" id="paycoTempKey" th:value="${paycoInfo?.tempKey}">
+                        <input type="hidden" id="paycoId" th:value="${paycoInfo?.paycoId}">
+
+                        <div class="row">
+                            <!-- 이름 (<=50, required) -->
+                            <div class="col-md-12 form-group">
+                                <label for="name">이름</label>
+                                <input type="text" class="form-control" id="name" name="name"
+                                       maxlength="50" required autocomplete="name" placeholder="홍길동"
+                                       th:value="${paycoInfo?.name}"
+                                       th:readonly="${paycoInfo?.name != null}">
+                                <small th:if="${paycoInfo?.name != null}" class="text-muted">PAYCO에서 가져온 정보입니다.</small>
+                            </div>
+
+                            <!-- 전화번호 (<=20, required) -->
+                            <div class="col-md-12 form-group">
+                                <label for="phone">전화번호</label>
+                                <input type="tel" class="form-control" id="phone" name="phone"
+                                       inputmode="numeric" autocomplete="tel"
+                                       maxlength="20"
+                                       pattern="^[0-9\-]{9,20}$" required placeholder="010-1234-5678"
+                                       th:value="${paycoInfo?.phone}"
+                                       th:readonly="${paycoInfo?.phone != null}">
+                                <small th:if="${paycoInfo?.phone != null}" class="text-muted">PAYCO에서 가져온 정보입니다.</small>
+                            </div>
+
+                            <!-- 이메일 (<=50, required) -->
+                            <div class="col-md-12 form-group">
+                                <label for="email">이메일</label>
+                                <div class="input-group">
+                                    <input type="email" class="form-control" id="email" name="email"
+                                           maxlength="50" required autocomplete="email" placeholder="user@example.com"
+                                           th:value="${paycoInfo?.email}"
+                                           th:readonly="${paycoInfo?.email != null}">
+                                    <button type="button" class="btn btn-primary" id="btnCheckEmail"
+                                            th:disabled="${paycoInfo?.email != null}">중복확인</button>
+                                </div>
+                                <small id="emailMsg" class="d-block mt-1" aria-live="polite"></small>
+                                <small th:if="${paycoInfo?.email != null}" class="text-muted">PAYCO에서 가져온 정보입니다. 채워지지 않은 항목은 입력해주세요.</small>
+                            </div>
+
+                            <!-- 생년월일 (required) -->
+                            <div class="col-md-12 form-group">
+                                <label for="birthDate">생년월일</label>
+                                <input type="date" class="form-control" id="birthDate" name="birthDate" required>
+                            </div>
+
+                            <!-- 제출 -->
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary" id="btnSubmit">회원가입</button>
+                            </div>
+
+                            <div class="col-md-12 mt-3 text-center">
+                                <span>이미 계정이 있으신가요? </span>
+                                <a href="/login" class="text-primary">로그인</a>
+                            </div>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:inline="javascript">
+        // PAYCO 정보 (서버에서 전달받은 값)
+        const paycoInfo = /*[[${paycoInfo}]]*/ null;
+
+        // 요소
+        const $form = document.getElementById('signupForm');
+        const $email = document.getElementById('email');
+        const $btnCheckEmail = document.getElementById('btnCheckEmail');
+        const $emailMsg = document.getElementById('emailMsg');
+        const $name = document.getElementById('name');
+        const $phone = document.getElementById('phone');
+        const $birth = document.getElementById('birthDate');
+        const $paycoId = document.getElementById('paycoId');
+
+        // 상태
+        let emailChecked = false;
+        let lastCheckedEmail = null;
+
+        // PAYCO에서 제공한 정보는 이미 중복확인 완료된 것으로 처리
+        if (paycoInfo && paycoInfo.email) {
+            emailChecked = true;
+            lastCheckedEmail = paycoInfo.email;
+            setMsg($emailMsg, 'PAYCO에서 가져온 정보입니다.', 'ok');
+        }
+
+        // msg helper
+        function setMsg($el, text, type) {
+            $el.textContent = text || '';
+            $el.classList.remove('text-success','text-danger','text-muted');
+            if (!text) $el.classList.add('text-muted');
+            else if (type === 'ok') $el.classList.add('text-success');
+            else if (type === 'err') $el.classList.add('text-danger');
+        }
+
+        // 전화번호 포맷(표시용)
+        function formatPhone(value) {
+            const digits = value.replaceAll(/\D/g, '');
+            if (digits.startsWith('02')) {
+                if (digits.length <= 2) return digits;
+                if (digits.length <= 5) return digits.replace(/(\d{2})(\d+)/, '$1-$2');
+                if (digits.length <= 9) return digits.replace(/(\d{2})(\d{3,4})(\d{1,4})/, '$1-$2-$3');
+                return digits.slice(0, 10).replace(/(\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+            } else {
+                if (digits.length <= 3) return digits;
+                if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+                return digits.slice(0, 11).replace(/(\d{3})(\d{3,4})(\d{1,4})/, '$1-$2-$3');
+            }
+        }
+
+        // 이메일 UI 보조
+        function updateEmailUI() {
+            const v = $email.value.trim();
+            if (!v) {
+                setMsg($emailMsg, '', null);
+                emailChecked = false;
+                $btnCheckEmail.disabled = false;
+                return;
+            }
+            if (!$email.validity.valid) {
+                setMsg($emailMsg, '이메일 형식이 올바르지 않습니다.', 'err');
+                emailChecked = false;
+                $btnCheckEmail.disabled = true;
+                return;
+            }
+            $btnCheckEmail.disabled = false;
+            if (v !== lastCheckedEmail) emailChecked = false;
+        }
+
+        // 이벤트 연결
+        $email.addEventListener('input', updateEmailUI);
+        $email.addEventListener('blur', updateEmailUI);
+
+        // 이메일 중복확인
+        async function checkEmail() {
+            const v = $email.value.trim();
+            if (!v) { setMsg($emailMsg, '이메일을 입력하세요.', 'err'); emailChecked = false; return false; }
+            $btnCheckEmail.disabled = true;
+            setMsg($emailMsg, '확인 중...', null);
+            try {
+                const res = await fetch(`/members/check-email?email=${encodeURIComponent(v)}`, {
+                    method: 'GET', headers: { 'Accept': 'application/json' }
+                });
+                const data = await res.json();
+                if (res.ok && data.available) {
+                    setMsg($emailMsg, '사용 가능한 이메일입니다.', 'ok');
+                    emailChecked = true; lastCheckedEmail = v;
+                } else {
+                    setMsg($emailMsg, '이미 사용 중인 이메일입니다.', 'err');
+                    emailChecked = false;
+                }
+            } catch {
+                setMsg($emailMsg, '중복 확인 실패', 'err');
+                emailChecked = false;
+            } finally {
+                $btnCheckEmail.disabled = false;
+            }
+            return emailChecked;
+        }
+
+        document.getElementById('btnCheckEmail').addEventListener('click', checkEmail);
+
+        $email.addEventListener('input', () => {
+            if ($email.value.trim() !== lastCheckedEmail) {
+                emailChecked = false; setMsg($emailMsg, '', null);
+            }
+        });
+
+        $phone.addEventListener('input', (e) => { e.target.value = formatPhone(e.target.value); });
+
+        // 오늘 이후 생일 금지
+        (function lockFutureDate() {
+            const d = new Date();
+            const yyyy = d.getFullYear();
+            const mm = String(d.getMonth() + 1).padStart(2, '0');
+            const dd = String(d.getDate()).padStart(2, '0');
+            $birth.setAttribute('max', `${yyyy}-${mm}-${dd}`);
+        })();
+
+        $form.addEventListener('submit', async (e) => {
+            // 1) 브라우저 기본 검증
+            if (!$form.checkValidity()) { e.preventDefault(); e.stopPropagation(); $form.reportValidity(); return; }
+
+            // 2) 이메일 중복확인 확인
+            if (!emailChecked || $email.value.trim() !== lastCheckedEmail) {
+                e.preventDefault(); e.stopPropagation(); setMsg($emailMsg, '이메일 중복확인을 해주세요.', 'err'); return;
+            }
+
+            // 3) 서버가 @RequestBody DTO를 받으므로 JSON으로 전송
+            e.preventDefault(); // 기본 submit 막고 fetch로 보냄
+
+            // DB 저장용: 하이픈 제거(숫자만 남김)
+            const cleanPhone = $phone.value.replaceAll(/\D/g, '');
+
+            const paycoTempKeyEl = document.getElementById('paycoTempKey');
+            const paycoTempKey = paycoTempKeyEl ? paycoTempKeyEl.value : null;
+
+            const body = {
+                loginId: $paycoId.value,  // PAYCO idNo 사용
+                password: "PAYCO_TEMP_PASSWORD",  // PAYCO 회원가입: 임의 값 (Core 서버에서 무시하고 랜덤 생성)
+                name: $name.value.trim(),
+                phone: cleanPhone,
+                email: $email.value.trim(),
+                birthDate: $birth.value
+            };
+
+            try {
+                // PAYCO 회원가입인 경우 paycoTempKey를 쿼리 파라미터로 추가
+                let url = '/members';
+                if (paycoTempKey) {
+                    url += `?paycoTempKey=${encodeURIComponent(paycoTempKey)}`;
+                }
+
+                const res = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(body),
+                    credentials: 'include'  // 쿠키 포함
+                });
+
+                // 서버에서 PAYCO 자동 로그인 처리 후 리다이렉트됨
+                // fetch는 리다이렉트를 자동으로 따라가지 않으므로, 응답 상태를 확인하여 처리
+                if (res.status === 201 || res.status === 200) {
+                    // PAYCO 회원가입인 경우 홈으로, 일반 회원가입인 경우 로그인 페이지로
+                    // 서버에서 이미 쿠키를 설정했으므로, 페이지를 리다이렉트하면 쿠키가 저장됨
+                    if (paycoTempKey) {
+                        globalThis.location.href = '/';
+                    } else {
+                        globalThis.location.href = '/login';
+                    }
+                    return;
+                }
+                const err = await res.json().catch(() => ({}));
+                alert(err.message || '회원가입에 실패했습니다.');
+            } catch {
+                alert('네트워크 오류가 발생했습니다.');
+            }
+        });
+
+        // 초기 상태
+        setMsg($emailMsg, '', null);
+    </script>
+
+</section>
+</html>
+

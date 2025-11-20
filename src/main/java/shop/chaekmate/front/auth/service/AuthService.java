@@ -60,6 +60,10 @@ public class AuthService {
         authAdaptor.deletePaycoTempInfo(tempKey);
     }
 
+    public ResponseEntity<LoginResponse> paycoAutoLogin(String paycoId) {
+        return authAdaptor.paycoAutoLogin(paycoId);
+    }
+
     // 회원 탈퇴 시 모든 토큰 제거되도록
     public void clearAllTokens(HttpServletRequest request, HttpServletResponse response) {
         // Auth 서버에서 RefreshToken 삭제
