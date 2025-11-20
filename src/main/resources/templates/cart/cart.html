@@ -406,7 +406,7 @@
                 const orderItems = [];
 
                 cartItems.forEach(item => {
-                    const bookId = parseInt(item.getAttribute('data-book-id'));
+                    const bookId = Number(item.getAttribute('data-book-id'));
                     const quantity = parseInt(item.getAttribute('data-quantity'));
 
                     orderItems.push({

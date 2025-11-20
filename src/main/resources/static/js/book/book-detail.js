@@ -111,11 +111,53 @@ $(document).ready(function() {
         });
   });
 
-  // 바로 주문 버튼 클릭 이벤트
-  $buyNowBtn.on('click', function() {
-    let quantity = Number.parseInt($quantityInput.val());
-    // 실제 바로 주문 로직 (결제 페이지 이동 등)을 여기에 구현해!
-    alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
-    // 예: location.href = '/orders/checkout?bookId=' + bookId + '&quantity=' + quantity;
-  });
+  // // 바로 주문 버튼 클릭 이벤트
+  // $buyNowBtn.on('click', function() {
+  //   let quantity = Number.parseInt($quantityInput.val());
+  //   // 실제 바로 주문 로직 (결제 페이지 이동 등)을 여기에 구현해!
+  //   alert('도서 ID: ' + bookId + ', 수량: ' + quantity + '권으로 바로 주문을 진행합니다! (실제 로직 구현 필요)');
+  //   // 예: location.href = '/orders/checkout?bookId=' + bookId + '&quantity=' + quantity;
+  // });
+
+    $buyNowBtn.on('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!bookId) {
+            alert('도서 정보를 찾을 수 없습니다.');
+            return;
+        }
+
+        let quantity = Number.parseInt($quantityInput.val());
+
+        // 버튼 중복 클릭 방지
+        $buyNowBtn.prop('disabled', true);
+        let originalHTML = $buyNowBtn.html();
+        $buyNowBtn.html('<i class="fa fa-spinner fa-spin mr-1"></i> 처리 중...');
+
+        // 서버로 POST 요청 (장바구니 없이 바로 주문)
+        fetch('/orders', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                items: [
+                    {
+                        bookId: Number(bookId),
+                        quantity: quantity
+                    }
+                ]
+            })
+        })
+            .then(res => {
+                if (!res.ok) throw new Error('주문 생성 실패');
+            })
+            .catch(err => {
+                console.error(err);
+                alert('바로 주문 처리 중 오류가 발생했습니다.');
+                $buyNowBtn.prop('disabled', false).html(originalHTML);
+            });
+    });
+
 });
