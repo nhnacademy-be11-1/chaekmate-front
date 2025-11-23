@@ -8,6 +8,7 @@ chaekmate:
 
 server:
   port: 5173
+  forward-headers-strategy: native
 
 minio:
   url: ${MINIO_URL}
