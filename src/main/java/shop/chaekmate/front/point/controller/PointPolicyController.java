@@ -30,7 +30,8 @@ public class PointPolicyController {
             Map<String, String> earnedTypeMap = new LinkedHashMap<>();
             earnedTypeMap.put("WELCOME", "회원가입");
             earnedTypeMap.put("ORDER", "주문");
-            earnedTypeMap.put("REVIEW", "리뷰작성");
+            earnedTypeMap.put("IMAGE_REVIEW", "이미지 리뷰작성");
+            earnedTypeMap.put("TEXT_REVIEW", "텍스트 리뷰작성");
 
             model.addAttribute("pointPolicy", response);
             model.addAttribute("earnedTypeMap", earnedTypeMap);

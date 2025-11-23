@@ -6,6 +6,7 @@ import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
+import shop.chaekmate.front.member.dto.response.GradeResponse;
 
 import java.util.List;
 import java.util.Map;
@@ -33,4 +34,10 @@ public interface MemberAdaptor {
 
     @DeleteMapping(value = "/members/{memberId}/addresses/{addressId}")
     CommonResponse<Void> deleteAddress(@PathVariable Long memberId, @PathVariable Long addressId);
+
+    @GetMapping(value = "/members/{memberId}/grade")
+    CommonResponse<GradeResponse> getMemberGrade(@PathVariable Long memberId);
+
+    @GetMapping(value = "/members/grades")
+    CommonResponse<List<GradeResponse>> getAllGrades();
 }

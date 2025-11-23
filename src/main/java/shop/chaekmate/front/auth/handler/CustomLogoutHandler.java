@@ -37,7 +37,7 @@ public class CustomLogoutHandler implements LogoutHandler {
         }
 
         // Front Server에서 accessToken 쿠키 삭제
-        ResponseCookie deleteCookie = ResponseCookie.from("accessToken", "")
+        ResponseCookie deleteAccessCookie = ResponseCookie.from("accessToken", "")
                 .httpOnly(true)
                 .secure(cookieConfig.isSecureCookie())
                 .path("/")
@@ -45,6 +45,16 @@ public class CustomLogoutHandler implements LogoutHandler {
                 .sameSite("Lax")
                 .build();
 
-        response.addHeader(HttpHeaders.SET_COOKIE, deleteCookie.toString());
+        // refreshToken도 삭제
+        ResponseCookie deleteRefreshCookie = ResponseCookie.from("refreshToken", "")
+                .httpOnly(true)
+                .secure(cookieConfig.isSecureCookie())
+                .path("/")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteAccessCookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, deleteRefreshCookie.toString());
     }
 }

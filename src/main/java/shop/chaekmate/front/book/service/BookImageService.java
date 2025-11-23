@@ -1,6 +1,7 @@
 package shop.chaekmate.front.book.service;
 
 import feign.FeignException;
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,8 +32,12 @@ public class BookImageService {
 
     // 상세 이미지 조회
     public List<BookImageResponse> getDetailImagesByBookId(Long bookId){
-        CommonResponse<List<BookImageResponse>> response = bookImageAdaptor.getBookDetailImages(bookId);
-
+        CommonResponse<List<BookImageResponse>> response;
+        try {
+            response = bookImageAdaptor.getBookDetailImages(bookId);
+        } catch (FeignException e){
+            return Collections.emptyList();
+        }
         return response.data();
     }
 
