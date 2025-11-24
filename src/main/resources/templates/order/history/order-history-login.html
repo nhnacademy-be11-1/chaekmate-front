@@ -36,16 +36,16 @@
             <div class="col-lg-6">
                 <div class="bg-light p-30 mb-5">
                     <h2 class="mb-4">비회원 주문 조회</h2>
-                    <form th:action="@{/orders/history/list}" method="post">
+                    <form th:action="@{/orders/history/list}" method="get">
                         <input type="hidden" name="_method" value="get"/>
                         <div class="row">
                             <div class="col-md-12 form-group">
                                 <label for="orderNumber">주문 번호</label>
-                                <input type="text" class="form-control" id="orderNumber" name="orderNumber" required>
+                                <input type="text" class="form-control" id="orderNumber" name="orderNumber">
                             </div>
                             <div class="col-md-12 form-group">
                                 <label for="ordererPhone">주문자 전화번호</label>
-                                <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" required>
+                                <input type="text" class="form-control" id="ordererPhone" name="ordererPhone">
                             </div>
                             <div class="col-md-12">
                                 <button type="submit" class="btn btn-primary">주문 조회</button>
