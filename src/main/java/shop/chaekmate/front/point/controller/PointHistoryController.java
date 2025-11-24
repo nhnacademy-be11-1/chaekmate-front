@@ -4,10 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import shop.chaekmate.front.auth.principal.CustomPrincipal;
+import shop.chaekmate.front.point.dto.response.MemberPointHistoryResponse;
 import shop.chaekmate.front.point.dto.response.PointHistoryResponse;
+import shop.chaekmate.front.point.dto.response.PointResponse;
 import shop.chaekmate.front.point.service.PointHistoryService;
 
 @Slf4j
@@ -34,6 +39,43 @@ public class PointHistoryController {
             model.addAttribute("pointHistory", Page.empty());
             model.addAttribute("error", "페이지 로드 중 오류가 발생했습니다: " + e.getMessage());
             return "admin/point/point-histories-management";
+        }
+    }
+
+    // 개인 포인트 조회 페이지
+    @GetMapping("/members/point-histories")
+    public String getMyPointHistory(
+            @AuthenticationPrincipal CustomPrincipal principal,
+            Model model,
+            @PageableDefault(size = 10) Pageable pageable) {
+
+        log.info("===== 개인 포인트 내역 조회 페이지 접근 =====");
+
+        if (principal == null) {
+            log.error("로그인이 필요합니다. 로그인 페이지로 리다이렉트합니다.");
+            return "redirect:/login";
+        }
+
+        log.info("회원 {} 포인트 내역 페이지 접근", principal.getMemberId());
+
+        try {
+            // 포인트 잔액 조회
+            PointResponse pointResponse = pointHistoryService.getMemberPoint(principal.getMemberId());
+            model.addAttribute("point", pointResponse);
+
+            // 포인트 내역 조회
+            Page<MemberPointHistoryResponse> pointHistory =
+                    pointHistoryService.getMemberPointHistory(principal.getMemberId(), pageable);
+            model.addAttribute("pointHistory", pointHistory);
+            model.addAttribute("memberId", principal.getMemberId());
+
+            log.info("포인트 내역 데이터 개수: {}", pointHistory.getTotalElements());
+            return "member/point-history";
+        } catch (Exception e) {
+            log.error("포인트 내역 페이지 로드 실패", e);
+            model.addAttribute("pointHistory", Page.empty());
+            model.addAttribute("error", "페이지 로드 중 오류가 발생했습니다: " + e.getMessage());
+            return "member/point-history";
         }
     }
 }
