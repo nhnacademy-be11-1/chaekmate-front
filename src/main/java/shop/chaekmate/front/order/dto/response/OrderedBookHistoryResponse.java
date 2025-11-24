@@ -8,4 +8,15 @@ public class OrderedBookHistoryResponse {
     private String bookTitle;
     private Integer quantity;
     private Integer finalUnitPrice;
+    private Long orderId;
+    private Integer originalPrice;
+    private Integer salesPrice;
+    private Integer discountPrice;
+    private Long wrapperId;
+    private Integer wrapperPrice;
+    private Long issuedCouponId;
+    private Integer couponDiscount;
+    private Integer pointUsed;
+    private String unitStatus;
+    private Long totalPrice;
 }

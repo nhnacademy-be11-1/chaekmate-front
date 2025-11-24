@@ -21,7 +21,12 @@ public class OrderHistoryService {
         Page<OrderHistoryResponse> response;
 
         try {
-            response = orderHistoryAdaptor.getNonMemberOrderHistory(pageable, orderHistoryRequest).data();
+            response = orderHistoryAdaptor.getNonMemberOrderHistory(
+                pageable,
+                orderHistoryRequest.getOrderNumber(),
+                orderHistoryRequest.getOrdererName(),
+                orderHistoryRequest.getOrdererPhone()
+            ).data();
         } catch (FeignException e) {
             log.error("주문 내역 조회 중 에러 발생 - status: {}, message: {}", e.status(), e.getMessage());
             return Page.empty();

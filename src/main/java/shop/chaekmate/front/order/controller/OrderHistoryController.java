@@ -2,6 +2,7 @@ package shop.chaekmate.front.order.controller;
 
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -9,13 +10,14 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.order.dto.request.OrderHistoryRequest;
 import shop.chaekmate.front.order.dto.response.OrderHistoryResponse;
 import shop.chaekmate.front.order.service.OrderHistoryService;
 
 @Controller
+@Slf4j
 @RequiredArgsConstructor
 public class OrderHistoryController {
 
@@ -27,8 +29,9 @@ public class OrderHistoryController {
     @GetMapping("/orders/history")
     public String getOrderHistory(@AuthenticationPrincipal CustomPrincipal principal){
 
-        if(Objects.nonNull(principal)){
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getMemberId())){
             // 회원
+            log.debug("회원 주문 조회 진입 {}",principal.getName());
             return "redirect:/orders/history/list";
         }
 
@@ -38,9 +41,9 @@ public class OrderHistoryController {
 
     // 주문 내역 리스트 뷰
     @GetMapping("/orders/history/list")
-    public String getOrderHistoryList(@RequestBody(required = false) OrderHistoryRequest orderHistoryRequest,
+    public String getOrderHistoryList(@ModelAttribute OrderHistoryRequest orderHistoryRequest,
                                       @AuthenticationPrincipal CustomPrincipal principal,
-                                      @PageableDefault Pageable pageable,
+                                      @PageableDefault(size=3) Pageable pageable,
                                       Model model){
 
         Page<OrderHistoryResponse> pagedResponse = Page.empty();

@@ -1,1 +1,61 @@
-<!-- Authentic 없는 상태에서 주문 내역 클릭 시 페이지 (로그인 폼, 비회원으로 주문 내역 조회 폼 동시에) -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+
+            <!-- Member Login Column -->
+            <div class="col-lg-6">
+                <div class="bg-light p-30 mb-5">
+                    <h2 class="mb-4">회원 로그인</h2>
+                    <form th:action="@{/login}" method="post">
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="loginId">Login ID</label>
+                                <input type="text" class="form-control" id="loginId" name="loginId" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" id="password" name="password" required>
+                            </div>
+                            <div th:if="${param.error}" class="col-md-12">
+                                <div class="text-danger" style="font-size: 14px; margin-bottom: 10px;">
+                                    <span>로그인 정보가 올바르지 않습니다.</span>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">Login</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Non-Member Order Lookup Column -->
+            <div class="col-lg-6">
+                <div class="bg-light p-30 mb-5">
+                    <h2 class="mb-4">비회원 주문 조회</h2>
+                    <form th:action="@{/orders/history/list}" method="post">
+                        <input type="hidden" name="_method" value="get"/>
+                        <div class="row">
+                            <div class="col-md-12 form-group">
+                                <label for="orderNumber">주문 번호</label>
+                                <input type="text" class="form-control" id="orderNumber" name="orderNumber" required>
+                            </div>
+                            <div class="col-md-12 form-group">
+                                <label for="ordererPhone">주문자 전화번호</label>
+                                <input type="text" class="form-control" id="ordererPhone" name="ordererPhone" required>
+                            </div>
+                            <div class="col-md-12">
+                                <button type="submit" class="btn btn-primary">주문 조회</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+</html>
