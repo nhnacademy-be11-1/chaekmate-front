@@ -64,6 +64,10 @@ public class AuthService {
         return authAdaptor.paycoAutoLogin(paycoId);
     }
 
+    public ResponseEntity<LoginResponse> verifyDormantMember(String loginId, shop.chaekmate.front.auth.dto.request.DormantVerificationRequest request) {
+        return authAdaptor.verifyDormantMember(loginId, request);
+    }
+
     // 회원 탈퇴 시 모든 토큰 제거되도록
     public void clearAllTokens(HttpServletRequest request, HttpServletResponse response) {
         // Auth 서버에서 RefreshToken 삭제
