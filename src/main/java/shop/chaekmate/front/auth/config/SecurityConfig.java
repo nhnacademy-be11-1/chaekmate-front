@@ -37,7 +37,8 @@ public class SecurityConfig {
                                 "/favicon.ico","/mail/**", "/scss/**").permitAll() // resources/static 아래 경로들 추가
                         .requestMatchers(("/search/**")).permitAll() // 검색 경로 추가
                         .requestMatchers("/", "/login", "/signup", "/signup/payco").permitAll()
-                        .requestMatchers("/auth/payco/callback", "/auth/payco/temp/**", "/auth/payco/login").permitAll() // PAYCO OAuth 콜백, 임시 정보 조회/삭제, 자동 로그인                        .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
+                        .requestMatchers("/auth/payco/callback", "/auth/payco/temp/**", "/auth/payco/login").permitAll() // PAYCO OAuth 콜백, 임시 정보 조회/삭제, 자동 로그인
+                        .requestMatchers("/dormant/verify").permitAll() // 휴면 계정 인증 페이지
                         .requestMatchers("/books/**").permitAll() // 도서 상세, 도서 목록
                         .requestMatchers("/carts/**").permitAll() // 장바구니
                         .requestMatchers("/categories/**").permitAll() // 카테고리별 도서 목록
