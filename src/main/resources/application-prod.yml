@@ -9,3 +9,4 @@ chaekmate:
 
 server:
   port: ${PORT_NUMBER}
+  forward-headers-strategy: framework
