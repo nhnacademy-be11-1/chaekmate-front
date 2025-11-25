@@ -1,5 +1,6 @@
 package shop.chaekmate.front.auth.controller;
 
+import feign.FeignException;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import shop.chaekmate.front.auth.dto.request.DormantVerificationRequest;
 import shop.chaekmate.front.auth.dto.request.LoginRequest;
 import shop.chaekmate.front.auth.dto.response.LoginResponse;
 import shop.chaekmate.front.auth.dto.response.PaycoAuthorizationResponse;
@@ -28,6 +30,7 @@ public class AuthController {
     private static final String REDIRECT_LOGIN_ERROR = "redirect:/login?error=true";
     private static final String REDIRECT_ADMIN_LOGIN_ERROR = "redirect:/admin/login?error=true";
     private static final String REDIRECT_ADMIN_HOME = "redirect:/admin";
+    private static final String REDIRECT_DORMANT_VERIFY = "redirect:/dormant/verify";
 
     private final AuthService authService;
 
@@ -72,7 +75,11 @@ public class AuthController {
             } else {
                 return REDIRECT_LOGIN_ERROR;
             }
-        } catch (Exception e) {
+        } catch (FeignException.Unauthorized e) {
+            log.info("로그인 실패 (401): loginId={}, status={}", loginId, e.status());
+            return REDIRECT_DORMANT_VERIFY + "?loginId=" + loginId;
+        }    catch (Exception e) {
+            log.error("로그인 실패", e);
             return REDIRECT_LOGIN_ERROR;
         }
     }
@@ -180,6 +187,46 @@ public class AuthController {
         } catch (Exception e) {
             log.error("PAYCO 자동 로그인 실패", e);
             return ResponseEntity.status(org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
+    @GetMapping("/dormant/verify")
+    public String dormantVerify(@RequestParam("loginId") String loginId,
+                                @RequestParam(required = false, name = "error") String errorParam,
+                                Model model) {
+        model.addAttribute("title", "휴면 계정 인증 - Chaekmate");
+        model.addAttribute("loginId", loginId);
+        if (errorParam != null) {
+            model.addAttribute("error", "인증번호가 올바르지 않습니다.");
+        }
+        return "dormant/verify";
+    }
+
+    @PostMapping("/dormant/verify")
+    public String verifyDormant(@RequestParam("loginId") String loginId,
+                                @RequestParam("verificationCode") String verificationCode,
+                                HttpServletResponse response) {
+        try {
+            DormantVerificationRequest request = new DormantVerificationRequest(verificationCode);
+            ResponseEntity<LoginResponse> gatewayResponse = authService.verifyDormantMember(loginId, request);
+
+            // Set-Cookie 헤더 추출하여 브라우저에 전달
+            if (gatewayResponse.getHeaders().containsKey(HttpHeaders.SET_COOKIE)) {
+                List<String> cookieHeaders = gatewayResponse.getHeaders().get(HttpHeaders.SET_COOKIE);
+                if (cookieHeaders != null) {
+                    cookieHeaders.forEach(cookieHeader -> response.addHeader(HttpHeaders.SET_COOKIE, cookieHeader));
+                }
+            }
+
+            // 200대로 성공 여부 확인
+            if (gatewayResponse.getStatusCode().is2xxSuccessful()) {
+                return REDIRECT_HOME;
+            } else {
+                return REDIRECT_DORMANT_VERIFY + "?loginId=" + loginId + "&error=true";
+            }
+        } catch (Exception e) {
+            log.error("휴면 계정 인증 실패", e);
+            return REDIRECT_DORMANT_VERIFY + "?loginId=" + loginId + "&error=true";
         }
     }
 }

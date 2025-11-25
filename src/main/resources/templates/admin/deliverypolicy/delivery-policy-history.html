@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-12">
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="h2 font-weight-bold text-dark">배송 정책 관리</h2>
+
+                    <!-- 정책 추가 버튼 -->
+                    <button class="btn btn-primary" data-toggle="modal" data-target="#policyModal">
+                        새로운 배송 정책 등록
+                    </button>
+                </div>
+
+                <!-- 정책 테이블 -->
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover mt-4">
+                        <thead class="thead-dark">
+                        <tr>
+                            <th>무료 배송 기준 금액</th>
+                            <th>배송비</th>
+                            <th>생성일시</th>
+                            <th>삭제일시</th>
+                            <th>상태</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:if="${policies == null or policies.totalElements == 0}">
+                            <td colspan="5" class="text-center">등록된 배송 정책이 없습니다.</td>
+                        </tr>
+
+                        <tr th:if="${policies != null}" th:each="policy : ${policies.content}">
+                            <td th:text="${policy.freeStandardAmount + ' 이상'}"></td>
+                            <td th:text="${policy.deliveryFee + ' 원'}"></td>
+                            <td th:text="${policy.createdAt != null ? #temporals.format(policy.createdAt, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
+                            <td th:text="${policy.deletedAt != null ? #temporals.format(policy.deletedAt, 'yyyy-MM-dd HH:mm:ss') : '-'}"></td>
+                            <td class="text-center">
+                                <span th:if="${policy.deletedAt == null}"
+                                      style="display:inline-flex; align-items:center; justify-content:center;
+                                      background:#28a745; color:white;padding:6px 12px;
+                                      font-weight:600; font-size:1rem; border-radius:6px;"> 활성 </span>
+
+                                <span th:if="${policy.deletedAt != null}"
+                                      style="display:inline-flex; align-items:center; justify-content:center;
+                                      background:#6c757d; color:white;padding:6px 12px;
+                                      font-weight:600; font-size:1rem; border-radius:6px;"> 종료 </span>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 페이징 -->
+                <nav aria-label="Page navigation" th:if="${policies.totalPages > 0}">
+                    <ul class="pagination justify-content-center">
+
+                        <!-- 이전 페이지 -->
+                        <li class="page-item" th:classappend="${policies.first} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/delivery-policy(page=${policies.number - 1}, size=${policies.size})}">
+                                &laquo;
+                            </a>
+                        </li>
+
+                        <!-- 페이지 번호 -->
+                        <li class="page-item"
+                            th:each="i : ${#numbers.sequence(0, policies.totalPages - 1)}"
+                            th:classappend="${i == policies.number} ? 'active'">
+                            <a class="page-link"
+                               th:href="@{/admin/delivery-policy(page=${i}, size=${policies.size})}"
+                               th:text="${i + 1}"></a>
+                        </li>
+
+                        <!-- 다음 페이지 -->
+                        <li class="page-item" th:classappend="${policies.last} ? 'disabled'">
+                            <a class="page-link"
+                               th:href="@{/admin/delivery-policy(page=${policies.number + 1}, size=${policies.size})}">
+                                &raquo;
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+
+                <!-- 페이지 정보 -->
+                <div class="text-center mt-3" th:if="${policies.totalPages > 0}">
+                    <p>
+                        총 <span th:text="${policies.totalElements}"></span>건 |
+                        <span th:text="${policies.number + 1}"></span> / <span th:text="${policies.totalPages}"></span>
+                        페이지
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 등록 모달창 -->
+    <div class="modal fade" id="policyModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form class="modal-content"
+                  th:action="@{/admin/delivery-policy}"
+                  method="post">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">새로운 배송 정책 등록</h5>
+                    <button type="button" class="close" data-dismiss="modal">
+                        <span>&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <label>무료 배송 기준 금액</label>
+                    <input type="number" name="freeStandardAmount" class="form-control" required>
+
+                    <label class="mt-3">배송비</label>
+                    <input type="number" name="deliveryFee" class="form-control" required>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                    <button type="submit" class="btn btn-primary">등록</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</section>
+</html>

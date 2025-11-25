@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+  <div class="container-fluid">
+    <div class="row justify-content-center">
+      <div class="col-md-6 col-lg-4">
+        <div class="card shadow-sm mt-5">
+          <div class="card-body p-5">
+            <h2 class="card-title text-center mb-4">휴면 계정 인증</h2>
+
+            <div class="alert alert-info" role="alert">
+              <i class="bi bi-info-circle"></i>
+              3개월 이상 로그인하지 않아 휴면 상태로 전환되었습니다.<br>
+              Dooray 메시지로 전송된 인증번호를 입력해주세요.
+            </div>
+
+            <!-- 타이머 표시 -->
+            <div class="alert alert-warning text-center" role="alert" id="timerAlert">
+              <i class="bi bi-clock"></i>
+              <strong>인증번호 유효 시간: <span id="timer">01:00</span></strong>
+            </div>
+
+            <div th:if="${error}" class="alert alert-danger" role="alert">
+              <i class="bi bi-exclamation-triangle"></i>
+              <span th:text="${error}"></span>
+            </div>
+
+            <form th:action="@{/dormant/verify}" method="post" id="verifyForm">
+              <input type="hidden" th:name="loginId" th:value="${loginId}">
+
+              <div class="mb-3">
+                <label for="verificationCode" class="form-label">인증번호</label>
+                <input type="text"
+                       class="form-control"
+                       id="verificationCode"
+                       name="verificationCode"
+                       placeholder="6자리 인증번호를 입력하세요"
+                       maxlength="6"
+                       pattern="[0-9]{6}"
+                       required
+                       autocomplete="off">
+                <div class="form-text">Dooray 메시지에서 받은 6자리 인증번호를 입력해주세요.</div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 mb-3" id="submitBtn">
+                인증하기
+              </button>
+            </form>
+
+            <div class="text-center mt-3">
+              <a th:href="@{/login}" class="text-decoration-none">로그인 페이지로 돌아가기</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // 숫자만 입력 가능하도록 제한
+      const verificationCodeInput = document.getElementById('verificationCode');
+      verificationCodeInput.addEventListener('input', function(e) {
+        this.value = this.value.replace(/[^0-9]/g, '');
+      });
+
+      // 1분 타이머 설정
+      let timeLeft = 60; // 60초
+      const timerElement = document.getElementById('timer');
+      const timerAlert = document.getElementById('timerAlert');
+      const submitBtn = document.getElementById('submitBtn');
+      const verifyForm = document.getElementById('verifyForm');
+
+      function updateTimer() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent =
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
+        if (timeLeft <= 0) {
+          // 시간 만료
+          timerAlert.className = 'alert alert-danger text-center';
+          timerAlert.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>인증번호가 만료되었습니다.</strong>';
+
+          // 입력 필드 및 버튼 비활성화
+          verificationCodeInput.disabled = true;
+          submitBtn.disabled = true;
+          submitBtn.textContent = '만료됨';
+
+          // 2초 후 로그인 페이지로 리다이렉트
+          setTimeout(function() {
+            window.location.href = '/login?error=expired';
+          }, 2000);
+
+          return;
+        }
+
+        timeLeft--;
+        setTimeout(updateTimer, 1000);
+      }
+
+      // 타이머 시작
+      updateTimer();
+    })();
+  </script>
+</section>
+</html>
+
