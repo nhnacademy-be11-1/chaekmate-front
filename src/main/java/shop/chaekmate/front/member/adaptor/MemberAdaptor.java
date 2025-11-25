@@ -10,6 +10,7 @@ import shop.chaekmate.front.member.dto.response.GradeResponse;
 
 import java.util.List;
 import java.util.Map;
+import shop.chaekmate.front.member.dto.response.MemberResponse;
 
 @FeignClient(name="member-client" , url = "${chaekmate.gateway.url}")
 public interface MemberAdaptor {
@@ -40,4 +41,7 @@ public interface MemberAdaptor {
 
     @GetMapping(value = "/members/grades")
     CommonResponse<List<GradeResponse>> getAllGrades();
+
+    @GetMapping(value = "/members/{memberId}")
+    CommonResponse<MemberResponse> getMember(@PathVariable Long memberId);
 }

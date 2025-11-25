@@ -60,6 +60,9 @@
                                 <td class="text-center">
         <span class="cm-discount"
               th:text="${T(java.lang.Math).round((item.originalPrice - item.salesPrice) * 100.0 / item.originalPrice)} + '%'"></span>
+                                    <div class="text-muted small"
+                                         th:text="${#numbers.formatInteger(item.originalPrice - item.salesPrice, 3, 'COMMA')} + '원'">
+                                    </div>
                                 </td>
 
                                 <td class="text-center">
@@ -97,18 +100,21 @@
                                         <div class="input-group" style="width: 280px;">
                                             <input type="number" class="form-control point-input"
                                                    placeholder="사용 포인트 입력"
-                                                   th:data-max="${member.remainingPoints}">
+                                                   th:data-max="${remainingPoints.point}">
 
                                             <div class="input-group-append">
                                                 <button type="button" class="btn btn-outline-secondary btn-max-point"
-                                                        onclick="useMaxPoint(this)">최대</button>
-                                                <button type="button" class="btn btn-outline-primary ml-1 point-apply-btn"
-                                                        onclick="togglePointApply(this)">적용</button>
+                                                        onclick="useMaxPoint(this)">최대
+                                                </button>
+                                                <button type="button"
+                                                        class="btn btn-outline-primary ml-1 point-apply-btn"
+                                                        onclick="togglePointApply(this)">적용
+                                                </button>
                                             </div>
                                         </div>
 
                                         <small class="text-muted">
-                                            보유 포인트: <b th:text="${member.remainingPoints}"></b>P
+                                            보유 포인트: <b th:text="${remainingPoints.point}"></b>P
                                         </small>
                                     </div>
 
@@ -117,7 +123,7 @@
                                         <label class="font-weight-bold d-block mb-1">포장지 선택</label>
 
                                         <div class="d-flex flex-wrap" th:with="wraps=${wrappers}">
-                                            <label class="cm-wrap-tile mr-2">
+                                            <label class="cm-wrap-tile mr-2" selected>
                                                 <input type="radio"
                                                        th:name="'wrap_' + ${idx.index}"
                                                        data-id=""
@@ -262,8 +268,8 @@
                         <div class="cm-total-row"><span>상품 합계</span><span id="sum-products"
                                                                           th:text="${summary.productsTotal} + '원'"></span>
                         </div>
-                        <div class="cm-total-row"  th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
-                                                                                                 th:text="'-' + ${summary.couponDiscount} + '원'"></span>
+                        <div class="cm-total-row" th:if="${isLoggedIn}"><span>쿠폰 할인</span><span id="sum-coupon"
+                                                                                                th:text="'-' + ${summary.couponDiscount} + '원'"></span>
                         </div>
                         <div class="cm-total-row" th:if="${isLoggedIn}"><span>포인트 사용</span> <span id="sum-point"
                                                                                                   th:text="'-' + ${summary.pointDiscount} + '원'"></span>
@@ -337,7 +343,7 @@
             const $ = (sel) => document.querySelector(sel);
             const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-            // 보유 포인트 최대값 (member.remainingPoints)
+            // 보유 포인트 최대값
             const getPointMaxTotal = () => {
                 const any = $('.point-input');
                 return any ? num(any.dataset.max || 0) : 0;
@@ -736,14 +742,21 @@
                 const total = recalc();
 
                 // 서버로 보낼 주문 저장 DTO 구성
-                const saveRequest = buildOrderSaveRequest();  // ✨ 아래에서 만들어줄 함수
+                const saveRequest = buildOrderSaveRequest();
 
                 // 1) 주문 저장 API 호출 (프론트 → 프론트 OrderController → core)
-                const response = await fetch("/orders/save", {
+                const res = await fetch("/orders/save", {
                     method: "POST",
                     headers: {"Content-Type": "application/json"},
                     body: JSON.stringify(saveRequest)
-                }).then(r => r.json());
+                })
+
+                const response = await res.json();
+
+                if(!res.ok){
+                    alert(response.message);
+                    return;
+                }
 
                 const {orderNumber, totalPrice} = response;
 

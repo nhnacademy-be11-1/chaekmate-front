@@ -59,7 +59,8 @@ jobs:
       # Step.5 SonarQube Analysis + Maven verify
       - name: Build and Analyze with SonarQube
         run: |
-          mvn -B verify sonar:sonar \
+          mvn -B verify \
+            org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
             -Dsonar.projectKey=chaekmate-front \
             -Dsonar.projectName="chaekmate-front" \
             -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }} \
@@ -110,5 +111,5 @@ jobs:
             export MINIO_SECRET_KEY="${{ secrets.MINIO_PASSWORD }}"
             export MINIO_BUCKET_NAME="${{ secrets.MINIO_BUCKET_NAME }}"
             export CHAEKMATE_IMAGE_URL="${{ secrets.CHAEKMATE_IMAGE_URL }}"
-  
+            
             bash -lc ./startup.sh
