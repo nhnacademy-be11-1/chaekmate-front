@@ -3,8 +3,6 @@
       th:replace="~{layout/layout :: html(~{::section})}">
 <section>
 
-<!--TODO 여기 부분만 갹자 페이지만 맞게 수정 -->
-
     <div class="container-fluid mb-3">
         <div class="row px-xl-5">
             <div class="col-lg-8">
@@ -22,7 +20,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide1 != null and slide1.imageUrl != null ? slide1.imageUrl : 'https://image.aladin.co.kr/product/27082/36/cover500/e772538100_1.jpg'}"
-                                                 alt="이순신과 명량대첩"
+                                                 alt="alt="유효하지않은 이미지 링크""
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -30,7 +28,7 @@
                                                 <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
                                                     th:text="${slide1 != null and slide1.subtitle != null ? slide1.subtitle : '체크메이트 추천'}">체크메이트 추천</h6>
                                                 <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
-                                                    th:text="${slide1 != null and slide1.title != null ? slide1.title : '이순신과 명량대첩'}">이순신과 명량대첩</h1>
+                                                    th:text="${#strings.abbreviate((slide1 != null and slide1.title != null ? slide1.title : '이순신과 명량대첩'),20)}">이순신과 명량대첩</h1>
                                                 <p class="text-white animate__animated animate__bounceIn"
                                                    th:text="${slide1 != null and slide1.description != null ? slide1.description : '조선 수군의 찬란한 등불'}">조선 수군의 찬란한 등불</p>
                                                 <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
@@ -50,7 +48,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide2 != null and slide2.imageUrl != null ? slide2.imageUrl : 'https://image.aladin.co.kr/product/13133/29/cover500/s292032111_1.jpg'}"
-                                                 alt="사탄탱고"
+                                                 alt="alt="유효하지않은 이미지 링크""
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -58,7 +56,7 @@
                                                 <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
                                                     th:text="${slide2 != null and slide2.subtitle != null ? slide2.subtitle : '이달의 추천 도서'}">이달의 추천 도서</h6>
                                                 <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
-                                                    th:text="${slide2 != null and slide2.title != null ? slide2.title : '사탄탱고'}">사탄탱고</h1>
+                                                    th:text="${#strings.abbreviate((slide2 != null and slide2.title != null ? slide2.title : '사탄탱고'),20)}">사탄탱고</h1>
                                                 <p class="text-white animate__animated animate__bounceIn"
                                                    th:text="${slide2 != null and slide2.description != null ? slide2.description : '2025 노벨문학상 수상'}">2025 노벨문학상 수상</p>
                                                 <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
@@ -78,7 +76,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide3 != null and slide3.imageUrl != null ? slide3.imageUrl : 'https://image.aladin.co.kr/product/35382/50/cover500/k882035818_1.jpg'}"
-                                                 alt="너에게로 로그인"
+                                                 alt="alt="유효하지않은 이미지 링크""
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -86,7 +84,7 @@
                                                 <h6 class="text-white text-uppercase animate__animated animate__fadeInDown"
                                                     th:text="${slide3 != null and slide3.subtitle != null ? slide3.subtitle : '실시간 조회수 급상승'}">실시간 조회수 급상승</h6>
                                                 <h1 class="display-4 text-white mb-3 animate__animated animate__fadeInDown"
-                                                    th:text="${slide3 != null and slide3.title != null ? slide3.title : '너에게로 로그인'}">너에게로 로그인</h1>
+                                                    th:text="${#strings.abbreviate((slide3 != null and slide3.title != null ? slide3.title : '너에게로 로그인'),20)}">너에게로 로그인</h1>
                                                 <p class="text-white animate__animated animate__bounceIn"
                                                    th:text="${slide3 != null and slide3.description != null ? slide3.description : '지금, 우리에게 필요한 위로와 공감의 메시지'}">지금, 우리에게 필요한 위로와 공감의 메시지</p>
                                                 <a class="btn btn-outline-light py-2 px-4 mt-3 animate__animated animate__fadeInUp"
@@ -141,7 +139,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -180,7 +178,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -219,7 +217,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -258,7 +256,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${book.title}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
