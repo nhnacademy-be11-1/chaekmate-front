@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <section>
     <div class="container-fluid">
@@ -52,7 +52,7 @@
                                             <button th:if="${book.unitStatus == 'SHIPPING'}" class="btn btn-info btn-sm">배송조회</button>
                                             <button th:if="${book.unitStatus == 'DELIVERED'}" class="btn btn-danger btn-sm">반품</button>
 
-                                            <a th:if="${book.unitStatus == 'DELIVERED'}" th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
+                                            <a sec:authorize="isAuthenticated()" th:if="${book.unitStatus == 'DELIVERED'}" th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
                                                class="btn btn-info btn-sm">리뷰작성</a>
                                         </td>
                                     </tr>
