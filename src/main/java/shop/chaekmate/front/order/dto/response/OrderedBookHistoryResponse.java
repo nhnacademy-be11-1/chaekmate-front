@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class OrderedBookHistoryResponse {
+    private Long orderedBookId;
     private Long bookId;
     private String bookTitle;
     private Integer quantity;
