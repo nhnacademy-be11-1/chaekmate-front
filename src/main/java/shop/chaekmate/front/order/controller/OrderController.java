@@ -25,7 +25,10 @@ import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
+import shop.chaekmate.front.member.dto.response.MemberResponse;
+import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 import shop.chaekmate.front.order.adaptor.OrderAdaptor;
+import shop.chaekmate.front.order.adaptor.WrapperAdaptor;
 import shop.chaekmate.front.order.dto.request.OrderItem;
 import shop.chaekmate.front.order.dto.request.OrderItemRequest;
 import shop.chaekmate.front.order.dto.request.OrderItemsRequest;
@@ -41,6 +44,8 @@ import shop.chaekmate.front.point.dto.response.PointResponse;
 public class OrderController {
 
     private final OrderAdaptor orderAdaptor;
+    private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
+    private final WrapperAdaptor wrapperAdaptor;
     private final MemberAdaptor memberAdaptor;
     private final BookAdaptor bookAdaptor;
     private final BookImageAdaptor bookImageAdaptor;
@@ -116,13 +121,11 @@ public class OrderController {
             // 실제 회원 정보 조회
             Long memberId = principal.getMemberId();
 
-            PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
-            var member = new Member("테스트사용자", "01012345678", "test@example.com", pointResponse.point());
-            model.addAttribute("member", member);
+            MemberResponse memberResponse = memberAdaptor.getMember(memberId).data();
+            model.addAttribute("member", memberResponse);
 
-            // todo 실제 회원 이름, 전화번호, 이메일 가져오기 (member 로직 구현 x)
-//            var memberResponse = orderAdaptor.getMemberInfo(memberId).data();
-//            model.addAttribute("member", memberResponse);
+            PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
+            model.addAttribute("remainingPoints", pointResponse);
 
             // 실제 회원 주소 목록 조회
             List<MemberAddressResponse> addressResponse = memberAdaptor.getAddresses(memberId).data();
@@ -136,7 +139,7 @@ public class OrderController {
         }
 
         // delivery-policy 현재 배송정책 조회
-        DeliveryPolicyResponse policy = orderAdaptor.getCurrentPolicy().data();
+        DeliveryPolicyResponse policy = deliveryPolicyAdaptor.getCurrentPolicy().data();
         model.addAttribute("deliveryPolicy", policy);
 
         int productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
@@ -145,7 +148,7 @@ public class OrderController {
         int shippingFee = (productsTotal >= policy.freeStandardAmount()) ? 0 : policy.deliveryFee();
 
         // wrapper 포장지 조회
-        List<WrapperResponse> wrappers = orderAdaptor.getWrappers().data();
+        List<WrapperResponse> wrappers = wrapperAdaptor.getWrappers().data();
         model.addAttribute("wrappers", wrappers);
 
         // 결제 요약 수정
@@ -290,10 +293,6 @@ public class OrderController {
 //        );
 //    }
 */
-    // --- DTO ---
-    record Member(String name, String phone, String email, int remainingPoints) {
-    }
-
     record Summary(int productsTotal, int couponDiscount, int pointDiscount, int wrapFeeTotal, int shippingFee,
                    int payableTotal) {
     }

@@ -11,5 +11,5 @@ import shop.chaekmate.front.payment.dto.response.PaymentApproveResponse;
 public interface PaymentAdaptor {
 
     @PostMapping("/payments/approve")
-    CommonResponse<PaymentApproveResponse> approve(@RequestBody PaymentApproveRequest request);
+    CommonResponse<?> approve(@RequestBody PaymentApproveRequest request);
 }

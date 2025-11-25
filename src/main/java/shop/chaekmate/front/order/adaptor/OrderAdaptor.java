@@ -14,12 +14,6 @@ import shop.chaekmate.front.order.dto.response.WrapperResponse;
 @FeignClient(name = "order-client", url = "${chaekmate.gateway.url}")
 public interface OrderAdaptor {
 
-    @GetMapping("/delivery-policy")
-    CommonResponse<DeliveryPolicyResponse> getCurrentPolicy();
-
-    @GetMapping("/wrappers")
-    CommonResponse<List<WrapperResponse>> getWrappers();
-
     @PostMapping("/orders/save")
     CommonResponse<OrderSaveResponse> saveOrders(@RequestBody OrderSaveRequest request);
 }
