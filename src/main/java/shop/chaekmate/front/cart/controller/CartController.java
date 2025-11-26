@@ -54,7 +54,7 @@ public class CartController {
     }
 
     // 장바구니 아이템 수량 변경
-    @PutMapping("/items/{bookId}")
+    @PostMapping("/items/{bookId}")
     @ResponseBody
     public CartItemUpdateResponse updateCartItem(@PathVariable Long bookId,
                                                  @RequestBody CartItemUpdateRequest request) {
@@ -62,7 +62,7 @@ public class CartController {
     }
 
     // 장바구니 아이템 삭제
-    @DeleteMapping("/items/{bookId}")
+    @PostMapping("/items/delete/{bookId}")
     @ResponseBody
     public void deleteCartItem(@PathVariable Long bookId) {
         this.cartService.deleteCartItem(bookId);
