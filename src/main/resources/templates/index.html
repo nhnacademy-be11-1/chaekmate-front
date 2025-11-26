@@ -20,7 +20,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide1 != null and slide1.imageUrl != null ? slide1.imageUrl : 'https://image.aladin.co.kr/product/27082/36/cover500/e772538100_1.jpg'}"
-                                                 alt="alt="유효하지않은 이미지 링크""
+                                                 alt="유효하지않은 이미지 링크"
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -48,7 +48,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide2 != null and slide2.imageUrl != null ? slide2.imageUrl : 'https://image.aladin.co.kr/product/13133/29/cover500/s292032111_1.jpg'}"
-                                                 alt="alt="유효하지않은 이미지 링크""
+                                                 alt="유효하지않은 이미지 링크"
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -76,7 +76,7 @@
                                     <div class="row align-items-center">
                                         <div class="col-lg-5 text-center text-lg-right">
                                             <img th:src="${slide3 != null and slide3.imageUrl != null ? slide3.imageUrl : 'https://image.aladin.co.kr/product/35382/50/cover500/k882035818_1.jpg'}"
-                                                 alt="alt="유효하지않은 이미지 링크""
+                                                 alt="유효하지않은 이미지 링크"
                                                  style="max-height: 350px; width: auto; box-shadow: 10px 10px 30px rgba(0,0,0,0.5);">
                                         </div>
                                         <div class="col-lg-7 text-center text-lg-left">
@@ -124,7 +124,7 @@
     </div>
 
     <!-- 최근 추가된 도서 -->
-    <div class="container-fluid pt-5 pb-3">
+    <div class="container pt-5 pb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">최근 추가된 도서</span></h2>
         <div class="row px-xl-5">
             <div class="col">
@@ -139,7 +139,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 15)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -163,7 +163,7 @@
     </div>
 
     <!-- 맞춤 추천 -->
-    <div class="container-fluid pt-5 pb-3">
+    <div class="container pt-5 pb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">맞춤 추천</span></h2>
         <div class="row px-xl-5">
             <div class="col">
@@ -178,7 +178,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 15)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -202,7 +202,7 @@
     </div>
 
     <!-- Pawn Section : 최근 30일간 리뷰 많은 책 -->
-    <div class="container-fluid pt-5 pb-3">
+    <div class="container pt-5 pb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">최근 30일간 리뷰 많은 책</span></h2>
         <div class="row px-xl-5">
             <div class="col">
@@ -217,7 +217,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 15)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
@@ -241,7 +241,7 @@
     </div>
 
     <!-- 얼리어답터들의 PICK : 구매량이 많은 회원이 찾은 책 -->
-    <div class="container-fluid pt-5 pb-3">
+    <div class="container pt-5 pb-3">
         <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">얼리어답터들의 PICK</span></h2>
         <div class="row px-xl-5">
             <div class="col">
@@ -256,7 +256,7 @@
                             </div>
                         </div>
                         <div class="text-center py-4">
-                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 20)}">Book Title Goes Here</a>
+                            <a class="h6 text-decoration-none text-truncate" th:href="@{/book/{bookId}(bookId=${book.id})}" th:text="${#strings.abbreviate(book.title, 15)}">Book Title Goes Here</a>
                             <div class="d-flex align-items-center justify-content-center mt-2">
                                 <h5 th:text="${#numbers.formatDecimal(book.salesPrice, 0, 'COMMA', 0, 'POINT')} + '원'">123,000원</h5>
                                 <h6 class="text-muted ml-2" th:if="${book.price > book.salesPrice}"><del th:text="${#numbers.formatDecimal(book.price, 0, 'COMMA', 0, 'POINT')} + '원'">150,000원</del></h6>
