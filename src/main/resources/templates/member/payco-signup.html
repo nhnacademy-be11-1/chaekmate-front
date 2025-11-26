@@ -249,10 +249,11 @@
                 if (res.status === 201 || res.status === 200) {
                     // PAYCO 회원가입인 경우 홈으로, 일반 회원가입인 경우 로그인 페이지로
                     // 서버에서 이미 쿠키를 설정했으므로, 페이지를 리다이렉트하면 쿠키가 저장됨
+                    // 현재 프로토콜(HTTPS/HTTP)을 유지하기 위해 window.location.origin 사용
                     if (paycoTempKey) {
-                        globalThis.location.href = '/';
+                        globalThis.location.href = window.location.origin + '/';
                     } else {
-                        globalThis.location.href = '/login';
+                        globalThis.location.href = window.location.origin + '/login';
                     }
                     return;
                 }

@@ -106,19 +106,19 @@
             <!-- 오른쪽 배너 -->
             <div class="col-lg-4">
                 <div class="product-offer mb-30" style="height: 200px;">
-                    <img class="img-fluid" th:src="@{/img/offer-3.jpg}" alt="배너1">
+                    <img class="img-fluid" th:src="${banner1 != null and banner1.imageUrl != null ? banner1.imageUrl : 'https://chaekmate.shop/images/chaekmate-image-server/02c4fe6b-ec8e-4d24-a749-69326fa13825-스크린샷 2025-11-23 오후 1.30.32.png'}" alt="배너1">
                     <div class="offer-text">
-                        <h6 class="text-white text-uppercase">금주의 베스트셀러</h6>
-                        <h3 class="text-white mb-3">채크메이트 추천</h3>
-                        <a href="#" class="btn btn-primary">Shop Now</a>
+                        <h6 class="text-white text-uppercase" th:text="${banner1 != null and banner1.subtitle != null ? banner1.subtitle : '금주의 베스트셀러'}">금주의 베스트셀러</h6>
+                        <h3 class="text-white mb-3" th:text="${banner1 != null and banner1.title != null ? banner1.title : '채크메이트 추천'}">채크메이트 추천</h3>
+                        <a th:href="${banner1 != null and banner1.link != null ? banner1.link : '#'}" class="btn btn-primary">Shop Now</a>
                     </div>
                 </div>
                 <div class="product-offer mb-30" style="height: 200px;">
-                    <img class="img-fluid" th:src="@{/img/offer-4.png}" alt="배너2">
+                    <img class="img-fluid" th:src="${banner2 != null and banner2.imageUrl != null ? banner2.imageUrl : 'https://chaekmate.shop/images/chaekmate-image-server/959ba604-c5ec-421e-b045-451a3cc56beb-스크린샷 2025-11-23 오후 1.29.46.png'}" alt="배너2">
                     <div class="offer-text">
-                        <h6 class="text-white text-uppercase">신간 알림</h6>
-                        <h3 class="text-white mb-3">새로운 책 보기</h3>
-                        <a href="#" class="btn btn-primary">Shop Now</a>
+                        <h6 class="text-white text-uppercase" th:text="${banner2 != null and banner2.subtitle != null ? banner2.subtitle : '신간 알림'}">신간 알림</h6>
+                        <h3 class="text-white mb-3" th:text="${banner2 != null and banner2.title != null ? banner2.title : '새로운 책 보기'}">새로운 책 보기</h3>
+                        <a th:href="${banner2 != null and banner2.link != null ? banner2.link : '#'}" class="btn btn-primary">Shop Now</a>
                     </div>
                 </div>
             </div>

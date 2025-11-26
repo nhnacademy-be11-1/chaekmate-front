@@ -3,6 +3,8 @@ package shop.chaekmate.front.book.controller;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +19,8 @@ import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.book.service.LikeService;
 import shop.chaekmate.front.common.CommonResponse;
+import shop.chaekmate.front.review.dto.response.ReviewResponse;
+import shop.chaekmate.front.review.service.ReviewService;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,6 +30,7 @@ public class BookController {
     private final BookViewCountAdaptor bookViewCountAdaptor;
     private final BookImageService bookImageService;
     private final LikeService likeService;
+    private final ReviewService reviewService;
 
     @GetMapping("/categories/{categoryId}")
     public String getBookByCategory(
@@ -51,7 +56,10 @@ public class BookController {
     }
 
     @GetMapping("/books/{bookId}")
-    public String getBookDetail(@PathVariable Long bookId, Model model) {
+    public String getBookDetail(
+            @PathVariable Long bookId,
+            @PageableDefault(size = 10) Pageable pageable,
+            Model model) { {
         CommonResponse<BookDetailResponse> response = bookAdaptor.getBookById(bookId);
         BookDetailResponse bookDetailResponse = response.data();
 
@@ -63,13 +71,18 @@ public class BookController {
         bookViewCountAdaptor.increaseView(bookId);
         // 좋아요 여부 확인
         List<Long> likedBookIds = likeService.getMemberLikedBook();
+        // 리뷰 조회
+        Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
         model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("title", bookDetailResponse.title());
 
         return "book/book-detail";
+        }
     }
 }
+

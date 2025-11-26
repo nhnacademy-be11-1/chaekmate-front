@@ -109,7 +109,12 @@
                             </div>
                             <div class="form-group">
                                 <label for="publishedAt">출판일</label>
-                                <input type="text" id="publishedAt" name="publishedAt" class="form-control datetime-picker" th:value="${book.publishedAt}">
+                                <input type="text" th:field="${book.publishedAt}" id="publishedAt"
+                                       class="flatpickr-input form-control datetime-picker" readonly>
+                                <div class="d-flex justify-content-end mt-2">
+                                    <button type="button" id="changePublishedAtBtn" class="btn btn-dark datetime-changer">바꾸기</button>
+                                    <button type="button" id="clearPublishedAtBtn" class="btn btn-danger ml-2 datetime-clear">초기화</button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label for="price">정가</label>
@@ -181,6 +186,8 @@
 
     <!-- Toast UI (WYSIWYG) -->
     <script src="https://uicdn.toast.com/editor/latest/toastui-editor-all.min.js"></script>
+
+    <script th:src="@{/js/admin-editor.js}"></script>
 
 </section>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <div class="col-lg-8 mb-5 mx-auto">
+                <div class="bg-light p-30 text-center">
+                    <h2 class="mb-4 text-success">리뷰 등록 완료!</h2>
+                    <p class="mb-4">성공적으로 리뷰가 등록되었습니다. 소중한 의견 감사합니다.</p>
+
+                    <div th:if="${reviewResponse != null}" class="mb-5">
+                        <h4>작성하신 리뷰 내용:</h4>
+                        <p class="lead" th:text="${reviewResponse.comment}"></p>
+                        <div class="star-rating d-inline-flex justify-content-center" style="font-size: 2rem;">
+                            <span th:each="i : ${#numbers.sequence(1, 5)}"
+                                  th:classappend="${i <= reviewResponse.rating} ? 'text-warning' : 'text-muted'">&#9733;</span>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-center mt-5">
+                        <a th:href="@{/orders/history}" class="btn btn-primary px-4 mr-3">
+                            <i class="fa fa-list mr-2"></i> 주문 내역으로 가기
+                        </a>
+                        <a th:if="${bookId != null}" th:href="@{/books/{bookId}(bookId=${bookId})}" class="btn btn-secondary px-4">
+                            <i class="fa fa-book mr-2"></i> 해당 도서 페이지로 가기
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</html>
