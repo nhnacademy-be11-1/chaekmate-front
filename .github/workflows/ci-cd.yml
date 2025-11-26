@@ -99,8 +99,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             export DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}"
-            export PORT_NUMBER_A="${{secrets.PROT_NUMBER_A}}"
-            export PORT_NUMBER_B="${{secrets.PROT_NUMBER_B}}"
+            export PORT_NUMBER_A="${{secrets.PORT_NUMBER_A}}"
+            export PORT_NUMBER_B="${{secrets.PORT_NUMBER_B}}"
             export MINIO_ID="${{ secrets.MINIO_ID }}"
             export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
             export REDIS_HOST="${{ secrets.REDIS_HOST }}"
