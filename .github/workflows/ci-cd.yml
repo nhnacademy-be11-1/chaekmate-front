@@ -111,5 +111,5 @@ jobs:
             export MINIO_SECRET_KEY="${{ secrets.MINIO_PASSWORD }}"
             export MINIO_BUCKET_NAME="${{ secrets.MINIO_BUCKET_NAME }}"
             export CHAEKMATE_IMAGE_URL="${{ secrets.CHAEKMATE_IMAGE_URL }}"
-  
+            
             bash -lc ./startup.sh

@@ -54,4 +54,10 @@ public interface AuthAdaptor {
 
     @PostMapping("/auth/payco/login")
     ResponseEntity<LoginResponse> paycoAutoLogin(@RequestParam("paycoId") String paycoId);
+
+    @PostMapping("/auth/dormant/verify")
+    ResponseEntity<LoginResponse> verifyDormantMember(
+            @RequestParam("loginId") String loginId,
+            @RequestBody shop.chaekmate.front.auth.dto.request.DormantVerificationRequest request
+    );
 }
