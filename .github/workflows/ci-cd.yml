@@ -14,7 +14,8 @@ jobs:
     env:
       SPRING_PROFILES_ACTIVE: prod  # prod 프로파일 우선 적용
       DOMAIN_NAME: ${{ secrets.DOMAIN_NAME }}
-      PORT_NUMBER: ${{ secrets.PORT_NUMBER }}
+      PORT_NUMBER_A: ${{secrets.PORT_NUMBER_A}}
+      PORT_NUMBER_B: ${{secrets.PORT_NUMBER_B}}
       MINIO_ID: ${{ secrets.MINIO_ID }}
       MINIO_PASSWORD: ${{ secrets.PASSWORD }}
       REDIS_HOST: ${{ secrets.REDIS_HOST }}
@@ -98,7 +99,8 @@ jobs:
           port: ${{ secrets.SSH_PORT }}
           script: |
             export DOMAIN_NAME="${{ secrets.DOMAIN_NAME }}"
-            export PORT_NUMBER="${{ secrets.PORT_NUMBER }}"
+            export PORT_NUMBER_A="${{secrets.PROT_NUMBER_A}}"
+            export PORT_NUMBER_B="${{secrets.PROT_NUMBER_B}}"
             export MINIO_ID="${{ secrets.MINIO_ID }}"
             export MINIO_PASSWORD="${{ secrets.PASSWORD }}"
             export REDIS_HOST="${{ secrets.REDIS_HOST }}"
