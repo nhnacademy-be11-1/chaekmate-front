@@ -1,0 +1,35 @@
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    font-size: 2.5rem;
+    justify-content: space-around;
+    padding: 0 .2em;
+    text-align: center;
+    width: 5em;
+}
+.star-rating input {
+    display: none;
+}
+.star-rating label {
+    color: #ccc;
+    cursor: pointer;
+}
+.star-rating :checked ~ label {
+    color: #f90;
+}
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #fc0;
+}
+.book-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+.book-info img {
+    max-width: 100px;
+    margin-right: 1.5rem;
+}
+.book-info h4 {
+    margin-bottom: 0;
+}
