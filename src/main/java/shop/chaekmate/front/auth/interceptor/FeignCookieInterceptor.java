@@ -38,7 +38,7 @@ public class FeignCookieInterceptor implements RequestInterceptor {
 
         if (!cookieHeader.isEmpty()) {
             requestTemplate.header("Cookie", cookieHeader.toString());
-            log.debug("FeignCookieInterceptor 쿠키 자동 전달: {}", cookieHeader);
+            //log.debug("FeignCookieInterceptor 쿠키 자동 전달: {}", cookieHeader);
         }
     }
 }

@@ -2,8 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <head>
-  <title th:text="${book.title} + ' - 도서 상세 정보'"></title>
-  <link rel="stylesheet" th:href="@{/css/book/book-detail.css}">
+    <title th:text="${book.title} + ' - 도서 상세 정보'"></title>
+    <link rel="stylesheet" th:href="@{/css/book/book-detail.css}">
 </head>
 <body>
 <section>
@@ -19,36 +19,36 @@
         </div>
     </div>
 
-  <div class="container-fluid pb-5">
-    <div class="row px-xl-5">
-      <div class="col-lg-5 mb-30">
-        <img class="book-detail-img"
-             th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
-             th:alt="${book.title}">
+    <div class="container-fluid pb-5">
+        <div class="row px-xl-5">
+            <div class="col-lg-5 mb-30">
+                <img class="book-detail-img"
+                     th:src="${thumbnail != null ? thumbnail.imageUrl() : '/img/no-image.jpeg'}"
+                     th:alt="${book.title}">
 
-        <div class="d-flex justify-content-center mt-3">
-          <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기" th:data-book-id="${book.id}">
-            <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart mr-1"></i>
-            <span th:text="${likedBookIds != null and likedBookIds.contains(book.id)} ? ' 찜 취소' : ' 찜하기'"> 찜하기</span>
-          </a>
-          <a href="#" class="btn btn-outline-info" title="보관함">
-            <i class="fa fa-archive mr-1"></i> 보관함
-          </a>
-        </div>
-      </div>
+                <div class="d-flex justify-content-center mt-3">
+                    <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기" th:data-book-id="${book.id}">
+                        <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart mr-1"></i>
+                        <span th:text="${likedBookIds != null and likedBookIds.contains(book.id)} ? ' 찜 취소' : ' 찜하기'"> 찜하기</span>
+                    </a>
+                    <a href="#" class="btn btn-outline-info" title="보관함">
+                        <i class="fa fa-archive mr-1"></i> 보관함
+                    </a>
+                </div>
+            </div>
 
-      <div class="col-lg-7 mb-30">
-        <h2 class="font-weight-semi-bold mb-3" th:text="${book.title}">자바 ORM JPA 프로그래밍</h2>
-        <div class="d-flex mb-3">
-          <p class="text-muted mr-3">
-            <span class="font-weight-bold">저자:</span>
-            <span th:text="${book.author ?: '저자 미상'}">김영한</span>
-          </p>
-          <p class="text-muted">
-            <span class="font-weight-bold">출판사:</span>
-            <span th:text="${book.publisher ?: '출판사 미상'}">에이콘출판</span>
-          </p>
-        </div>
+            <div class="col-lg-7 mb-30">
+                <h2 class="font-weight-semi-bold mb-3" th:text="${book.title}">자바 ORM JPA 프로그래밍</h2>
+                <div class="d-flex mb-3">
+                    <p class="text-muted mr-3">
+                        <span class="font-weight-bold">저자:</span>
+                        <span th:text="${book.author ?: '저자 미상'}">김영한</span>
+                    </p>
+                    <p class="text-muted">
+                        <span class="font-weight-bold">출판사:</span>
+                        <span th:text="${book.publisher ?: '출판사 미상'}">에이콘출판</span>
+                    </p>
+                </div>
 
                 <div class="mb-4">
                     <p class="text-muted">
@@ -87,20 +87,20 @@
                     </th:block>
                 </div>
 
-        <div class="d-flex align-items-center mb-4 pt-2">
-          <div class="input-group quantity mr-3" style="width: 130px;">
-            <div class="input-group-btn">
-              <button class="btn btn-primary btn-minus">
-                <i class="fa fa-minus"></i>
-              </button>
-            </div>
-            <input aria-label="수량" type="text" class="form-control bg-secondary border-0 text-center quantity-input" value="1" id="quantityInput">
-            <div class="input-group-btn">
-              <button class="btn btn-primary btn-plus">
-                <i class="fa fa-plus"></i>
-              </button>
-            </div>
-          </div>
+                <div class="d-flex align-items-center mb-4 pt-2">
+                    <div class="input-group quantity mr-3" style="width: 130px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-minus">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <input aria-label="수량" type="text" class="form-control bg-secondary border-0 text-center quantity-input" value="1" id="quantityInput">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-plus">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     <button class="btn btn-primary px-3 mr-2" id="addToCartBtn"
                             th:attr="data-book-id=${book.id}, data-stock=${book.stock}">
@@ -126,7 +126,7 @@
                     <div class="nav nav-tabs mb-4">
                         <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세 설명</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-index">목차</a>
-                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${book.views % 10}">0</span>)</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-description">
@@ -150,8 +150,45 @@
                         </div>
 
                         <div class="tab-pane fade" id="tab-reviews">
-                            <div class="row">
-                                <p class="text-center w-100">리뷰 섹션이 들어갈 자리입니다.</p>
+                            <h4 class="mb-3">리뷰</h4>
+                            <div th:if="${reviews != null and !reviews.isEmpty()}">
+                                <div th:each="review : ${reviews.content}" class="mb-4 pb-4 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="font-weight-bold mr-2">회원 ID: <span th:text="${review.memberId()}">1</span></span>
+                                                <div class="text-warning">
+                                                    <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                       th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+                                                </div>
+                                                <span class="ml-2 text-muted" th:text="${review.rating()} + '점'">5점</span>
+                                            </div>
+                                            <small class="text-muted" th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0" th:text="${review.comment()}">리뷰 내용입니다.</p>
+                                </div>
+
+                                <!-- 페이지네이션 -->
+                                <nav th:if="${reviews.totalPages > 1}">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number - 1})}" th:if="${!reviews.first}">이전</a>
+                                            <span class="page-link" th:if="${reviews.first}">이전</span>
+                                        </li>
+                                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
+                                            th:classappend="${pageNum == reviews.number} ? 'active'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${pageNum})}" th:text="${pageNum + 1}">1</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number + 1})}" th:if="${!reviews.last}">다음</a>
+                                            <span class="page-link" th:if="${reviews.last}">다음</span>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <div th:if="${reviews == null or reviews.isEmpty()}" class="text-center py-5">
+                                <p class="text-muted">등록된 리뷰가 없습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -159,9 +196,9 @@
             </div>
         </div>
     </div>
-<!--    <form id="buyNowForm" method="post" action="/orders">-->
-<!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
-<!--    </form>-->
+    <!--    <form id="buyNowForm" method="post" action="/orders">-->
+    <!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
+    <!--    </form>-->
     <script th:inline="javascript">
         /* <![CDATA[ */
         const bookId = /*[[${book.id}]]*/ 0;

@@ -294,8 +294,12 @@
                             console.log('응답 상태:', response.status);
 
                             if (!response.ok) {
-                                return response.text().then(function(text) {
-                                    throw new Error(text || '장바구니 담기 실패');
+                                return response.json().then(function(errorData) {
+                                    console.log('에러 응답 데이터:', errorData);
+                                    throw {
+                                        status: response.status,
+                                        data: errorData
+                                    };
                                 });
                             }
 
@@ -315,6 +319,23 @@
                         })
                         .catch(function(error) {
                             console.error('에러 발생:', error);
+
+                            let errorMessage = '장바구니 담기 중 에러가 발생했습니다.';
+
+                            // CommonResponse 구조: {"timestamp":"...", "code":"ERROR", "data":{"message":"..."}}
+                            if (error.data && error.data.data && error.data.data.message) {
+                                errorMessage = error.data.data.message;
+                            } else if (error.data && error.data.message) {
+                                errorMessage = error.data.message;
+                            } else if (error.message) {
+                                errorMessage = error.message;
+                            }
+
+                            alert(errorMessage);
+
+                            // 에러 발생 시 버튼 복원
+                            button.disabled = false;
+                            button.innerHTML = originalHTML;
                         });
                 });
             });

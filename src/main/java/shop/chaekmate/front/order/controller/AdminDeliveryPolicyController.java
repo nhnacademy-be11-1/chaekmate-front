@@ -16,7 +16,7 @@ import shop.chaekmate.front.order.dto.request.DeliveryPolicyRequest;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyHistoryResponse;
 
 @Controller
-@RequestMapping("/admin/delivery-polices")
+@RequestMapping("/admin/delivery-policies")
 @RequiredArgsConstructor
 public class AdminDeliveryPolicyController {
 
@@ -25,8 +25,7 @@ public class AdminDeliveryPolicyController {
     @GetMapping
     public String listPolicies(
             @PageableDefault(size = 15) Pageable pageable,
-            Model model
-    ) {
+            Model model) {
         CommonResponse<Page<DeliveryPolicyHistoryResponse>> response = deliveryPolicyAdaptor.getDeliveryPolicies();
         model.addAttribute("policies", response.data());
         return "admin/deliverypolicy/delivery-policy-history";
