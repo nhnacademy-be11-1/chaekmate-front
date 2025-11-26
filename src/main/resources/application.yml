@@ -16,3 +16,9 @@ minio:
   secretKey: ${MINIO_SECRET_KEY}
   bucketName: ${MINIO_BUCKET_NAME}
   chaekmateImageUrl: ${CHAEKMATE_IMAGE_URL}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
