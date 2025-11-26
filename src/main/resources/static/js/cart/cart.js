@@ -62,7 +62,7 @@ function plusButtons() {
 
             // 서버에 수량 업데이트 API 호출
             fetch('/carts/items/' + bookId, {
-                method: 'PUT',
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
@@ -130,7 +130,7 @@ function minusButtons() {
 
                 // 서버에 수량 업데이트 API 호출
                 fetch('/carts/items/' + bookId, {
-                    method: 'PUT',
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -192,8 +192,8 @@ function removeButtons() {
                 this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
 
                 // 서버에 삭제 API 호출
-                fetch('/carts/items/' + bookId, {
-                    method: 'DELETE'
+                fetch('/carts/items/delete/' + bookId, {
+                    method: 'POST'
                 })
                     .then(function(response) {
                         console.log('응답 상태:', response.status);
@@ -258,7 +258,7 @@ function orderButton() {
             const orderItems = [];
 
             cartItems.forEach(item => {
-                const bookId = parseInt(item.getAttribute('data-book-id'));
+                const bookId = Number(item.getAttribute('data-book-id'));
                 const quantity = parseInt(item.getAttribute('data-quantity'));
 
                 orderItems.push({
@@ -284,6 +284,9 @@ function orderButton() {
                 })
                 .then(function(data) {
                     console.log('주문 요청 성공:', data);
+
+                    const encoded = encodeURIComponent(JSON.stringify(orderItems));
+                    window.location.href = data.redirectUrl + `?items=${encoded}`;
 
                     // 버튼 복원
                     orderButton.disabled = false;
