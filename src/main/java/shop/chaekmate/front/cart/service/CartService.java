@@ -21,11 +21,13 @@ import shop.chaekmate.front.common.CommonResponse;
 public class CartService {
 
     private final CartAdaptor cartAdaptor;
+    private static final String COOKIE_NAME = "Guest-Id";
 
     // 장바구니 아이템 추가
-    public CartItemListResponse addCartItem(CartItemCreateRequest request) {
+    public CartItemListResponse addCartItem(CartItemCreateRequest request, String guestId) {
         try {
-            CommonResponse<CartItemListResponse> response = this.cartAdaptor.addCartItem(request);
+            String cookieHeader = COOKIE_NAME + "=" + guestId;
+            CommonResponse<CartItemListResponse> response = this.cartAdaptor.addCartItem(request, cookieHeader);
             if (Objects.isNull(response) || Objects.isNull(response.data())) {
                 throw new CartException("장바구니 담기 결과가 없습니다.");
             }
@@ -37,9 +39,10 @@ public class CartService {
     }
 
     // 장바구니 조회
-    public CartItemListAdvancedResponse getCart() {
+    public CartItemListAdvancedResponse getCart(String guestId) {
         try {
-            CommonResponse<CartItemListAdvancedResponse> response = this.cartAdaptor.getCart();
+            String cookieHeader = COOKIE_NAME + "=" + guestId;
+            CommonResponse<CartItemListAdvancedResponse> response = this.cartAdaptor.getCart(cookieHeader);
 
             // API 응답이 없거나 data가 null인 경우
             if (Objects.isNull(response) || Objects.isNull(response.data())) {
