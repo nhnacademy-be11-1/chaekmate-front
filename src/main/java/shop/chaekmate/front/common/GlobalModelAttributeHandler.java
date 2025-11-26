@@ -3,12 +3,14 @@ package shop.chaekmate.front.common;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import shop.chaekmate.front.category.dto.response.CategoryResponse;
 import shop.chaekmate.front.category.service.CategoryService;
 
-@ControllerAdvice
+@Slf4j
+@ControllerAdvice(basePackages = "shop.chaekmate.front")
 @RequiredArgsConstructor
 public class GlobalModelAttributeHandler {
     // 모든 페이지에서 카테고리들 주입

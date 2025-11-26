@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.Map;
+import shop.chaekmate.common.log.logging.Log;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -19,10 +20,11 @@ public class GlobalExceptionHandler {
         try {
             // Core 서버에서 온 JSON 파싱
             String responseBody = e.contentUTF8();
+
             Map<String, Object> errorMap = objectMapper.readValue(responseBody, Map.class);
 
             String message = (String) errorMap.get("message");
-
+            Log.Error(e,e.status(),"{}",message);
             CommonResponse<Map<String, String>> response = new CommonResponse<>(
                     LocalDateTime.now(),
                     "ERROR",
