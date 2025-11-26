@@ -14,12 +14,14 @@ import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
 import shop.chaekmate.front.cart.exception.CartException;
 import shop.chaekmate.front.common.CommonResponse;
+import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
 
+    private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
     private final CartAdaptor cartAdaptor;
     private static final String COOKIE_NAME = "Guest-Id";
 
@@ -95,6 +97,6 @@ public class CartService {
         } catch (FeignException e) {
             log.error("장바구니 비우기 실패: {}", e.getMessage(), e);
             throw new CartException("장바구니 비우기 실패", e);
-        }    }
-
+        }
+    }
 }

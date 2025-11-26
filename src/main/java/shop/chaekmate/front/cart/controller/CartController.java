@@ -22,6 +22,8 @@ import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
 import shop.chaekmate.front.cart.service.CartService;
+import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
+import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ import shop.chaekmate.front.cart.service.CartService;
 public class CartController {
 
     private final CartService cartService;
+    private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
+
     private static final String COOKIE_NAME = "Guest-Id";
 
     // 장바구니 페이지 뷰
@@ -38,8 +42,13 @@ public class CartController {
                               Model model) {
 
         String guestId = this.getOrCreateUuid(request, response);
+
         CartItemListAdvancedResponse cart = this.cartService.getCart(guestId);
+        DeliveryPolicyResponse currentDelivery = this.deliveryPolicyAdaptor.getCurrentPolicy().data();
+
         model.addAttribute("cart", cart);
+        model.addAttribute("currentDelivery", currentDelivery);
+
         return "cart/cart";
     }
 
@@ -70,7 +79,7 @@ public class CartController {
     }
 
     // 장바구니 비우기
-    @DeleteMapping("/flush")
+    @PostMapping("/flush")
     @ResponseBody
     public void flushCart() {
         this.cartService.flushCart();
