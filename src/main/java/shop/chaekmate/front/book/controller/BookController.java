@@ -73,6 +73,10 @@ public class BookController {
         // 리뷰 조회
         Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
+        // 좋아요 여부 확인용
+        List<Long> likedBookIds = likeService.getMemberLikedBook();
+
+        model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
