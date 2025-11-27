@@ -40,6 +40,8 @@ public class OrderHistoryService {
 
         try {
             response = orderHistoryAdaptor.getMemberOrderHistory(pageable).data();
+
+
         } catch (FeignException e) {
             log.error("주문 내역 조회 중 에러 발생 - status: {}, message: {}", e.status(), e.getMessage());
             return Page.empty();

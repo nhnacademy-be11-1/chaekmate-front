@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,7 @@ import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.payment.adaptor.PaymentAdaptor;
 import shop.chaekmate.front.payment.dto.request.PaymentApproveRequest;
 import shop.chaekmate.front.payment.dto.request.PaymentCallbackRequest;
+import shop.chaekmate.front.payment.dto.request.PaymentCancelRequest;
 import shop.chaekmate.front.payment.dto.response.PaymentAbortedResponse;
 import shop.chaekmate.front.payment.dto.response.PaymentApproveResponse;
 
@@ -101,5 +103,11 @@ public class PaymentController {
         model.addAttribute("message", request.message());
 
         return "payment/payment-fail";
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity<Void> cancel(@RequestBody PaymentCancelRequest request) {
+        paymentAdaptor.cancel(request);
+        return ResponseEntity.ok().build();
     }
 }
