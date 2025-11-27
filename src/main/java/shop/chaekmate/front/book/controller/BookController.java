@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,8 @@ import shop.chaekmate.front.book.service.LikeService;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.coupon.adaptor.CouponAdaptor;
 import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
+import shop.chaekmate.front.review.dto.response.ReviewResponse;
+import shop.chaekmate.front.review.service.ReviewService;
 
 import java.util.List;
 
@@ -33,6 +37,7 @@ public class BookController {
     private final BookViewCountAdaptor bookViewCountAdaptor;
     private final BookImageService bookImageService;
     private final LikeService likeService;
+    private final ReviewService reviewService;
     private final CouponAdaptor couponAdaptor;
 
     @GetMapping("/categories/{categoryId}")
@@ -62,6 +67,7 @@ public class BookController {
     public String getBookDetail(
             @PathVariable Long bookId,
             @AuthenticationPrincipal CustomPrincipal principal,
+            @PageableDefault(size = 10) Pageable pageable,
             Model model) {
 
         // 1. 도서 상세 정보 조회
@@ -69,6 +75,7 @@ public class BookController {
         BookDetailResponse bookDetailResponse = response.data();
 
         BookThumbnailResponse thumbnail = bookImageService.getThumbnailByBookId(bookId);
+
         List<BookImageResponse> detailImages = bookImageService.getDetailImagesByBookId(bookId);
 
         // 조회수 증가 요청
@@ -76,6 +83,9 @@ public class BookController {
 
         // 좋아요 여부 확인
         List<Long> likedBookIds = likeService.getMemberLikedBook();
+
+        // 리뷰 조회
+        Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
         // 2. 쿠폰 조회 (로그인한 경우에만)
         List<BookCouponPolicyResponse> coupons = List.of();
@@ -97,9 +107,9 @@ public class BookController {
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
+        model.addAttribute("reviews", reviews);
         model.addAttribute("coupons", coupons);
         model.addAttribute("title", bookDetailResponse.title());
-        model.addAttribute("categoryIds", bookDetailResponse.categoryIds());
 
         return "book/book-detail";
     }

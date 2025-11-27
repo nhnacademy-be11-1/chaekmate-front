@@ -209,7 +209,6 @@
                     </p>
                 </div>
 
-                <!-- 나머지 기존 코드 유지 -->
                 <div class="mb-4">
                     <p class="text-muted">
                         <span class="font-weight-bold">조회수:</span>
@@ -287,7 +286,7 @@
                     <div class="nav nav-tabs mb-4">
                         <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세 설명</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-index">목차</a>
-                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${book.views % 10}">0</span>)</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-description">
@@ -311,8 +310,45 @@
                         </div>
 
                         <div class="tab-pane fade" id="tab-reviews">
-                            <div class="row">
-                                <p class="text-center w-100">리뷰 섹션이 들어갈 자리입니다.</p>
+                            <h4 class="mb-3">리뷰</h4>
+                            <div th:if="${reviews != null and !reviews.isEmpty()}">
+                                <div th:each="review : ${reviews.content}" class="mb-4 pb-4 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="font-weight-bold mr-2">회원 ID: <span th:text="${review.memberId()}">1</span></span>
+                                                <div class="text-warning">
+                                                    <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                       th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+                                                </div>
+                                                <span class="ml-2 text-muted" th:text="${review.rating()} + '점'">5점</span>
+                                            </div>
+                                            <small class="text-muted" th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</small>
+                                        </div>
+                                    </div>
+                                    <p class="mb-0" th:text="${review.comment()}">리뷰 내용입니다.</p>
+                                </div>
+
+                                <!-- 페이지네이션 -->
+                                <nav th:if="${reviews.totalPages > 1}">
+                                    <ul class="pagination justify-content-center">
+                                        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number - 1})}" th:if="${!reviews.first}">이전</a>
+                                            <span class="page-link" th:if="${reviews.first}">이전</span>
+                                        </li>
+                                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
+                                            th:classappend="${pageNum == reviews.number} ? 'active'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${pageNum})}" th:text="${pageNum + 1}">1</a>
+                                        </li>
+                                        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
+                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number + 1})}" th:if="${!reviews.last}">다음</a>
+                                            <span class="page-link" th:if="${reviews.last}">다음</span>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            </div>
+                            <div th:if="${reviews == null or reviews.isEmpty()}" class="text-center py-5">
+                                <p class="text-muted">등록된 리뷰가 없습니다.</p>
                             </div>
                         </div>
                     </div>
@@ -320,7 +356,9 @@
             </div>
         </div>
     </div>
-
+<!--    <form id="buyNowForm" method="post" action="/orders">-->
+<!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
+<!--    </form>-->
     <script th:inline="javascript">
         /* <![CDATA[ */
         const bookId = /*[[${book.id}]]*/ 0;
