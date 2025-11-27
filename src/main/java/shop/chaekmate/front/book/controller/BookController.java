@@ -59,7 +59,7 @@ public class BookController {
     public String getBookDetail(
             @PathVariable Long bookId,
             @PageableDefault(size = 10) Pageable pageable,
-            Model model) { {
+            Model model) {
         CommonResponse<BookDetailResponse> response = bookAdaptor.getBookById(bookId);
         BookDetailResponse bookDetailResponse = response.data();
 
@@ -69,12 +69,10 @@ public class BookController {
 
         //조회수 증가 요청
         bookViewCountAdaptor.increaseView(bookId);
-        // 좋아요 여부 확인
-        List<Long> likedBookIds = likeService.getMemberLikedBook();
+
         // 리뷰 조회
         Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
-        model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
@@ -82,7 +80,6 @@ public class BookController {
         model.addAttribute("title", bookDetailResponse.title());
 
         return "book/book-detail";
-        }
     }
 }
 
