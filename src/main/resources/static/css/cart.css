@@ -1,0 +1,21 @@
+.cart-item td:first-child {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    justify-content: flex-start;
+}
+
+.cart-item td:first-child .book-title {
+    display: block;
+    max-width: 400px;  /* 도서 제목 노출 최대 길이 */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;  /* 긴 제목은 ... 처리 */
+    text-align: left;         /* 좌측 정렬 */
+}
+
+.summary {
+    position: sticky;
+    top: 20px;
+    align-self: flex-start;
+}
