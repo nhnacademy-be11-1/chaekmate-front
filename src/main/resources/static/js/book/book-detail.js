@@ -84,7 +84,7 @@ $(document).ready(function() {
 
                 if (!response.ok) {
                     return response.json().then(function(errorData) {
-                        // 에러 응답을 throw
+                        // 에러 응답 throw
                         throw {
                             status: response.status,
                             data: errorData

@@ -22,6 +22,8 @@ import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
 import shop.chaekmate.front.cart.service.CartService;
+import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
+import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 
 @Controller
 @RequiredArgsConstructor
@@ -29,6 +31,8 @@ import shop.chaekmate.front.cart.service.CartService;
 public class CartController {
 
     private final CartService cartService;
+    private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
+
     private static final String COOKIE_NAME = "Guest-Id";
 
     // 장바구니 페이지 뷰
@@ -37,9 +41,14 @@ public class CartController {
                               HttpServletResponse response,
                               Model model) {
 
-        this.getOrCreateUuid(request, response);
-        CartItemListAdvancedResponse cart = this.cartService.getCart();
+        String guestId = this.getOrCreateUuid(request, response);
+
+        CartItemListAdvancedResponse cart = this.cartService.getCart(guestId);
+        DeliveryPolicyResponse currentDelivery = this.deliveryPolicyAdaptor.getCurrentPolicy().data();
+
         model.addAttribute("cart", cart);
+        model.addAttribute("currentDelivery", currentDelivery);
+
         return "cart/cart";
     }
 
@@ -49,8 +58,9 @@ public class CartController {
     public CartItemListResponse addCartItem(HttpServletRequest request,
                                             HttpServletResponse response,
                                             @RequestBody CartItemCreateRequest cartItemCreateRequest) {
-        this.getOrCreateUuid(request, response);
-        return this.cartService.addCartItem(cartItemCreateRequest);
+
+        String guestId = this.getOrCreateUuid(request, response);
+        return this.cartService.addCartItem(cartItemCreateRequest, guestId);
     }
 
     // 장바구니 아이템 수량 변경
@@ -69,34 +79,37 @@ public class CartController {
     }
 
     // 장바구니 비우기
-    @DeleteMapping("/flush")
+    @PostMapping("/flush")
     @ResponseBody
     public void flushCart() {
         this.cartService.flushCart();
     }
 
-    private void getOrCreateUuid(HttpServletRequest request, HttpServletResponse response) {
-        boolean hasUuid = false;
+    // Guest-Id 가져오기 또는 생성
+    private String getOrCreateUuid(HttpServletRequest request, HttpServletResponse response) {
+        String guestId = null;
 
         // 1. 요청 쿠키에서 UUID 확인
         if (Objects.nonNull(request.getCookies())) {
             for (Cookie cookie : request.getCookies()) {
                 if (COOKIE_NAME.equals(cookie.getName())) {
-                    hasUuid = true;
+                    guestId = cookie.getValue();
                     break;
                 }
             }
         }
 
         // 2. 없으면 새 UUID 생성 및 쿠키에 추가
-        if (!hasUuid) {
-            String uuid = UUID.randomUUID().toString();
-            Cookie cookie = new Cookie(COOKIE_NAME, uuid);
+        if (Objects.isNull(guestId)) {
+            guestId = UUID.randomUUID().toString();
+            Cookie cookie = new Cookie(COOKIE_NAME, guestId);
             cookie.setPath("/");                    // 모든 경로에서 접근 가능
             cookie.setHttpOnly(true);               // JS 접근 차단
             cookie.setMaxAge(60 * 60 * 24 * 30);    // 30일
 
             response.addCookie(cookie);
         }
+
+        return guestId;
     }
 }
