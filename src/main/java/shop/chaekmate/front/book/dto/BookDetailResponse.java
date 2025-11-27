@@ -1,5 +1,7 @@
 package shop.chaekmate.front.book.dto;
 
+import java.util.List;
+
 public record BookDetailResponse(
         Long id,
         String title,
@@ -11,6 +13,7 @@ public record BookDetailResponse(
         Integer salesPrice,
         String imageUrl,
         Integer stock,
-        Long views
+        Long views,
+        List<Long> categoryIds
 ) {
 }
