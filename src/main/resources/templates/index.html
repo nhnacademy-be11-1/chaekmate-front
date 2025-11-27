@@ -132,10 +132,22 @@
                     <div class="product-item bg-light" th:each="book : ${recentBooks}">
                         <div class="product-img position-relative overflow-hidden">
                             <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <!-- 액션 버튼 -->
                             <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square add-to-cart-btn"
+                                   href="#"
+                                   title="장바구니"
+                                   th:attr="data-book-id=${book.id}">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square"
+                                   th:href="@{/books/{id}(id=${book.id})}"
+                                   title="상세보기">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square btn-like" href="javascript:void(0);" title="찜하기" th:data-book-id="${book.id}">
+                                    <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="text-center py-4">
@@ -171,10 +183,22 @@
                     <div class="product-item bg-light" th:each="book : ${recommendedBooks}">
                         <div class="product-img position-relative overflow-hidden">
                             <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <!-- 액션 버튼 -->
                             <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square add-to-cart-btn"
+                                   href="javascript:void(0)"
+                                   title="장바구니"
+                                   th:attr="data-book-id=${book.id}">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square"
+                                   th:href="@{/books/{id}(id=${book.id})}"
+                                   title="상세보기">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square btn-like" href="javascript:void(0);" title="찜하기" th:data-book-id="${book.id}">
+                                    <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="text-center py-4">
@@ -210,10 +234,22 @@
                     <div class="product-item bg-light" th:each="book : ${mostReviewedBooks}">
                         <div class="product-img position-relative overflow-hidden">
                             <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <!-- 액션 버튼 -->
                             <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square add-to-cart-btn"
+                                   href="#"
+                                   title="장바구니"
+                                   th:attr="data-book-id=${book.id}">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square"
+                                   th:href="@{/books/{id}(id=${book.id})}"
+                                   title="상세보기">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square btn-like" href="javascript:void(0);" title="찜하기" th:data-book-id="${book.id}">
+                                    <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="text-center py-4">
@@ -249,10 +285,22 @@
                     <div class="product-item bg-light" th:each="book : ${earlyAdopterPicks}">
                         <div class="product-img position-relative overflow-hidden">
                             <img class="img-fluid w-100" th:src="${book.imageUrl != null ? book.imageUrl : '/img/no-image.jpeg'}" alt="">
+                            <!-- 액션 버튼 -->
                             <div class="product-action">
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/cart/add/{bookId}(bookId=${book.id})}"><i class="fa fa-shopping-cart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/wishlist/add/{bookId}(bookId=${book.id})}"><i class="far fa-heart"></i></a>
-                                <a class="btn btn-outline-dark btn-square" th:href="@{/book/{bookId}(bookId=${book.id})}"><i class="fa fa-search"></i></a>
+                                <a class="btn btn-outline-dark btn-square add-to-cart-btn"
+                                   href="#"
+                                   title="장바구니"
+                                   th:attr="data-book-id=${book.id}">
+                                    <i class="fa fa-shopping-cart"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square"
+                                   th:href="@{/books/{id}(id=${book.id})}"
+                                   title="상세보기">
+                                    <i class="fa fa-search"></i>
+                                </a>
+                                <a class="btn btn-outline-dark btn-square btn-like" href="javascript:void(0);" title="찜하기" th:data-book-id="${book.id}">
+                                    <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart"></i>
+                                </a>
                             </div>
                         </div>
                         <div class="text-center py-4">
@@ -280,5 +328,7 @@
     </div>
 
 
+    <script th:src="@{/js/like.js}"></script>
+    <script th:src="@{js/cart/cart-mini.js}"></script>
 </section>
 </html>
