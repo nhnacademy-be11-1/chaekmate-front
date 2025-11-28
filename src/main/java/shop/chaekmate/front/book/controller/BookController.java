@@ -19,8 +19,6 @@ import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
-import shop.chaekmate.front.book.dto.BookDetailResponse;
-import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.book.service.LikeService;
 import shop.chaekmate.front.common.CommonResponse;
@@ -28,8 +26,6 @@ import shop.chaekmate.front.coupon.adaptor.CouponAdaptor;
 import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
 import shop.chaekmate.front.review.dto.response.ReviewResponse;
 import shop.chaekmate.front.review.service.ReviewService;
-
-import java.util.List;
 
 @Slf4j
 @Controller
@@ -117,4 +113,3 @@ public class BookController {
         return "book/book-detail";
     }
 }
-

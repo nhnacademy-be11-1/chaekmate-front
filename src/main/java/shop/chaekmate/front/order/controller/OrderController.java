@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -39,6 +40,7 @@ import shop.chaekmate.front.order.dto.response.WrapperResponse;
 import shop.chaekmate.front.point.adaptor.PointHistoryAdaptor;
 import shop.chaekmate.front.point.dto.response.PointResponse;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 public class OrderController {
@@ -90,25 +92,20 @@ public class OrderController {
                             ((int) Math.round((double) book.price() - book.salesPrice()) / book.price() * 100),
                             item.quantity(),
                             book.salesPrice() * item.quantity(),
-                            Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null
-//                            book.categoryIds()
-
+                            Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null,
+                            book.categoryIds()
                     );
                 })
                 .toList();
 
         model.addAttribute("orderItems", orderItems);
 
+        List<BookCouponCheckRequest> couponCheckBooks =
+                orderItems.stream().map(oi ->
+                                new BookCouponCheckRequest(oi.bookId(), oi.categoryIds(), oi.subtotal()))
+                        .toList();
 
-//        List<BookCouponCheckRequest> couponCheckBooks =
-//                orderItems.stream().map(oi ->
-//                        new BookCouponCheckRequest(
-//                                oi.getBookId(),
-//                                oi.getCategoryIds(),
-//                                oi.getSubtotal()
-//                        )
-//                ).toList();
-
+        log.info("couponCheckBooks: {}", couponCheckBooks);
 
         // 회원식별자
         boolean isLoggedIn = (principal != null);
@@ -175,139 +172,3 @@ public class OrderController {
                    int wrapFeeTotal, int shippingFee, int payableTotal) {
     }
 }
-
-    /*
-
-    //    @PostMapping("/orders")
-//    public String orderPage(
-////            @RequestParam("itemsJson") String itemsJson,
-//            @RequestBody OrderItemsRequest itemsRequest,
-//            RedirectAttributes redirectAttributes) throws Exception {
-//
-
-    /// /        ObjectMapper mapper = new ObjectMapper(); /        OrderItemsRequest itemsRequest =
-    /// mapper.readValue(itemsJson, OrderItemsRequest.class);
-//
-//        redirectAttributes.addFlashAttribute("items", itemsRequest);
-//
-//        return "redirect:/orders/page";
-//    }
-
-
-    @PostMapping("/orders")
-    public String orderPage(@AuthenticationPrincipal CustomPrincipal principal,
-                            @RequestBody OrderItemsRequest itemsRequest,
-//                            @RequestParam(required = false) Long bookId,
-//                            @RequestParam(required = false) Integer quantity,
-                            Model model) {
-
-//        List<OrderInfo> orderItems = List.of();
-//
-//        if (bookId != null && quantity != null) {
-//            BookDetailResponse book = bookAdaptor.getBookById(bookId).data();
-//            orderItems = List.of(getOrderItem(book, quantity));
-//        }
-//        model.addAttribute("orderItems", orderItems);
-
-        List<OrderItem> orderItems = itemsRequest.items()
-                .stream()
-                .map(item -> {
-                    BookDetailResponse book = bookAdaptor.getBookById(item.bookId()).data();
-                    return new OrderItem(
-                            book.id(),
-                            book.title(),
-                            book.author(),
-                            book.publisher(),
-                            book.price(),
-                            book.salesPrice(),
-                            (book.price() - book.salesPrice()),
-                            (book.price() - book.salesPrice()) * 100 / book.price(),
-                            item.quantity(),
-                            book.salesPrice() * item.quantity(),
-                            null // thumbnail
-                    );
-                }).toList();
-
-        model.addAttribute("orderItems", orderItems);
-
-        // 회원식별자
-        boolean isLoggedIn = (principal != null);
-        model.addAttribute("isLoggedIn", isLoggedIn);
-
-        if (isLoggedIn) {
-            // 실제 회원 정보 조회
-            Long memberId = principal.getMemberId();
-
-            PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
-            var member = new Member("테스트사용자", "01012345678", "test@example.com", pointResponse.point());
-            model.addAttribute("member", member);
-
-//            var memberResponse = orderAdaptor.getMemberInfo(memberId).data();
-//            model.addAttribute("member", memberResponse);
-
-            // 실제 회원 주소 목록 조회
-            List<MemberAddressResponse> addressResponse = memberAdaptor.getAddresses(memberId).data();
-            model.addAttribute("addresses", addressResponse);
-
-        } else {
-            // 비회원이면 빈 값 전달
-            model.addAttribute("member", null);
-            model.addAttribute("addresses", null);
-            model.addAttribute("remainingPoints", 0);
-        }
-
-        // delivery-policy 현재 배송정책 조회
-        DeliveryPolicyResponse policy = orderAdaptor.getCurrentPolicy().data();
-        model.addAttribute("deliveryPolicy", policy);
-
-        int productsTotal = orderItems.stream().mapToInt(OrderItem::subtotal).sum();
-
-        // 배송비 계산 (무료배송 기준 반영)
-        int shippingFee = (productsTotal >= policy.freeStandardAmount()) ? 0 : policy.deliveryFee();
-
-        // wrapper 포장지 조회
-        List<WrapperResponse> wrappers = orderAdaptor.getWrappers().data();
-        model.addAttribute("wrappers", wrappers);
-
-        // 결제 요약 수정
-        var summary = new Summary(
-                productsTotal,
-                0, // 쿠폰 할인
-                0, // 포인트 사용
-                0, // 포장비
-                shippingFee,
-                productsTotal + shippingFee
-        );
-        model.addAttribute("summary", summary);
-
-        // 기본 배송일 (오늘 +3일)
-        model.addAttribute("defaultDeliveryDate", LocalDate.now().plusDays(3));
-
-        return "order/orderPage";
-    }
-
-//    private OrderItem getOrderItem(BookDetailResponse book, Integer quantity) {
-//        BookThumbnailResponse thumbnail = bookImageAdaptor.getBookThumbnail(book.id()).data();
-//
-//        String thumbnailUrl = Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null;
-//
-//        int originalPrice = book.price();
-//        int salesPrice = book.salesPrice();
-//        int discountAmount = originalPrice - salesPrice;
-//        int discountRate = Math.round((float) discountAmount / originalPrice * 100);
-//
-//        return new OrderItem(
-//                book.id(),
-//                book.title(),
-//                book.author(),
-//                book.publisher(),
-//                originalPrice,
-//                salesPrice,
-//                discountRate,
-//                discountAmount,
-//                quantity,
-//                salesPrice * quantity,
-//                thumbnailUrl
-//        );
-//    }
-*/
