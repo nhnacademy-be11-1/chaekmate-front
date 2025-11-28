@@ -12,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -29,6 +28,7 @@ import shop.chaekmate.front.member.dto.response.MemberResponse;
 import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 import shop.chaekmate.front.order.adaptor.OrderAdaptor;
 import shop.chaekmate.front.order.adaptor.WrapperAdaptor;
+import shop.chaekmate.front.order.dto.request.BookCouponCheckRequest;
 import shop.chaekmate.front.order.dto.request.OrderItem;
 import shop.chaekmate.front.order.dto.request.OrderItemRequest;
 import shop.chaekmate.front.order.dto.request.OrderItemsRequest;
@@ -51,20 +51,6 @@ public class OrderController {
     private final BookImageAdaptor bookImageAdaptor;
     private final PointHistoryAdaptor pointHistoryAdaptor;
 
-//    @PostMapping("/orders")
-//    public String orderPage(
-////            @RequestParam("itemsJson") String itemsJson,
-//            @RequestBody OrderItemsRequest itemsRequest,
-//            RedirectAttributes redirectAttributes) throws Exception {
-//
-
-    /// /        ObjectMapper mapper = new ObjectMapper(); /        OrderItemsRequest itemsRequest =
-    /// mapper.readValue(itemsJson, OrderItemsRequest.class);
-//
-//        redirectAttributes.addFlashAttribute("items", itemsRequest);
-//
-//        return "redirect:/orders/page";
-//    }
     @PostMapping("/orders")
     @ResponseBody
     public Map<String, String> orderPage(
@@ -80,16 +66,14 @@ public class OrderController {
     }
 
     @GetMapping("/orders/page")
-    public String orderPageView(
-//            @ModelAttribute("items") OrderItemsRequest itemsRequest,
-            @RequestParam("items") String itemsJson,
-            @AuthenticationPrincipal CustomPrincipal principal,
-            Model model) throws JsonProcessingException {
+    public String orderPageView(@RequestParam("items") String itemsJson,
+                                @AuthenticationPrincipal CustomPrincipal principal,
+                                Model model) throws JsonProcessingException {
+
         ObjectMapper mapper = new ObjectMapper();
-//        OrderItemsRequest itemsRequest = mapper.readValue(itemsJson, OrderItemsRequest.class);
         List<OrderItemRequest> itemsRequest = mapper.readValue(itemsJson, new TypeReference<>() {
         });
-        // 여기서 기존의 orderItems 로직 실행하면 됨
+
         List<OrderItem> orderItems = itemsRequest.stream()
                 .map(item -> {
                     BookDetailResponse book = bookAdaptor.getBookById(item.bookId()).data();
@@ -103,15 +87,28 @@ public class OrderController {
                             book.price(),
                             book.salesPrice(),
                             (book.price() - book.salesPrice()),
-                            ((int) Math.round((double) book.price() - book.salesPrice()) / book.price()* 100 ),
+                            ((int) Math.round((double) book.price() - book.salesPrice()) / book.price() * 100),
                             item.quantity(),
                             book.salesPrice() * item.quantity(),
                             Boolean.TRUE.equals(thumbnail.isThumbnail()) ? thumbnail.imageUrl() : null
+//                            book.categoryIds()
+
                     );
                 })
                 .toList();
 
         model.addAttribute("orderItems", orderItems);
+
+
+//        List<BookCouponCheckRequest> couponCheckBooks =
+//                orderItems.stream().map(oi ->
+//                        new BookCouponCheckRequest(
+//                                oi.getBookId(),
+//                                oi.getCategoryIds(),
+//                                oi.getSubtotal()
+//                        )
+//                ).toList();
+
 
         // 회원식별자
         boolean isLoggedIn = (principal != null);
@@ -174,8 +171,29 @@ public class OrderController {
         return orderAdaptor.saveOrders(request).data();
     }
 
+    record Summary(int productsTotal, int couponDiscount, int pointDiscount,
+                   int wrapFeeTotal, int shippingFee, int payableTotal) {
+    }
+}
 
     /*
+
+    //    @PostMapping("/orders")
+//    public String orderPage(
+////            @RequestParam("itemsJson") String itemsJson,
+//            @RequestBody OrderItemsRequest itemsRequest,
+//            RedirectAttributes redirectAttributes) throws Exception {
+//
+
+    /// /        ObjectMapper mapper = new ObjectMapper(); /        OrderItemsRequest itemsRequest =
+    /// mapper.readValue(itemsJson, OrderItemsRequest.class);
+//
+//        redirectAttributes.addFlashAttribute("items", itemsRequest);
+//
+//        return "redirect:/orders/page";
+//    }
+
+
     @PostMapping("/orders")
     public String orderPage(@AuthenticationPrincipal CustomPrincipal principal,
                             @RequestBody OrderItemsRequest itemsRequest,
@@ -293,7 +311,3 @@ public class OrderController {
 //        );
 //    }
 */
-    record Summary(int productsTotal, int couponDiscount, int pointDiscount, int wrapFeeTotal, int shippingFee,
-                   int payableTotal) {
-    }
-}

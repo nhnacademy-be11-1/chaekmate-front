@@ -132,31 +132,6 @@ $(document).ready(function() {
             });
     });
 
-    // 바로 주문 버튼 클릭 이벤트
-    // $buyNowBtn.on('click', function(e) {
-    //     e.preventDefault();
-    //     e.stopPropagation();
-    //
-    //     if (!bookId) {
-    //         alert('도서 정보를 찾을 수 없습니다.');
-    //         return;
-    //     }
-    //
-    //     let quantity = Number.parseInt($quantityInput.val());
-    //
-    //     // form POST로 전송할 payload 만들기
-    //     let payload = {
-    //         items: [
-    //             { bookId: Number(bookId), quantity: quantity }
-    //         ]
-    //     };
-    //
-    //     // JSON 문자열을 hidden input에 주입
-    //     $('#itemsJson').val(JSON.stringify(payload));
-    //
-    //     // 바로 form 제출
-    //     document.getElementById('buyNowForm').submit();
-    // });
     $buyNowBtn.on('click', function (e) {
         e.preventDefault();
         e.stopPropagation();

@@ -1,5 +1,6 @@
 package shop.chaekmate.front.book.controller;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,6 +19,8 @@ import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
+import shop.chaekmate.front.book.dto.BookDetailResponse;
+import shop.chaekmate.front.book.dto.BookListResponse;
 import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.book.service.LikeService;
 import shop.chaekmate.front.common.CommonResponse;
@@ -114,3 +117,4 @@ public class BookController {
         return "book/book-detail";
     }
 }
+
