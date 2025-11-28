@@ -1,15 +1,18 @@
 package shop.chaekmate.front.book.controller;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.book.adaptor.BookAdaptor;
 import shop.chaekmate.front.book.adaptor.BookViewCountAdaptor;
 import shop.chaekmate.front.book.dto.response.BookImageResponse;
@@ -37,15 +40,18 @@ public class BookController {
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
+            @AuthenticationPrincipal CustomPrincipal principal,
             Model model) {
         CommonResponse<Page<BookListResponse>> response = bookAdaptor.getBooksByCategory(categoryId, null, null, page, size);
 
         Page<BookListResponse> books = response.data();
 
-        // 좋아요 여부 확인용
-        List<Long> likedBookIds = likeService.getMemberLikedBook();
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+            // 회원 좋아요 여부 확인용
+            List<Long> likedBookIds = likeService.getMemberLikedBook();
+            model.addAttribute("likedBookIds", likedBookIds);
+        }
 
-        model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("books", books.getContent());
         model.addAttribute("currentPage", books.getNumber());
         model.addAttribute("totalPages", books.getTotalPages());
@@ -58,7 +64,8 @@ public class BookController {
     @GetMapping("/books/{bookId}")
     public String getBookDetail(
             @PathVariable Long bookId,
-            @PageableDefault(size = 10) Pageable pageable,
+            @PageableDefault(size = 20) Pageable pageable,
+            @AuthenticationPrincipal CustomPrincipal principal,
             Model model) {
         CommonResponse<BookDetailResponse> response = bookAdaptor.getBookById(bookId);
         BookDetailResponse bookDetailResponse = response.data();
@@ -73,10 +80,12 @@ public class BookController {
         // 리뷰 조회
         Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
-        // 좋아요 여부 확인용
-        List<Long> likedBookIds = likeService.getMemberLikedBook();
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+            // 회원 좋아요 여부 확인용
+            List<Long> likedBookIds = likeService.getMemberLikedBook();
+            model.addAttribute("likedBookIds", likedBookIds);
+        }
 
-        model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("book", bookDetailResponse);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
