@@ -1,9 +1,91 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <head>
     <title th:text="${book.title} + ' - 도서 상세 정보'"></title>
     <link rel="stylesheet" th:href="@{/css/book/book-detail.css}">
+    <style>
+        .coupon-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .coupon-card {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .coupon-card.issued {
+            border-color: #6c757d;
+            background-color: #f0f0f0;
+        }
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .coupon-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .coupon-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .coupon-type-book {
+            background-color: #007bff;
+            color: white;
+        }
+        .coupon-type-category {
+            background-color: #28a745;
+            color: white;
+        }
+        .coupon-discount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            margin: 10px 0;
+        }
+        .coupon-condition {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .coupon-period {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .btn-issue-coupon {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-issue-coupon:hover {
+            background-color: #0056b3;
+        }
+        .btn-issue-coupon:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
 <section>
@@ -35,6 +117,83 @@
                         <i class="fa fa-archive mr-1"></i> 보관함
                     </a>
                 </div>
+
+                <!-- 쿠폰 섹션 추가 -->
+                <div class="coupon-section" sec:authorize="isAuthenticated()" th:if="${!#lists.isEmpty(coupons)}">
+                    <h5 class="mb-3">
+                        <i class="fa fa-ticket-alt text-primary mr-2"></i>
+                        사용 가능한 쿠폰
+                    </h5>
+
+                    <div th:each="coupon : ${coupons}"
+                         th:class="${coupon.isIssued} ? 'coupon-card issued' : 'coupon-card'">
+
+                        <div class="coupon-header">
+                            <span class="coupon-name" th:text="${coupon.name}">쿠폰명</span>
+                            <span th:class="${coupon.type == 'BOOK'} ? 'coupon-type-badge coupon-type-book' : 'coupon-type-badge coupon-type-category'"
+                                  th:text="${coupon.type == 'BOOK'} ? '도서 쿠폰' : '카테고리 쿠폰'">
+                도서 쿠폰
+              </span>
+                        </div>
+
+                        <div class="coupon-discount">
+              <span th:if="${coupon.discountType == 'RATE'}"
+                    th:text="${coupon.discountValue + '%'}">10%</span>
+                            <span th:if="${coupon.discountType == 'AMOUNT'}"
+                                  th:text="${#numbers.formatInteger(coupon.discountValue, 0, 'COMMA') + '원'}">5,000원</span>
+                            할인
+                        </div>
+
+                        <div class="coupon-condition" th:if="${coupon.minAvailableAmount != null}">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            <span th:text="${#numbers.formatInteger(coupon.minAvailableAmount, 0, 'COMMA') + '원 이상 구매 시'}">
+                10,000원 이상 구매 시
+              </span>
+                        </div>
+
+                        <div class="coupon-condition" th:if="${coupon.maxAppliedAmount != null}">
+                            <i class="fa fa-exclamation-circle mr-1"></i>
+                            최대 <span th:text="${#numbers.formatInteger(coupon.maxAppliedAmount, 0, 'COMMA') + '원'}">5,000원</span> 할인
+                        </div>
+
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'THIRTY_DAYS'}">
+                            <i class="fa fa-clock mr-1"></i>
+                            발급일로부터 30일간 사용 가능
+                        </div>
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'MONTH_LAST_DAY'}">
+                            <i class="fa fa-clock mr-1"></i>
+                            발급 월의 마지막 날까지 사용 가능
+                        </div>
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'CUSTOM_PERIOD' and coupon.appliedExpiredAt != null}">
+                            <i class="fa fa-clock mr-1"></i>
+                            <span th:text="${#temporals.format(coupon.appliedExpiredAt, 'yyyy-MM-dd HH:mm')} + '까지 사용 가능'">
+                2024-12-31 23:59까지 사용 가능
+              </span>
+                        </div>
+
+                        <button th:if="${coupon.isIssued}"
+                                class="btn-issue-coupon"
+                                disabled>
+                            <i class="fa fa-check mr-1"></i> 발급 완료
+                        </button>
+                        <button th:unless="${coupon.isIssued}"
+                                class="btn-issue-coupon"
+                                th:attr="data-coupon-id=${coupon.id}"
+                                onclick="issueCoupon(this)">
+                            <i class="fa fa-download mr-1"></i> 쿠폰 받기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 로그인 안 한 경우 -->
+                <div class="coupon-section" sec:authorize="!isAuthenticated()">
+                    <div class="text-center text-muted">
+                        <i class="fa fa-lock fa-2x mb-2"></i>
+                        <p>로그인 후 쿠폰을 확인하세요</p>
+                        <a th:href="@{/login}" class="btn btn-primary">로그인</a>
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-lg-7 mb-30">
@@ -120,6 +279,7 @@
             </div>
         </div>
 
+        <!-- 나머지 탭 섹션 기존 코드 유지 -->
         <div class="row px-xl-5">
             <div class="col">
                 <div class="bg-light p-30">
@@ -196,13 +356,54 @@
             </div>
         </div>
     </div>
-    <!--    <form id="buyNowForm" method="post" action="/orders">-->
-    <!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
-    <!--    </form>-->
+<!--    <form id="buyNowForm" method="post" action="/orders">-->
+<!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
+<!--    </form>-->
     <script th:inline="javascript">
         /* <![CDATA[ */
         const bookId = /*[[${book.id}]]*/ 0;
         const maxStock = /*[[${book.stock}]]*/ 0;
+
+        // 쿠폰 발급 함수
+        function issueCoupon(button) {
+            const couponPolicyId = button.getAttribute('data-coupon-id');
+
+            if (!confirm('쿠폰을 발급받으시겠습니까?')) {
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 발급 중...';
+
+            fetch('/issued-coupons', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    couponPolicyId: parseInt(couponPolicyId)
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(err => {
+                            throw new Error(err.message || '쿠폰 발급에 실패했습니다.');
+                        });
+                    }
+                })
+                .then(data => {
+                    alert('쿠폰이 발급되었습니다!');
+                    location.reload();
+                })
+                .catch(error => {
+                    alert(error.message);
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fa fa-download mr-1"></i> 쿠폰 받기';
+                });
+        }
         /* ]]> */
     </script>
     <script th:src="@{/js/book/book-detail.js}"></script>
