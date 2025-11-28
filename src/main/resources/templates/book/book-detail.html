@@ -27,8 +27,10 @@
                      th:alt="${book.title}">
 
                 <div class="d-flex justify-content-center mt-3">
-                    <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기" th:data-book-id="${book.id}">
-                        <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart mr-1"></i>
+                    <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기"
+                       th:data-book-id="${book.id}">
+                        <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'"
+                           class="fa-heart mr-1"></i>
                         <span th:text="${likedBookIds != null and likedBookIds.contains(book.id)} ? ' 찜 취소' : ' 찜하기'"> 찜하기</span>
                     </a>
                     <a href="#" class="btn btn-outline-info" title="보관함">
@@ -57,13 +59,15 @@
                     </p>
                     <p class="stock-status">
                         <span class="font-weight-bold">재고:</span>
-                        <span th:if="${book.stock > 0}" class="text-success" th:text="${#numbers.formatInteger(book.stock, 0, 'COMMA') + '권'}">500권</span>
+                        <span th:if="${book.stock > 0}" class="text-success"
+                              th:text="${#numbers.formatInteger(book.stock, 0, 'COMMA') + '권'}">500권</span>
                         <span th:unless="${book.stock > 0}" class="text-danger">품절</span>
                     </p>
                 </div>
 
                 <div class="price-info mb-4">
-                    <th:block th:if="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+                    <th:block
+                            th:if="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
                         <p class="text-muted text-decoration-line-through mb-1">
                             정가: <small th:text="${#numbers.formatInteger(book.price, 0, 'COMMA')} + '원'">43,000원</small>
                         </p>
@@ -72,12 +76,16 @@
                             <span th:text="${#numbers.formatInteger(book.salesPrice, 0, 'COMMA')} + '원'">38,700원</span>
                         </h3>
                         <p class="text-danger mt-1">
-                            (<span th:text="${T(java.lang.Math).round((book.price - book.salesPrice) * 100.0 / book.price)} + '%'">10%</span> 할인 |
-                            <span th:text="${#numbers.formatInteger(book.price - book.salesPrice, 0, 'COMMA')} + '원'">4,300원</span> 절약)
+                            (<span
+                                th:text="${T(java.lang.Math).round((book.price - book.salesPrice) * 100.0 / book.price)} + '%'">10%</span>
+                            할인 |
+                            <span th:text="${#numbers.formatInteger(book.price - book.salesPrice, 0, 'COMMA')} + '원'">4,300원</span>
+                            절약)
                         </p>
                     </th:block>
 
-                    <th:block th:unless="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+                    <th:block
+                            th:unless="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
                         <h3 class="font-weight-semi-bold text-warning mb-0">
                             판매가:
                             <span th:if="${book.salesPrice != null and book.salesPrice > 0}"
@@ -94,7 +102,9 @@
                                 <i class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <input aria-label="수량" type="text" class="form-control bg-secondary border-0 text-center quantity-input" value="1" id="quantityInput">
+                        <input aria-label="수량" type="text"
+                               class="form-control bg-secondary border-0 text-center quantity-input" value="1"
+                               id="quantityInput">
                         <div class="input-group-btn">
                             <button class="btn btn-primary btn-plus">
                                 <i class="fa fa-plus"></i>
@@ -124,9 +134,11 @@
             <div class="col">
                 <div class="bg-light p-30">
                     <div class="nav nav-tabs mb-4">
-                        <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세 설명</a>
+                        <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세
+                            설명</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-index">목차</a>
-                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span
+                                th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-description">
@@ -137,7 +149,8 @@
                             <div th:if="${!detailImages.isEmpty()}" class="mt-4">
                                 <h5 class="mb-3">상세 이미지</h5>
                                 <div th:each="image : ${detailImages}" class="mb-3 text-center">
-                                    <img th:src="${image.imageUrl()}" th:alt="${book.title + ' 상세 이미지'}" class="img-fluid" style="max-width: 100%; height: auto;">
+                                    <img th:src="${image.imageUrl()}" th:alt="${book.title + ' 상세 이미지'}"
+                                         class="img-fluid" style="max-width: 100%; height: auto;">
                                 </div>
                             </div>
                         </div>
@@ -151,42 +164,58 @@
 
                         <div class="tab-pane fade" id="tab-reviews">
                             <h4 class="mb-3">리뷰</h4>
-                            <div th:if="${reviews != null and !reviews.isEmpty()}">
-                                <div th:each="review : ${reviews.content}" class="mb-4 pb-4 border-bottom">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="font-weight-bold mr-2">회원 ID: <span th:text="${review.memberId()}">1</span></span>
-                                                <div class="text-warning">
-                                                    <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                                       th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+
+                            <div th:if="${reviews != null && !reviews.isEmpty()}">
+
+                                <div id="review-list">
+                                    <!-- 전체 리뷰 렌더링 -->
+                                    <div th:each="review, iterStat : ${reviews}"
+                                         class="review-item mb-4 pb-4 border-bottom"
+                                         th:attr="data-index=${iterStat.index}">
+
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <div class="d-flex align-items-center mb-2">
+                            <span class="font-weight-bold mr-2">
+                                회원 ID: <span th:text="${review.memberId()}"></span>
+                            </span>
+                                                    <div class="text-warning">
+                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                           th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+                                                    </div>
+                                                    <span class="ml-2 text-muted"
+                                                          th:text="${review.rating()} + '점'"></span>
                                                 </div>
-                                                <span class="ml-2 text-muted" th:text="${review.rating()} + '점'">5점</span>
+
+                                                <small class="text-muted"
+                                                       th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">
+                                                </small>
                                             </div>
-                                            <small class="text-muted" th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</small>
                                         </div>
+
+                                        <p class="mb-0" th:text="${review.comment()}"></p>
+
+                                        <!-- 리뷰 이미지 리스트 -->
+                                        <div th:if="${review.images != null && !review.images.isEmpty()}">
+                                            <div class="d-flex gap-2 overflow-auto py-2">
+                                                <div th:each="img : ${review.images}">
+                                                    <img th:src="${img.imageUrl}"
+                                                         style="height:100px; width:auto; border-radius:8px; object-fit:cover;">
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <p class="mb-0" th:text="${review.comment()}">리뷰 내용입니다.</p>
                                 </div>
 
-                                <!-- 페이지네이션 -->
-                                <nav th:if="${reviews.totalPages > 1}">
-                                    <ul class="pagination justify-content-center">
-                                        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number - 1})}" th:if="${!reviews.first}">이전</a>
-                                            <span class="page-link" th:if="${reviews.first}">이전</span>
-                                        </li>
-                                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
-                                            th:classappend="${pageNum == reviews.number} ? 'active'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${pageNum})}" th:text="${pageNum + 1}">1</a>
-                                        </li>
-                                        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number + 1})}" th:if="${!reviews.last}">다음</a>
-                                            <span class="page-link" th:if="${reviews.last}">다음</span>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                <!-- 더보기 버튼 -->
+                                <div class="text-center mt-3">
+                                    <button id="load-more-btn" class="btn btn-secondary btn-sm">
+                                        더보기
+                                    </button>
+                                </div>
                             </div>
+
                             <div th:if="${reviews == null or reviews.isEmpty()}" class="text-center py-5">
                                 <p class="text-muted">등록된 리뷰가 없습니다.</p>
                             </div>
@@ -207,6 +236,7 @@
     </script>
     <script th:src="@{/js/book/book-detail.js}"></script>
     <script th:src="@{/js/like.js}"></script>
+    <script th:src="@{/js/review/review-removal.js}"></script>
 
 </section>
 </body>
