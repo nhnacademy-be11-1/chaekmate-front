@@ -28,8 +28,6 @@ import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
 import shop.chaekmate.front.review.dto.response.ReviewResponse;
 import shop.chaekmate.front.review.service.ReviewService;
 
-import java.util.List;
-
 @Slf4j
 @Controller
 @RequiredArgsConstructor
