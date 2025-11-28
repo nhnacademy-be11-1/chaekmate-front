@@ -11,7 +11,7 @@
 	<groupId>shop.chaekmate</groupId>
 	<artifactId>front</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>chaekmate-front</name>
+	<name>front</name>
 	<description>front server of chaekmate project</description>
 	<url/>
 	<licenses>
