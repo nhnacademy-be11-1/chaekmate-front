@@ -24,7 +24,7 @@ public class GlobalExceptionHandler {
             Map<String, Object> errorMap = objectMapper.readValue(responseBody, Map.class);
 
             String message = (String) errorMap.get("message");
-            Log.Error(e,e.status(),"{}",message);
+            Log.Error(e,e.status());
             CommonResponse<Map<String, String>> response = new CommonResponse<>(
                     LocalDateTime.now(),
                     "ERROR",
