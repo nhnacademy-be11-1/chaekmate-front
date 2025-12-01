@@ -115,38 +115,38 @@ function plusButtons() {
                     quantity: newQuantity
                 })
             })
-                .then(function(response) {
-                    console.log('응답 상태:', response.status);
+            .then(function(response) {
+                console.log('응답 상태:', response.status);
 
-                    if (!response.ok) {
-                        return response.text().then(function(text) {
-                            throw new Error(text || '수량 변경 실패');
-                        });
-                    }
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error(text || '수량 변경 실패');
+                    });
+                }
 
-                    return response.json();
-                })
-                .then(function(data) {
-                    console.log('수량 변경 성공:', data);
+                return response.json();
+            })
+            .then(function(data) {
+                console.log('수량 변경 성공:', data);
 
-                    // 성공 시 DOM 업데이트
-                    row.setAttribute('data-quantity', newQuantity);
-                    quantityInput.value = newQuantity;
+                // 성공 시 DOM 업데이트
+                row.setAttribute('data-quantity', newQuantity);
+                quantityInput.value = newQuantity;
 
-                    updateItemTotal(row);
-                    calculateCartTotal();
+                updateItemTotal(row);
+                calculateCartTotal();
 
-                    // 버튼 복원
-                    button.disabled = false;
-                    button.innerHTML = originalHTML;
-                })
-                .catch(function(error) {
-                    console.error('에러 발생:', error);
+                // 버튼 복원
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            })
+            .catch(function(error) {
+                console.error('에러 발생:', error);
 
-                    // 버튼 복원
-                    button.disabled = false;
-                    button.innerHTML = originalHTML;
-                });
+                // 버튼 복원
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            });
         });
     });
 }
@@ -164,57 +164,65 @@ function minusButtons() {
 
             const quantity = parseInt(row.getAttribute('data-quantity'));
 
-            if (quantity > 1) {
-                const newQuantity = quantity - 1;
-
-                // 버튼 비활성화 (중복 클릭 방지)
-                this.disabled = true;
-                const originalHTML = this.innerHTML;
-                this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-
-                // 서버에 수량 업데이트 API 호출
-                fetch('/carts/items/' + bookId, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        quantity: newQuantity
-                    })
-                })
-                    .then(function(response) {
-                        console.log('응답 상태:', response.status);
-
-                        if (!response.ok) {
-                            return response.text().then(function(text) {
-                                throw new Error(text || '수량 변경 실패');
-                            });
-                        }
-
-                        return response.json();
-                    })
-                    .then(function(data) {
-                        console.log('수량 변경 성공:', data);
-
-                        // 성공 시 DOM 업데이트
-                        row.setAttribute('data-quantity', newQuantity);
-                        quantityInput.value = newQuantity;
-
-                        updateItemTotal(row);
-                        calculateCartTotal();
-
-                        // 버튼 복원
-                        button.disabled = false;
-                        button.innerHTML = originalHTML;
-                    })
-                    .catch(function(error) {
-                        console.error('에러 발생:', error);
-
-                        // 버튼 복원
-                        button.disabled = false;
-                        button.innerHTML = originalHTML;
-                    });
+            // 수량이 1 이하인 경우, 무조건 1로 고정하고 종료
+            if (quantity <= 1) {
+                row.setAttribute('data-quantity', 1);
+                quantityInput.value = 1;
+                updateItemTotal(row);
+                calculateCartTotal();
+                return;
             }
+
+            const newQuantity = quantity - 1;
+
+            // 버튼 비활성화 (중복 클릭 방지)
+            this.disabled = true;
+
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
+            // 서버에 수량 업데이트 API 호출
+            fetch('/carts/items/' + bookId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    quantity: newQuantity
+                })
+            })
+            .then(function(response) {
+                console.log('응답 상태:', response.status);
+
+                if (!response.ok) {
+                    return response.text().then(function(text) {
+                        throw new Error(text || '수량 변경 실패');
+                    });
+                }
+
+                return response.json();
+            })
+            .then(function(data) {
+                console.log('수량 변경 성공:', data);
+
+                // 성공 시 DOM 업데이트
+                row.setAttribute('data-quantity', newQuantity);
+                quantityInput.value = newQuantity;
+
+                updateItemTotal(row);
+                calculateCartTotal();
+
+                // 버튼 복원
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            })
+            .catch(function(error) {
+                console.error('에러 발생:', error);
+
+                // 버튼 복원
+                button.disabled = false;
+                button.innerHTML = originalHTML;
+            });
         });
     });
 }
@@ -238,39 +246,39 @@ function removeButtons() {
                 fetch('/carts/items/delete/' + bookId, {
                     method: 'POST'
                 })
-                    .then(function(response) {
-                        console.log('응답 상태:', response.status);
+                .then(function(response) {
+                    console.log('응답 상태:', response.status);
 
-                        if (!response.ok) {
-                            return response.text().then(function(text) {
-                                throw new Error(text || '삭제 실패');
-                            });
-                        }
+                    if (!response.ok) {
+                        return response.text().then(function(text) {
+                            throw new Error(text || '삭제 실패');
+                        });
+                    }
 
-                        // DELETE 요청은 응답 본문이 없을 수 있으므로 상태 코드만 확인
-                        return true;
-                    })
-                    .then(function() {
-                        console.log('삭제 성공');
+                    // DELETE 요청은 응답 본문이 없을 수 있으므로 상태 코드만 확인
+                    return true;
+                })
+                .then(function() {
+                    console.log('삭제 성공');
 
-                        // 성공 시 DOM에서 제거
-                        const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
-                        row.remove();
+                    // 성공 시 DOM에서 제거
+                    const row = document.querySelector('.cart-item[data-book-id="' + bookId + '"]');
+                    row.remove();
 
-                        calculateCartTotal();
+                    calculateCartTotal();
 
-                        // 장바구니가 비었는지 확인
-                        if (document.querySelectorAll('.cart-item').length === 0) {
-                            location.reload(); // 페이지 새로고침
-                        }
-                    })
-                    .catch(function(error) {
-                        console.error('에러 발생:', error);
+                    // 장바구니가 비었는지 확인
+                    if (document.querySelectorAll('.cart-item').length === 0) {
+                        location.reload(); // 페이지 새로고침
+                    }
+                })
+                .catch(function(error) {
+                    console.error('에러 발생:', error);
 
-                        // 버튼 복원
-                        button.disabled = false;
-                        button.innerHTML = originalHTML;
-                    });
+                    // 버튼 복원
+                    button.disabled = false;
+                    button.innerHTML = originalHTML;
+                });
             }
         });
     });
@@ -362,31 +370,31 @@ function orderButton() {
                     }))
                 })
             })
-                .then(function(response) {
-                    console.log('응답 상태:', response.status);
+            .then(function(response) {
+                console.log('응답 상태:', response.status);
 
-                    return response.json();
-                })
-                .then(function(data) {
-                    console.log('주문 요청 성공:', data);
+                return response.json();
+            })
+            .then(function(data) {
+                console.log('주문 요청 성공:', data);
 
-                    const encoded = encodeURIComponent(JSON.stringify(orderItems.map(item => ({
-                        bookId: item.bookId,
-                        quantity: item.quantity
-                    }))));
+                const encoded = encodeURIComponent(JSON.stringify(orderItems.map(item => ({
+                    bookId: item.bookId,
+                    quantity: item.quantity
+                }))));
 
-                    // 페이지 이동 (버튼은 복원하지 않음 - 이동될 때까지 로딩 상태 유지)
-                    window.location.href = data.redirectUrl + `?items=${encoded}`;
+                // 페이지 이동 (버튼은 복원하지 않음 - 이동될 때까지 로딩 상태 유지)
+                window.location.href = data.redirectUrl + `?items=${encoded}`;
 
-                })
-                .catch(function(error) {
-                    console.error('에러 발생:', error);
-                    alert('주문 요청 중 오류가 발생했습니다.');
+            })
+            .catch(function(error) {
+                console.error('에러 발생:', error);
+                alert('주문 요청 중 오류가 발생했습니다.');
 
-                    // 버튼 복원
-                    orderButton.disabled = false;
-                    orderButton.innerHTML = originalHTML;
-                });
+                // 버튼 복원
+                orderButton.disabled = false;
+                orderButton.innerHTML = originalHTML;
+            });
         });
     }
 }
@@ -414,25 +422,25 @@ function flushCartButton() {
                         'Content-Type': 'application/json'
                     }
                 })
-                    .then(function(response) {
-                        console.log('응답 상태:', response.status);
+                .then(function(response) {
+                    console.log('응답 상태:', response.status);
 
-                        if (!response.ok) {
-                            throw new Error('장바구니 비우기에 실패했습니다.');
-                        }
+                    if (!response.ok) {
+                        throw new Error('장바구니 비우기에 실패했습니다.');
+                    }
 
-                        // 성공 시 페이지 새로고침
-                        alert('장바구니가 비워졌습니다.');
-                        location.reload();
-                    })
-                    .catch(function(error) {
-                        console.error('Error:', error);
-                        alert('장바구니 비우기 중 오류가 발생했습니다.');
+                    // 성공 시 페이지 새로고침
+                    alert('장바구니가 비워졌습니다.');
+                    location.reload();
+                })
+                .catch(function(error) {
+                    console.error('Error:', error);
+                    alert('장바구니 비우기 중 오류가 발생했습니다.');
 
-                        // 버튼 복원
-                        flushBtn.disabled = false;
-                        flushBtn.innerHTML = originalHTML;
-                    });
+                    // 버튼 복원
+                    flushBtn.disabled = false;
+                    flushBtn.innerHTML = originalHTML;
+                });
             }
         });
     }
