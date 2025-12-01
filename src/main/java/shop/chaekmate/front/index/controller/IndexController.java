@@ -2,15 +2,19 @@ package shop.chaekmate.front.index.controller;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.book.dto.response.BookQueryResponse;
 import shop.chaekmate.front.book.dto.response.BookQuerySliceResponse;
 import shop.chaekmate.front.book.service.BookQueryService;
+import shop.chaekmate.front.book.service.LikeService;
 import shop.chaekmate.front.index.dto.BookSliceInfo;
 import shop.chaekmate.front.index.dto.Slide;
 
@@ -19,9 +23,10 @@ import shop.chaekmate.front.index.dto.Slide;
 public class IndexController {
 
     private final BookQueryService bookQueryService;
+    private final LikeService likeService;
 
     @GetMapping("/")
-    public String index(Model model) {
+    public String index(Model model, @AuthenticationPrincipal CustomPrincipal principal) {
 
         Pageable pageable = PageRequest.of(0, 20);
 
@@ -74,6 +79,12 @@ public class IndexController {
 
         model.addAttribute("earlyAdopterPicks",
                 toBookSliceInfoListOrNull(earlyAdopterPicksWrapped));
+
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+            // 회원 좋아요 여부 확인용
+            List<Long> likedBookIds = likeService.getMemberLikedBook();
+            model.addAttribute("likedBookIds", likedBookIds);
+        }
 
         return "index";
     }
