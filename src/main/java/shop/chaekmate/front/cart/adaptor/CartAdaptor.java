@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import shop.chaekmate.front.auth.config.AuthFeignClientConfig;
 import shop.chaekmate.front.cart.dto.request.CartItemCreateRequest;
 import shop.chaekmate.front.cart.dto.request.CartItemUpdateRequest;
+import shop.chaekmate.front.cart.dto.response.CartItemCountResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
@@ -27,6 +27,10 @@ public interface CartAdaptor {
     // 장바구니 조회
     @GetMapping("/carts")
     CommonResponse<CartItemListAdvancedResponse> getCart(@RequestHeader("cookie") String cookie);
+
+    // 장바구니 아이템 개수 조회
+    @GetMapping("/carts/item-count")
+    CommonResponse<CartItemCountResponse> getCartItemCount(@RequestHeader("cookie") String cookie);
 
     // 장바구니 아이템 수량 변경
     @PutMapping("/carts/items/{bookId}")

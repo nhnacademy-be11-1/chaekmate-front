@@ -83,8 +83,6 @@
                                 </div>
                             </td>
 
-
-
                             <td class="align-middle">
                                 <div class="input-group quantity mx-auto" style="width: 100px;">
                                     <div class="input-group-btn">
@@ -116,7 +114,8 @@
                     </tbody>
 
                     <!-- 장바구니가 비어있을 때 -->
-                    <tbody th:if="${cart == null or cart.items == null or #lists.isEmpty(cart.items) or cart.cartId == null}">
+                    <!-- 장바구니가 비어있는 경우, Empty "cart.items" List 전달받음 -->
+                    <tbody th:if="${cart == null or cart.cartId == null or cart.items == null or #lists.isEmpty(cart.items)}">
                     <tr>
                         <td colspan="5" class="text-center py-5">
                             <p class="mb-0">장바구니가 비어 있습니다.</p>

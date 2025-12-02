@@ -1,18 +1,13 @@
 package shop.chaekmate.front.cart.controller;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.Objects;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -22,6 +17,7 @@ import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
 import shop.chaekmate.front.cart.service.CartService;
+import shop.chaekmate.front.cart.util.GuestIdResolver;
 import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 
@@ -31,9 +27,8 @@ import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 public class CartController {
 
     private final CartService cartService;
+    private final GuestIdResolver guestIdResolver;
     private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
-
-    private static final String COOKIE_NAME = "Guest-Id";
 
     // 장바구니 페이지 뷰
     @GetMapping
@@ -41,7 +36,7 @@ public class CartController {
                               HttpServletResponse response,
                               Model model) {
 
-        String guestId = this.getOrCreateUuid(request, response);
+        String guestId = this.guestIdResolver.getOrCreateUuid(request, response);
 
         CartItemListAdvancedResponse cart = this.cartService.getCart(guestId);
         DeliveryPolicyResponse currentDelivery = this.deliveryPolicyAdaptor.getCurrentPolicy().data();
@@ -59,7 +54,7 @@ public class CartController {
                                             HttpServletResponse response,
                                             @RequestBody CartItemCreateRequest cartItemCreateRequest) {
 
-        String guestId = this.getOrCreateUuid(request, response);
+        String guestId = this.guestIdResolver.getOrCreateUuid(request, response);
         return this.cartService.addCartItem(cartItemCreateRequest, guestId);
     }
 
@@ -83,33 +78,5 @@ public class CartController {
     @ResponseBody
     public void flushCart() {
         this.cartService.flushCart();
-    }
-
-    // Guest-Id 가져오기 또는 생성
-    private String getOrCreateUuid(HttpServletRequest request, HttpServletResponse response) {
-        String guestId = null;
-
-        // 1. 요청 쿠키에서 UUID 확인
-        if (Objects.nonNull(request.getCookies())) {
-            for (Cookie cookie : request.getCookies()) {
-                if (COOKIE_NAME.equals(cookie.getName())) {
-                    guestId = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // 2. 없으면 새 UUID 생성 및 쿠키에 추가
-        if (Objects.isNull(guestId)) {
-            guestId = UUID.randomUUID().toString();
-            Cookie cookie = new Cookie(COOKIE_NAME, guestId);
-            cookie.setPath("/");                    // 모든 경로에서 접근 가능
-            cookie.setHttpOnly(true);               // JS 접근 차단
-            cookie.setMaxAge(60 * 60 * 24 * 30);    // 30일
-
-            response.addCookie(cookie);
-        }
-
-        return guestId;
     }
 }
