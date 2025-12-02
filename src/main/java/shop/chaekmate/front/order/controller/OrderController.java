@@ -23,6 +23,7 @@ import shop.chaekmate.front.book.adaptor.BookAdaptor;
 import shop.chaekmate.front.book.adaptor.BookImageAdaptor;
 import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
+import shop.chaekmate.front.coupon.adaptor.CouponAdaptor;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.member.dto.response.MemberResponse;
@@ -30,10 +31,12 @@ import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 import shop.chaekmate.front.order.adaptor.OrderAdaptor;
 import shop.chaekmate.front.order.adaptor.WrapperAdaptor;
 import shop.chaekmate.front.order.dto.request.BookCouponCheckRequest;
+import shop.chaekmate.front.order.dto.request.BooksAvailableCouponsRequest;
 import shop.chaekmate.front.order.dto.request.OrderItem;
 import shop.chaekmate.front.order.dto.request.OrderItemRequest;
 import shop.chaekmate.front.order.dto.request.OrderItemsRequest;
 import shop.chaekmate.front.order.dto.request.OrderSaveRequest;
+import shop.chaekmate.front.order.dto.response.BooksAvailableCouponsDetailResponse;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyResponse;
 import shop.chaekmate.front.order.dto.response.OrderSaveResponse;
 import shop.chaekmate.front.order.dto.response.WrapperResponse;
@@ -52,6 +55,7 @@ public class OrderController {
     private final BookAdaptor bookAdaptor;
     private final BookImageAdaptor bookImageAdaptor;
     private final PointHistoryAdaptor pointHistoryAdaptor;
+    private final CouponAdaptor couponAdaptor;
 
     @PostMapping("/orders")
     @ResponseBody
@@ -100,13 +104,6 @@ public class OrderController {
 
         model.addAttribute("orderItems", orderItems);
 
-        List<BookCouponCheckRequest> couponCheckBooks =
-                orderItems.stream().map(oi ->
-                                new BookCouponCheckRequest(oi.bookId(), oi.categoryIds(), oi.subtotal()))
-                        .toList();
-
-        log.info("couponCheckBooks: {}", couponCheckBooks);
-
         // 회원식별자
         boolean isLoggedIn = (principal != null);
         model.addAttribute("isLoggedIn", isLoggedIn);
@@ -115,15 +112,32 @@ public class OrderController {
             // 실제 회원 정보 조회
             Long memberId = principal.getMemberId();
 
+            //회원 정보
             MemberResponse memberResponse = memberAdaptor.getMember(memberId).data();
             model.addAttribute("member", memberResponse);
-
-            PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
-            model.addAttribute("remainingPoints", pointResponse);
 
             // 실제 회원 주소 목록 조회
             List<MemberAddressResponse> addressResponse = memberAdaptor.getAddresses(memberId).data();
             model.addAttribute("addresses", addressResponse);
+
+            //회원 포인트
+            PointResponse pointResponse = pointHistoryAdaptor.getMemberPoint(memberId).data();
+            model.addAttribute("remainingPoints", pointResponse);
+
+            List<BookCouponCheckRequest> couponCheckBooks = orderItems.stream()
+                    .map(oi -> new BookCouponCheckRequest(
+                            oi.bookId(),
+                            oi.categoryIds(),
+                            oi.subtotal()
+                    )).toList();
+
+            BooksAvailableCouponsDetailResponse couponsResponse = couponAdaptor.getAvailableCouponsForBooksDetail(memberId,
+                    new BooksAvailableCouponsRequest(couponCheckBooks)).data();
+
+            model.addAttribute("coupons", couponsResponse.coupons());
+            model.addAttribute("bookCouponMap", couponsResponse.bookCouponMap());
+
+
 
         } else {
             // 비회원이면 빈 값 전달
@@ -159,7 +173,8 @@ public class OrderController {
         // 기본 배송일 (오늘 +3일)
         model.addAttribute("defaultDeliveryDate", LocalDate.now().plusDays(3));
 
-        return "order/orderPage";
+//        return "order/orderPage";
+        return "order/orderTest";
     }
 
     @PostMapping("/orders/save")
