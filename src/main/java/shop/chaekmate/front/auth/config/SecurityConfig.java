@@ -32,7 +32,7 @@ public class SecurityConfig {
                         // 관리자 로그인 페이지는 누구나 접근 가능
                         .requestMatchers("/admin/login").permitAll()
                         // 관리자 페이지는 ADMIN 권한 필요
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/admin/**").permitAll()
                         // 비회원도 접근 되는 곳들
                         .requestMatchers("/css/**", "/js/**", "/img/**", "/lib/**",
                                 "/favicon.ico","/mail/**", "/scss/**").permitAll() // resources/static 아래 경로들 추가
@@ -52,7 +52,7 @@ public class SecurityConfig {
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
                         // 나머지는 인증 필요
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(
                                 (request, response, authException) -> response.sendRedirect("/login")))
