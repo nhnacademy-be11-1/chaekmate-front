@@ -30,7 +30,7 @@
     </div>
 
     <div class="p-grid typography--p" style="margin-top: 10px">
-        <div class="p-grid-col text--left"><b>결제 승인 시e각</b></div>
+        <div class="p-grid-col text--left"><b>결제 승인 시각</b></div>
         <div class="p-grid-col text--right"
              th:text="${#temporals.format(approveResponse.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></div>
     </div>
