@@ -278,7 +278,7 @@
 
     <!-- 얼리어답터들의 PICK : 구매량이 많은 회원이 찾은 책 -->
     <div class="container pt-5 pb-3">
-        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">얼리어답터들의 PICK</span></h2>
+        <h2 class="section-title position-relative text-uppercase mx-xl-5 mb-4"><span class="bg-secondary pr-3">매니아들의 PICK</span></h2>
         <div class="row px-xl-5">
             <div class="col">
                 <div th:if="${earlyAdopterPicks != null and not #lists.isEmpty(earlyAdopterPicks)}" class="owl-carousel related-carousel">
@@ -329,6 +329,6 @@
 
 
     <script th:src="@{/js/like.js}"></script>
-    <script th:src="@{js/cart/cart-mini.js}"></script>
+    <script th:src="@{/js/cart/cart-mini.js}"></script>
 </section>
 </html>

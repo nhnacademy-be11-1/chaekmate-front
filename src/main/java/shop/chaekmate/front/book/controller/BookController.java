@@ -1,6 +1,8 @@
 package shop.chaekmate.front.book.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
+import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -46,15 +48,18 @@ public class BookController {
             @PathVariable Long categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "12") int size,
+            @AuthenticationPrincipal CustomPrincipal principal,
             Model model) {
         CommonResponse<Page<BookListResponse>> response = bookAdaptor.getBooksByCategory(categoryId, null, null, page, size);
 
         Page<BookListResponse> books = response.data();
 
-        // 좋아요 여부 확인용
-        List<Long> likedBookIds = likeService.getMemberLikedBook();
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+            // 회원 좋아요 여부 확인용
+            List<Long> likedBookIds = likeService.getMemberLikedBook();
+            model.addAttribute("likedBookIds", likedBookIds);
+        }
 
-        model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("books", books.getContent());
         model.addAttribute("currentPage", books.getNumber());
         model.addAttribute("totalPages", books.getTotalPages());
@@ -67,8 +72,8 @@ public class BookController {
     @GetMapping("/books/{bookId}")
     public String getBookDetail(
             @PathVariable Long bookId,
+            @PageableDefault(size = 20) Pageable pageable,
             @AuthenticationPrincipal CustomPrincipal principal,
-            @PageableDefault(size = 10) Pageable pageable,
             Model model,
             HttpServletRequest request
     ) {
@@ -81,22 +86,26 @@ public class BookController {
 
         List<BookImageResponse> detailImages = bookImageService.getDetailImagesByBookId(bookId);
 
-        // 조회수 증가 요청
+        //조회수 증가 요청
         bookViewCountAdaptor.increaseView(bookId);
-
-        // 좋아요 여부 확인
-        List<Long> likedBookIds = likeService.getMemberLikedBook();
 
         // 리뷰 조회
         Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
+        List<Long> likedBookIds = List.of();
         String currentUri = request.getRequestURI();
         model.addAttribute("currentUri", currentUri);
 
 
         // 2. 쿠폰 조회 (로그인한 경우에만)
         List<BookCouponPolicyResponse> coupons = List.of();
-        if (principal != null) {
+
+        // 회원인 경우
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+
+            // 좋아요 여부 확인용
+            likedBookIds = likeService.getMemberLikedBook();
+            // 쿠폰 조회 (로그인한 경우에만)
             try {
                 CommonResponse<List<BookCouponPolicyResponse>> couponResponse = couponAdaptor.getAvailableCouponsForBook(
                         bookId,
