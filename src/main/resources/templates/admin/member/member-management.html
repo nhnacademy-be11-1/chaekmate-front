@@ -14,18 +14,20 @@
                                 <label for="status" class="col-form-label">회원 상태</label>
                             </div>
                             <div class="col-auto">
-                                <select id="status" name="status"
-                                        class="form-select d-inline-block w-auto"
-                                        onchange="this.form.submit()">
-                                    <option value="ACTIVE"
-                                            th:selected="${status == null or status == 'ACTIVE'}">
-                                        활성 회원
-                                    </option>
-                                    <option value="DELETED"
-                                            th:selected="${status == 'DELETED'}">
-                                        탈퇴 회원
-                                    </option>
-                                </select>
+                                <div class="status-select-wrapper">
+                                    <select id="status" name="status"
+                                            class="form-select form-select-sm status-select"
+                                            onchange="this.form.submit()">
+                                        <option value="ACTIVE"
+                                                th:selected="${status == null or status == 'ACTIVE'}">
+                                            활성 회원
+                                        </option>
+                                        <option value="DELETED"
+                                                th:selected="${status == 'DELETED'}">
+                                            탈퇴 회원
+                                        </option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
                     </form>
@@ -66,7 +68,7 @@
                             <form th:if="${status != 'DELETED'}"
                                   th:action="@{/admin/members/{id}(id=${member.id()})}"
                                   method="post" class="d-inline-block ml-1">
-                                <input type="hidden" name="_method" value="delete"/>
+                                <input type="hidden" name="_method" value="post"/>
                                 <button type="submit" class="btn btn-sm btn-danger">
                                     탈퇴
                                 </button>
