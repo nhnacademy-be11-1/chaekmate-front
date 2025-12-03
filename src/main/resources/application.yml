@@ -2,6 +2,10 @@ spring:
   application:
     name: front
 
+  thymeleaf:
+    expression:
+      extended-expression-utility-objects: true
+
 chaekmate:
   gateway:
     url: http://localhost:8080
