@@ -1,13 +1,12 @@
 package shop.chaekmate.front.book.controller;
 
-import java.util.List;
-import java.util.Objects;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +26,10 @@ import shop.chaekmate.front.coupon.adaptor.CouponAdaptor;
 import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
 import shop.chaekmate.front.review.dto.response.ReviewResponse;
 import shop.chaekmate.front.review.service.ReviewService;
+
+import java.util.List;
+import java.util.Objects;
+
 
 @Slf4j
 @Controller
@@ -71,7 +74,9 @@ public class BookController {
             @PathVariable Long bookId,
             @PageableDefault(size = 20) Pageable pageable,
             @AuthenticationPrincipal CustomPrincipal principal,
-            Model model) {
+            Model model,
+            HttpServletRequest request
+    ) {
 
         // 1. 도서 상세 정보 조회
         CommonResponse<BookDetailResponse> response = bookAdaptor.getBookById(bookId);
@@ -88,6 +93,11 @@ public class BookController {
         Page<ReviewResponse> reviews = reviewService.getReviewsByBookId(bookId, pageable);
 
         List<Long> likedBookIds = List.of();
+        String currentUri = request.getRequestURI();
+        model.addAttribute("currentUri", currentUri);
+
+
+        // 2. 쿠폰 조회 (로그인한 경우에만)
         List<BookCouponPolicyResponse> coupons = List.of();
 
         // 회원인 경우
@@ -120,4 +130,3 @@ public class BookController {
         return "book/book-detail";
     }
 }
-

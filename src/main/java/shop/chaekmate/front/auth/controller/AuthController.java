@@ -29,7 +29,7 @@ public class AuthController {
     private static final String REDIRECT_HOME = "redirect:/";
     private static final String REDIRECT_LOGIN_ERROR = "redirect:/login?error=true";
     private static final String REDIRECT_ADMIN_LOGIN_ERROR = "redirect:/admin/login?error=true";
-    private static final String REDIRECT_ADMIN_HOME = "redirect:/admin";
+    private static final String REDIRECT_ADMIN_HOME = "redirect:/admin/index";
     private static final String REDIRECT_DORMANT_VERIFY = "redirect:/dormant/verify";
 
     private final AuthService authService;
@@ -82,6 +82,11 @@ public class AuthController {
             log.error("로그인 실패", e);
             return REDIRECT_LOGIN_ERROR;
         }
+    }
+
+    @GetMapping("/admin")
+    public String admin() {
+        return "redirect:/admin/login";
     }
 
     @GetMapping("/admin/login")

@@ -15,5 +15,6 @@ public record OrderedBookSaveRequest(
 
         Integer pointUsed,
 
-        Integer finalUnitPrice
+        Integer finalUnitPrice,
+        Integer totalPrice
 ) {}
