@@ -11,6 +11,8 @@ import shop.chaekmate.front.coupon.dto.response.IssuedCouponResponse;
 import shop.chaekmate.front.coupon.dto.response.UsedCouponResponse;
 
 import java.util.List;
+import shop.chaekmate.front.order.dto.request.BooksAvailableCouponsRequest;
+import shop.chaekmate.front.order.dto.response.BooksAvailableCouponsDetailResponse;
 
 @FeignClient(name = "coupon-client", url = "${chaekmate.gateway.url}", configuration = AuthFeignClientConfig.class)
 public interface CouponAdaptor {
@@ -27,6 +29,13 @@ public interface CouponAdaptor {
             @RequestHeader("X-Member-Id") Long memberId,
             @RequestBody CouponIssueRequest request
     );
+
+    @PostMapping("/issued-coupons/for-books/detail")
+    CommonResponse<BooksAvailableCouponsDetailResponse> getAvailableCouponsForBooksDetail(
+            @RequestHeader("X-Member-Id") Long memberId,
+            @RequestBody BooksAvailableCouponsRequest request
+    );
+
 
     @GetMapping("/issued-coupons/available")
     CommonResponse<List<IssuedCouponResponse>> getAvailableCoupons(

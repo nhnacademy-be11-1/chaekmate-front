@@ -40,7 +40,9 @@
                             </thead>
                             <tbody th:each="item, idx : ${orderItems}">
                             <!-- ① 상품 정보 행 -->
-                            <tr class="order-item-row" th:data-book-id="${item.bookId}">
+                            <tr class="order-item-row"
+                                th:data-book-id="${item.bookId}"
+                                th:data-index="${idx.index}">
                                 <td class="text-center">
                                     <img th:src="${item.thumbnailUrl}" class="cm-thumb"/>
                                 </td>
@@ -81,7 +83,8 @@
                             </tr>
 
                             <!-- ② 상품 추가 옵션 행 (쿠폰 + 포인트 + 포장지) -->
-                            <tr class="order-item-row option-row">
+                            <tr class="order-item-row option-row"
+                                th:data-index="${idx.index}">
                                 <td colspan="7" class="p-3">
 
                                     <!-- 쿠폰 -->
@@ -379,7 +382,7 @@
                 }
 
 
-                // (4) 포장비 계산 (항목별 * 수량 적용)
+                // (4) 포장비 계산
                 summary.wrapFeeTotal = 0;
 
                 // 각 주문 행 기준으로만 계산
@@ -675,15 +678,17 @@
                 const requestText = document.querySelector("textarea[name=request]").value;
 
                 // 주문 상품 리스트
-                const orderedBooks = $$('.order-item-row')
-                    .filter(row => !row.classList.contains("option-row"))
+                const orderedBooks = $$('tr.order-item-row:not(.option-row)')
                     .map(row => {
-
-                        const optionRow = row.nextElementSibling;  // ★ 각 row 마다 optionRow 가져오기
+                        const rowIndex = row.dataset.index;
+                        const optionRow = document.querySelector(`tr.order-item-row.option-row[data-index="${rowIndex}"]`);
 
                         const bookId = Number(row.dataset.bookId);
                         const quantity = Number(row.querySelector(".qty").textContent);
                         const originalPrice = num(row.querySelector(".price").textContent);
+                        const salesPrice = num(row.querySelector(".cm-price-sale").textContent);
+                        const discountPrice = originalPrice - salesPrice;
+
                         const subtotal = num(row.querySelector(".subtotal").textContent);
 
                         const wrap = optionRow.querySelector(".wrap-radio:checked");
@@ -696,20 +701,28 @@
                         const pointInput = optionRow.querySelector(".point-input");
                         const pointUsed = pointInput ? Number(pointInput.value) : 0;
 
+                        const rowTotalPrice =
+                            ((salesPrice ? salesPrice : originalPrice) * quantity)
+                            - couponDiscount
+                            - pointUsed
+                            + wrapperPrice;
+
                         return {
                             bookId,
                             quantity,
                             originalPrice,
-                            salesPrice: null,
-                            discountPrice: null,
+                            salesPrice,
+                            discountPrice,
                             wrapperId,
                             wrapperPrice,
                             issuedCouponId: null,
                             couponDiscount,
                             pointUsed,
-                            finalUnitPrice: subtotal / quantity
+                            finalUnitPrice: subtotal / quantity,
+                            totalPrice: rowTotalPrice
                         };
                     });
+
 
                 // 최종 DTO (OrderSaveRequest)
                 return {

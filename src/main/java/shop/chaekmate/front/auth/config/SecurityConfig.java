@@ -51,6 +51,7 @@ public class SecurityConfig {
                         .requestMatchers("/members/**").authenticated() // 나머지는 모두 인증 필요
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
+                        .requestMatchers("/issued-coupons/**").authenticated()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex
