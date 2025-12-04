@@ -95,7 +95,7 @@ public class IndexController {
         return response.getContent().stream().map(BookSliceInfo::of).toList();
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/admin/index")
     public String adminIndex(Model model){
 
         return "admin/admin-index";

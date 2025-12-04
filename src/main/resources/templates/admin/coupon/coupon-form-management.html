@@ -55,6 +55,54 @@
               </small>
             </div>
 
+            <!-- 도서 선택 영역 (BOOK 타입일 때만 표시) -->
+            <div class="form-group" id="bookSection" style="display: none;">
+              <label>적용 도서 <span class="text-danger">*</span></label>
+
+              <!-- 검색 입력창 -->
+              <div class="input-group mb-3">
+                <input type="text" class="form-control" id="bookSearchKeyword"
+                       placeholder="책 제목, 저자, 출판사로 검색하세요">
+                <div class="input-group-append">
+                  <button type="button" class="btn btn-primary" onclick="searchBooks(0)">
+                    <i class="fa fa-search"></i> 검색
+                  </button>
+                </div>
+              </div>
+
+              <!-- 전체 선택/해제 버튼 -->
+              <div class="mb-2">
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="selectAllBooks()">
+                  <i class="fa fa-check-square"></i> 전체 선택
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-secondary" onclick="clearAllBooks()">
+                  <i class="fa fa-square"></i> 전체 해제
+                </button>
+              </div>
+
+              <!-- 검색 결과 표시 영역 -->
+              <div class="border rounded p-3 bg-light" style="max-height: 500px; overflow-y: auto;">
+                <div id="bookSearchResults">
+                  <p class="text-muted text-center py-3">검색어를 입력하고 검색 버튼을 클릭하세요.</p>
+                </div>
+              </div>
+
+              <!-- 페이징 버튼 -->
+              <div class="mt-3 text-center" id="bookPagination" style="display: none;">
+                <button type="button" class="btn btn-sm btn-outline-primary" id="prevPageBtn" onclick="searchBooks(currentPage - 1)">
+                  <i class="fa fa-chevron-left"></i> 이전
+                </button>
+                <span class="mx-3" id="pageInfo"></span>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="nextPageBtn" onclick="searchBooks(currentPage + 1)">
+                  다음 <i class="fa fa-chevron-right"></i>
+                </button>
+              </div>
+
+              <small class="form-text text-muted mt-2">
+                하나 이상의 도서를 선택하세요.
+              </small>
+            </div>
+
             <!-- 발급 기간 타입 -->
             <div class="form-group">
               <label for="appliedPeriodType">발급 기간 타입 <span class="text-danger">*</span></label>
@@ -162,23 +210,151 @@
 </th:block>
 
 <script th:inline="javascript">
-  // 쿠폰 타입 변경 시 카테고리 영역 토글
+  let currentPage = 0;
+  let totalPages = 0;
+  let currentKeyword = '';
+
+  // 쿠폰 타입 변경 시 카테고리/도서 영역 토글
   document.getElementById('type').addEventListener('change', function() {
     const categorySection = document.getElementById('categorySection');
+    const bookSection = document.getElementById('bookSection');
+
     categorySection.style.display = this.value === 'CATEGORY' ? 'block' : 'none';
+    bookSection.style.display = this.value === 'BOOK' ? 'block' : 'none';
   });
 
-  // 전체 선택
+  // 카테고리 전체 선택
   function selectAllCategories() {
     document.querySelectorAll('input[name="categoryId"]').forEach(cb => cb.checked = true);
   }
 
-  // 전체 해제
+  // 카테고리 전체 해제
   function clearAllCategories() {
     document.querySelectorAll('input[name="categoryId"]').forEach(cb => cb.checked = false);
   }
 
-  // 폼 제출 시 선택된 카테고리 ID 수집
+  // 도서 전체 선택
+  function selectAllBooks() {
+    document.querySelectorAll('input[name="bookId"]').forEach(cb => cb.checked = true);
+  }
+
+  // 도서 전체 해제
+  function clearAllBooks() {
+    document.querySelectorAll('input[name="bookId"]').forEach(cb => cb.checked = false);
+  }
+
+  // 엔터키로 검색
+  document.getElementById('bookSearchKeyword').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      searchBooks(0);
+    }
+  });
+
+  // 도서 검색
+  function searchBooks(page) {
+    const keyword = document.getElementById('bookSearchKeyword').value.trim();
+
+    if (!keyword) {
+      alert('검색어를 입력하세요.');
+      return;
+    }
+
+    currentKeyword = keyword;
+    currentPage = page;
+
+    // 로딩 표시
+    document.getElementById('bookSearchResults').innerHTML =
+            '<p class="text-center py-3"><i class="fa fa-spinner fa-spin"></i> 검색 중...</p>';
+
+    // API 호출
+    fetch(`/admin/books/search?keyword=${encodeURIComponent(keyword)}&size=12&page=${page}`)
+            .then(response => {
+              if (!response.ok) {
+                throw new Error('검색 실패');
+              }
+              return response.json();
+            })
+            .then(data => {
+              displayBookResults(data);
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              document.getElementById('bookSearchResults').innerHTML =
+                      '<p class="text-danger text-center py-3">검색 중 오류가 발생했습니다.</p>';
+            });
+  }
+
+  // 검색 결과 표시
+  function displayBookResults(data) {
+    const resultsDiv = document.getElementById('bookSearchResults');
+    const content = data.content;
+    totalPages = data.totalPages;
+
+    if (!content || content.length === 0) {
+      resultsDiv.innerHTML = '<p class="text-muted text-center py-3">검색 결과가 없습니다.</p>';
+      document.getElementById('bookPagination').style.display = 'none';
+      return;
+    }
+
+    // 결과 HTML 생성
+    let html = '<div class="list-group">';
+    content.forEach(book => {
+      html += `
+        <div class="list-group-item">
+          <div class="form-check d-flex align-items-start">
+            <input class="form-check-input mt-1" type="checkbox" name="bookId"
+                   id="book-${book.id}" value="${book.id}">
+            <label class="form-check-label ml-3 flex-grow-1" for="book-${book.id}">
+              <div class="d-flex">
+                <img src="${book.imageUrl || '/images/no-image.png'}"
+                     alt="${book.title}"
+                     style="width: 60px; height: 80px; object-fit: cover;"
+                     class="mr-3">
+                <div>
+                  <h6 class="mb-1">${book.title}</h6>
+                  <p class="mb-1 text-muted small">
+                    <i class="fa fa-user"></i> ${book.author} |
+                    <i class="fa fa-building"></i> ${book.publisher}
+                  </p>
+                  <p class="mb-0">
+                    <span class="text-muted" style="text-decoration: line-through;">
+                      ${book.price.toLocaleString()}원
+                    </span>
+                    <strong class="text-primary ml-2">${book.salesPrice.toLocaleString()}원</strong>
+                  </p>
+                </div>
+              </div>
+            </label>
+          </div>
+        </div>
+      `;
+    });
+    html += '</div>';
+
+    resultsDiv.innerHTML = html;
+
+    // 페이징 정보 업데이트
+    updatePagination();
+  }
+
+  // 페이징 정보 업데이트
+  function updatePagination() {
+    const pagination = document.getElementById('bookPagination');
+    const pageInfo = document.getElementById('pageInfo');
+    const prevBtn = document.getElementById('prevPageBtn');
+    const nextBtn = document.getElementById('nextPageBtn');
+
+    if (totalPages > 1) {
+      pagination.style.display = 'block';
+      pageInfo.textContent = `${currentPage + 1} / ${totalPages}`;
+      prevBtn.disabled = currentPage === 0;
+      nextBtn.disabled = currentPage >= totalPages - 1;
+    } else {
+      pagination.style.display = 'none';
+    }
+  }
+
+  // 폼 제출 시 선택된 카테고리/도서 ID 수집
   document.getElementById('couponForm').addEventListener('submit', function(e) {
     const type = document.getElementById('type').value;
 
@@ -192,6 +368,23 @@
       }
 
       // 선택된 카테고리 ID들을 hidden input으로 추가
+      checkboxes.forEach(checkbox => {
+        const hiddenInput = document.createElement('input');
+        hiddenInput.type = 'hidden';
+        hiddenInput.name = 'ids';
+        hiddenInput.value = checkbox.value;
+        this.appendChild(hiddenInput);
+      });
+    } else if (type === 'BOOK') {
+      const checkboxes = document.querySelectorAll('input[name="bookId"]:checked');
+
+      if (checkboxes.length === 0) {
+        e.preventDefault();
+        alert('도서를 하나 이상 선택해주세요.');
+        return;
+      }
+
+      // 선택된 도서 ID들을 hidden input으로 추가
       checkboxes.forEach(checkbox => {
         const hiddenInput = document.createElement('input');
         hiddenInput.type = 'hidden';

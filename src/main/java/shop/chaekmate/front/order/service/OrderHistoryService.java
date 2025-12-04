@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import shop.chaekmate.front.order.adaptor.OrderHistoryAdaptor;
+import shop.chaekmate.front.order.adaptor.OrderAdaptor;
 import shop.chaekmate.front.order.dto.request.OrderHistoryRequest;
 import shop.chaekmate.front.order.dto.response.OrderHistoryResponse;
 
@@ -15,13 +15,13 @@ import shop.chaekmate.front.order.dto.response.OrderHistoryResponse;
 @RequiredArgsConstructor
 public class OrderHistoryService {
 
-    private final OrderHistoryAdaptor orderHistoryAdaptor;
+    private final OrderAdaptor orderAdaptor;
 
     public Page<OrderHistoryResponse> getNonMemberOrderHistory(Pageable pageable, OrderHistoryRequest orderHistoryRequest) {
         Page<OrderHistoryResponse> response;
 
         try {
-            response = orderHistoryAdaptor.getNonMemberOrderHistory(
+            response = orderAdaptor.getNonMemberOrderHistory(
                 pageable,
                 orderHistoryRequest.getOrderNumber(),
                 orderHistoryRequest.getOrdererName(),
@@ -39,7 +39,9 @@ public class OrderHistoryService {
         Page<OrderHistoryResponse> response;
 
         try {
-            response = orderHistoryAdaptor.getMemberOrderHistory(pageable).data();
+            response = orderAdaptor.getMemberOrderHistory(pageable).data();
+
+
         } catch (FeignException e) {
             log.error("주문 내역 조회 중 에러 발생 - status: {}, message: {}", e.status(), e.getMessage());
             return Page.empty();

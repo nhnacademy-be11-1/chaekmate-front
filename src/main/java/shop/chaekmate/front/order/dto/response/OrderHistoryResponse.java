@@ -29,6 +29,8 @@ public class OrderHistoryResponse {
     private Long totalPrice;
 
     private String status;
+    private LocalDateTime createdAt;
+
 
     private List<OrderedBookHistoryResponse> orderedBooks;
 }

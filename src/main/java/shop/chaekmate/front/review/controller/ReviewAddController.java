@@ -47,7 +47,13 @@ public class ReviewAddController {
                                 Model model){
 
         ReviewCreateResponse response = reviewAddService.createReview(request);
-        if(!request.getImageUrls().isEmpty()){
+        if(response == null){
+            model.addAttribute("error", "리뷰 등록에 실패했습니다. 다시 시도해주세요.");
+            model.addAttribute("bookId", bookId);
+            return "review/review-add";
+        }
+
+        if(request.getImageUrls() != null && !request.getImageUrls().isEmpty()){
             reviewAddService.addReviewImages(response.getId(),request.getImageUrls());
         }
         model.addAttribute("reviewResponse", response);

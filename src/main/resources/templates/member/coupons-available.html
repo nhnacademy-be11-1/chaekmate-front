@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+<head>
+  <title>사용 가능한 쿠폰 - 내 쿠폰함</title>
+</head>
+<section>
+  <div class="container-fluid">
+    <div class="row px-xl-5">
+      <div class="col-lg-3 col-md-4 mb-5">
+        <div th:replace="~{member/mypage-sidebar :: mypageSidebar}"></div>
+      </div>
+
+      <div class="col-lg-9 col-md-8 mb-5">
+        <div class="bg-light p-30">
+          <h2 class="mb-4">사용 가능한 쿠폰</h2>
+          <hr>
+
+          <div class="table-responsive">
+            <table class="table table-bordered table-hover text-center mb-0">
+              <thead class="thead-dark">
+              <tr>
+                <th>쿠폰 이름</th>
+                <th>할인 정보</th>
+                <th>최소 금액</th>
+                <th>최대 할인</th>
+                <th>유효 기간</th>
+                <th>남은 기간</th>
+              </tr>
+              </thead>
+              <tbody>
+              <tr th:each="coupon : ${availableCoupons}">
+                <td th:text="${coupon.couponName}">10% 도서 할인 쿠폰</td>
+                <td th:text="${coupon.discountDescription}">10% 할인</td>
+                <td th:text="${#numbers.formatInteger(coupon.minAvailableAmount, 0, 'COMMA') + '원'}">10,000원</td>
+                <td th:text="${#numbers.formatInteger(coupon.maxAppliedAmount, 0, 'COMMA') + '원'}">5,000원</td>
+                <td th:text="${#temporals.format(coupon.expiredAt, 'yyyy-MM-dd HH:mm')}">2026-01-01 23:59</td>
+                <td th:text="${coupon.daysUntilExpired + '일'}">30일</td>
+              </tr>
+
+              <tr th:if="${#lists.isEmpty(availableCoupons)}">
+                <td colspan="6" class="text-center text-muted">사용 가능한 쿠폰이 없습니다.</td>
+              </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</html>
