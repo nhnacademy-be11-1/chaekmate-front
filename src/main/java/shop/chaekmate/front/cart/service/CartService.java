@@ -9,23 +9,28 @@ import org.springframework.stereotype.Service;
 import shop.chaekmate.front.cart.adaptor.CartAdaptor;
 import shop.chaekmate.front.cart.dto.request.CartItemCreateRequest;
 import shop.chaekmate.front.cart.dto.request.CartItemUpdateRequest;
+import shop.chaekmate.front.cart.dto.response.CartItemCountResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListAdvancedResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemListResponse;
 import shop.chaekmate.front.cart.dto.response.CartItemUpdateResponse;
 import shop.chaekmate.front.cart.exception.CartException;
 import shop.chaekmate.front.common.CommonResponse;
+import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class CartService {
 
+    private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
     private final CartAdaptor cartAdaptor;
+    private static final String COOKIE_NAME = "Guest-Id";
 
     // 장바구니 아이템 추가
-    public CartItemListResponse addCartItem(CartItemCreateRequest request) {
+    public CartItemListResponse addCartItem(CartItemCreateRequest request, String guestId) {
         try {
-            CommonResponse<CartItemListResponse> response = this.cartAdaptor.addCartItem(request);
+            String cookieHeader = COOKIE_NAME + "=" + guestId;
+            CommonResponse<CartItemListResponse> response = this.cartAdaptor.addCartItem(request, cookieHeader);
             if (Objects.isNull(response) || Objects.isNull(response.data())) {
                 throw new CartException("장바구니 담기 결과가 없습니다.");
             }
@@ -37,9 +42,10 @@ public class CartService {
     }
 
     // 장바구니 조회
-    public CartItemListAdvancedResponse getCart() {
+    public CartItemListAdvancedResponse getCart(String guestId) {
         try {
-            CommonResponse<CartItemListAdvancedResponse> response = this.cartAdaptor.getCart();
+            String cookieHeader = COOKIE_NAME + "=" + guestId;
+            CommonResponse<CartItemListAdvancedResponse> response = this.cartAdaptor.getCart(cookieHeader);
 
             // API 응답이 없거나 data가 null인 경우
             if (Objects.isNull(response) || Objects.isNull(response.data())) {
@@ -57,8 +63,33 @@ public class CartService {
 
         } catch (FeignException e) {
             log.error("장바구니 조회 실패: {}", e.getMessage(), e);
+
             // 조회 실패 시에도 빈 장바구니 반환 (화면은 정상 표시)
             return new CartItemListAdvancedResponse(null, Collections.emptyList());
+        }
+    }
+
+    // 장바구니 아이템 개수 조회
+    public CartItemCountResponse getCartItemCount(String guestId) {
+        try {
+            String cookieHeader = COOKIE_NAME + "=" + guestId;
+            CommonResponse<CartItemCountResponse> response = this.cartAdaptor.getCartItemCount(cookieHeader);
+
+            // API 응답이 없거나 data가 null인 경우
+            // + 장바구니가 아직 생성되지 않은 상태인 경우
+            if (Objects.isNull(response) || Objects.isNull(response.data())) {
+                log.warn("장바구니 아이템 개수 조회 결과가 없습니다. 0을 반환합니다.");
+                return new CartItemCountResponse(0);
+            }
+
+            // CartItemResponse (count) 반환
+            return response.data();
+
+        } catch (FeignException e) {
+            log.error("장바구니 아이템 개수 조회 실패: {}", e.getMessage(), e);
+
+            // 조회 실패 시에도 0 반환 (화면은 정상 표시)
+            return new CartItemCountResponse(0);
         }
     }
 
@@ -92,6 +123,6 @@ public class CartService {
         } catch (FeignException e) {
             log.error("장바구니 비우기 실패: {}", e.getMessage(), e);
             throw new CartException("장바구니 비우기 실패", e);
-        }    }
-
+        }
+    }
 }

@@ -8,5 +8,4 @@ chaekmate:
     url: ${GATEWAY_URL:http://localhost:10320}
 
 server:
-  port: ${PORT_NUMBER}
   forward-headers-strategy: framework

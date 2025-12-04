@@ -1,9 +1,91 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <head>
     <title th:text="${book.title} + ' - 도서 상세 정보'"></title>
     <link rel="stylesheet" th:href="@{/css/book/book-detail.css}">
+    <style>
+        .coupon-section {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+        }
+        .coupon-card {
+            background: white;
+            border: 2px solid #007bff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .coupon-card.issued {
+            border-color: #6c757d;
+            background-color: #f0f0f0;
+        }
+        .coupon-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .coupon-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+        }
+        .coupon-type-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .coupon-type-book {
+            background-color: #007bff;
+            color: white;
+        }
+        .coupon-type-category {
+            background-color: #28a745;
+            color: white;
+        }
+        .coupon-discount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            margin: 10px 0;
+        }
+        .coupon-condition {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .coupon-period {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 10px;
+        }
+        .btn-issue-coupon {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .btn-issue-coupon:hover {
+            background-color: #0056b3;
+        }
+        .btn-issue-coupon:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+    </style>
 </head>
 <body>
 <section>
@@ -27,14 +109,93 @@
                      th:alt="${book.title}">
 
                 <div class="d-flex justify-content-center mt-3">
-                    <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기" th:data-book-id="${book.id}">
-                        <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'" class="fa-heart mr-1"></i>
+                    <a href="javascript:void(0);" class="btn btn-outline-danger mr-2 btn-like" title="찜하기"
+                       th:data-book-id="${book.id}">
+                        <i th:classappend="${likedBookIds != null and likedBookIds.contains(book.id)} ? 'fas' : 'far'"
+                           class="fa-heart mr-1"></i>
                         <span th:text="${likedBookIds != null and likedBookIds.contains(book.id)} ? ' 찜 취소' : ' 찜하기'"> 찜하기</span>
                     </a>
                     <a href="#" class="btn btn-outline-info" title="보관함">
                         <i class="fa fa-archive mr-1"></i> 보관함
                     </a>
                 </div>
+
+                <!-- 쿠폰 섹션 추가 -->
+                <div class="coupon-section" sec:authorize="isAuthenticated()" th:if="${!#lists.isEmpty(coupons)}">
+                    <h5 class="mb-3">
+                        <i class="fa fa-ticket-alt text-primary mr-2"></i>
+                        사용 가능한 쿠폰
+                    </h5>
+
+                    <div th:each="coupon : ${coupons}"
+                         th:class="${coupon.isIssued} ? 'coupon-card issued' : 'coupon-card'">
+
+                        <div class="coupon-header">
+                            <span class="coupon-name" th:text="${coupon.name}">쿠폰명</span>
+                            <span th:class="${coupon.type == 'BOOK'} ? 'coupon-type-badge coupon-type-book' : 'coupon-type-badge coupon-type-category'"
+                                  th:text="${coupon.type == 'BOOK'} ? '도서 쿠폰' : '카테고리 쿠폰'">
+                도서 쿠폰
+              </span>
+                        </div>
+
+                        <div class="coupon-discount">
+              <span th:if="${coupon.discountType == 'RATE'}"
+                    th:text="${coupon.discountValue + '%'}">10%</span>
+                            <span th:if="${coupon.discountType == 'AMOUNT'}"
+                                  th:text="${#numbers.formatInteger(coupon.discountValue, 0, 'COMMA') + '원'}">5,000원</span>
+                            할인
+                        </div>
+
+                        <div class="coupon-condition" th:if="${coupon.minAvailableAmount != null}">
+                            <i class="fa fa-info-circle mr-1"></i>
+                            <span th:text="${#numbers.formatInteger(coupon.minAvailableAmount, 0, 'COMMA') + '원 이상 구매 시'}">
+                10,000원 이상 구매 시
+              </span>
+                        </div>
+
+                        <div class="coupon-condition" th:if="${coupon.maxAppliedAmount != null}">
+                            <i class="fa fa-exclamation-circle mr-1"></i>
+                            최대 <span th:text="${#numbers.formatInteger(coupon.maxAppliedAmount, 0, 'COMMA') + '원'}">5,000원</span> 할인
+                        </div>
+
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'THIRTY_DAYS'}">
+                            <i class="fa fa-clock mr-1"></i>
+                            발급일로부터 30일간 사용 가능
+                        </div>
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'MONTH_LAST_DAY'}">
+                            <i class="fa fa-clock mr-1"></i>
+                            발급 월의 마지막 날까지 사용 가능
+                        </div>
+                        <div class="coupon-period" th:if="${coupon.appliedPeriodType == 'CUSTOM_PERIOD' and coupon.appliedExpiredAt != null}">
+                            <i class="fa fa-clock mr-1"></i>
+                            <span th:text="${#temporals.format(coupon.appliedExpiredAt, 'yyyy-MM-dd HH:mm')} + '까지 사용 가능'">
+                2024-12-31 23:59까지 사용 가능
+              </span>
+                        </div>
+
+                        <button th:if="${coupon.isIssued}"
+                                class="btn-issue-coupon"
+                                disabled>
+                            <i class="fa fa-check mr-1"></i> 발급 완료
+                        </button>
+                        <button th:unless="${coupon.isIssued}"
+                                class="btn-issue-coupon"
+                                th:attr="data-coupon-id=${coupon.id}"
+                                onclick="issueCoupon(this)">
+                            <i class="fa fa-download mr-1"></i> 쿠폰 받기
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 로그인 안 한 경우 -->
+                <div class="coupon-section" sec:authorize="!isAuthenticated()">
+                    <div class="text-center text-muted">
+                        <i class="fa fa-lock fa-2x mb-2"></i>
+                        <p>로그인 후 쿠폰을 확인하세요</p>
+                        <a th:href="@{/login}" class="btn btn-primary">로그인</a>
+                    </div>
+                </div>
+
             </div>
 
             <div class="col-lg-7 mb-30">
@@ -57,13 +218,15 @@
                     </p>
                     <p class="stock-status">
                         <span class="font-weight-bold">재고:</span>
-                        <span th:if="${book.stock > 0}" class="text-success" th:text="${#numbers.formatInteger(book.stock, 0, 'COMMA') + '권'}">500권</span>
+                        <span th:if="${book.stock > 0}" class="text-success"
+                              th:text="${#numbers.formatInteger(book.stock, 0, 'COMMA') + '권'}">500권</span>
                         <span th:unless="${book.stock > 0}" class="text-danger">품절</span>
                     </p>
                 </div>
 
                 <div class="price-info mb-4">
-                    <th:block th:if="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+                    <th:block
+                            th:if="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
                         <p class="text-muted text-decoration-line-through mb-1">
                             정가: <small th:text="${#numbers.formatInteger(book.price, 0, 'COMMA')} + '원'">43,000원</small>
                         </p>
@@ -72,12 +235,16 @@
                             <span th:text="${#numbers.formatInteger(book.salesPrice, 0, 'COMMA')} + '원'">38,700원</span>
                         </h3>
                         <p class="text-danger mt-1">
-                            (<span th:text="${T(java.lang.Math).round((book.price - book.salesPrice) * 100.0 / book.price)} + '%'">10%</span> 할인 |
-                            <span th:text="${#numbers.formatInteger(book.price - book.salesPrice, 0, 'COMMA')} + '원'">4,300원</span> 절약)
+                            (<span
+                                th:text="${T(java.lang.Math).round((book.price - book.salesPrice) * 100.0 / book.price)} + '%'">10%</span>
+                            할인 |
+                            <span th:text="${#numbers.formatInteger(book.price - book.salesPrice, 0, 'COMMA')} + '원'">4,300원</span>
+                            절약)
                         </p>
                     </th:block>
 
-                    <th:block th:unless="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
+                    <th:block
+                            th:unless="${book.price != null and book.salesPrice != null and book.price > book.salesPrice}">
                         <h3 class="font-weight-semi-bold text-warning mb-0">
                             판매가:
                             <span th:if="${book.salesPrice != null and book.salesPrice > 0}"
@@ -94,7 +261,9 @@
                                 <i class="fa fa-minus"></i>
                             </button>
                         </div>
-                        <input aria-label="수량" type="text" class="form-control bg-secondary border-0 text-center quantity-input" value="1" id="quantityInput">
+                        <input aria-label="수량" type="text"
+                               class="form-control bg-secondary border-0 text-center quantity-input" value="1"
+                               id="quantityInput">
                         <div class="input-group-btn">
                             <button class="btn btn-primary btn-plus">
                                 <i class="fa fa-plus"></i>
@@ -120,13 +289,16 @@
             </div>
         </div>
 
+        <!-- 나머지 탭 섹션 기존 코드 유지 -->
         <div class="row px-xl-5">
             <div class="col">
                 <div class="bg-light p-30">
                     <div class="nav nav-tabs mb-4">
-                        <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세 설명</a>
+                        <a class="nav-item nav-link text-dark active" data-toggle="tab" href="#tab-description">상세
+                            설명</a>
                         <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-index">목차</a>
-                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
+                        <a class="nav-item nav-link text-dark" data-toggle="tab" href="#tab-reviews">리뷰 (<span
+                                th:text="${reviews != null ? reviews.totalElements : 0}">0</span>)</a>
                     </div>
                     <div class="tab-content">
                         <div class="tab-pane fade show active" id="tab-description">
@@ -137,7 +309,8 @@
                             <div th:if="${!detailImages.isEmpty()}" class="mt-4">
                                 <h5 class="mb-3">상세 이미지</h5>
                                 <div th:each="image : ${detailImages}" class="mb-3 text-center">
-                                    <img th:src="${image.imageUrl()}" th:alt="${book.title + ' 상세 이미지'}" class="img-fluid" style="max-width: 100%; height: auto;">
+                                    <img th:src="${image.imageUrl()}" th:alt="${book.title + ' 상세 이미지'}"
+                                         class="img-fluid" style="max-width: 100%; height: auto;">
                                 </div>
                             </div>
                         </div>
@@ -151,42 +324,58 @@
 
                         <div class="tab-pane fade" id="tab-reviews">
                             <h4 class="mb-3">리뷰</h4>
-                            <div th:if="${reviews != null and !reviews.isEmpty()}">
-                                <div th:each="review : ${reviews.content}" class="mb-4 pb-4 border-bottom">
-                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                        <div>
-                                            <div class="d-flex align-items-center mb-2">
-                                                <span class="font-weight-bold mr-2">회원 ID: <span th:text="${review.memberId()}">1</span></span>
-                                                <div class="text-warning">
-                                                    <i th:each="i : ${#numbers.sequence(1, 5)}"
-                                                       th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+
+                            <div th:if="${reviews != null && !reviews.isEmpty()}">
+
+                                <div id="review-list">
+                                    <!-- 전체 리뷰 렌더링 -->
+                                    <div th:each="review, iterStat : ${reviews}"
+                                         class="review-item mb-4 pb-4 border-bottom"
+                                         th:attr="data-index=${iterStat.index}">
+
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <div class="d-flex align-items-center mb-2">
+                            <span class="font-weight-bold mr-2">
+                                회원 ID: <span th:text="${review.memberId()}"></span>
+                            </span>
+                                                    <div class="text-warning">
+                                                        <i th:each="i : ${#numbers.sequence(1, 5)}"
+                                                           th:class="${i <= review.rating()} ? 'fas fa-star' : 'far fa-star'"></i>
+                                                    </div>
+                                                    <span class="ml-2 text-muted"
+                                                          th:text="${review.rating()} + '점'"></span>
                                                 </div>
-                                                <span class="ml-2 text-muted" th:text="${review.rating()} + '점'">5점</span>
+
+                                                <small class="text-muted"
+                                                       th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">
+                                                </small>
                                             </div>
-                                            <small class="text-muted" th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</small>
                                         </div>
+
+                                        <p class="mb-0" th:text="${review.comment()}"></p>
+
+                                        <!-- 리뷰 이미지 리스트 -->
+                                        <div th:if="${review.images != null && !review.images.isEmpty()}">
+                                            <div class="d-flex gap-2 overflow-auto py-2">
+                                                <div th:each="img : ${review.images}">
+                                                    <img th:src="${img.imageUrl}"
+                                                         style="height:100px; width:auto; border-radius:8px; object-fit:cover;">
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
-                                    <p class="mb-0" th:text="${review.comment()}">리뷰 내용입니다.</p>
                                 </div>
 
-                                <!-- 페이지네이션 -->
-                                <nav th:if="${reviews.totalPages > 1}">
-                                    <ul class="pagination justify-content-center">
-                                        <li class="page-item" th:classappend="${reviews.first} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number - 1})}" th:if="${!reviews.first}">이전</a>
-                                            <span class="page-link" th:if="${reviews.first}">이전</span>
-                                        </li>
-                                        <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, reviews.totalPages - 1)}"
-                                            th:classappend="${pageNum == reviews.number} ? 'active'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${pageNum})}" th:text="${pageNum + 1}">1</a>
-                                        </li>
-                                        <li class="page-item" th:classappend="${reviews.last} ? 'disabled'">
-                                            <a class="page-link" th:href="@{/books/{bookId}(bookId=${book.id}, page=${reviews.number + 1})}" th:if="${!reviews.last}">다음</a>
-                                            <span class="page-link" th:if="${reviews.last}">다음</span>
-                                        </li>
-                                    </ul>
-                                </nav>
+                                <!-- 더보기 버튼 -->
+                                <div class="text-center mt-3">
+                                    <button id="load-more-btn" class="btn btn-secondary btn-sm">
+                                        더보기
+                                    </button>
+                                </div>
                             </div>
+
                             <div th:if="${reviews == null or reviews.isEmpty()}" class="text-center py-5">
                                 <p class="text-muted">등록된 리뷰가 없습니다.</p>
                             </div>
@@ -196,17 +385,59 @@
             </div>
         </div>
     </div>
-    <!--    <form id="buyNowForm" method="post" action="/orders">-->
-    <!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
-    <!--    </form>-->
+<!--    <form id="buyNowForm" method="post" action="/orders">-->
+<!--        <input type="hidden" name="itemsJson" id="itemsJson">-->
+<!--    </form>-->
     <script th:inline="javascript">
         /* <![CDATA[ */
         const bookId = /*[[${book.id}]]*/ 0;
         const maxStock = /*[[${book.stock}]]*/ 0;
+
+        // 쿠폰 발급 함수
+        function issueCoupon(button) {
+            const couponPolicyId = button.getAttribute('data-coupon-id');
+
+            if (!confirm('쿠폰을 발급받으시겠습니까?')) {
+                return;
+            }
+
+            // 버튼 비활성화
+            button.disabled = true;
+            button.innerHTML = '<i class="fa fa-spinner fa-spin mr-1"></i> 발급 중...';
+
+            fetch('/issued-coupons', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    couponPolicyId: parseInt(couponPolicyId)
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        return response.json().then(err => {
+                            throw new Error(err.message || '쿠폰 발급에 실패했습니다.');
+                        });
+                    }
+                })
+                .then(data => {
+                    alert('쿠폰이 발급되었습니다!');
+                    location.reload();
+                })
+                .catch(error => {
+                    alert(error.message);
+                    button.disabled = false;
+                    button.innerHTML = '<i class="fa fa-download mr-1"></i> 쿠폰 받기';
+                });
+        }
         /* ]]> */
     </script>
     <script th:src="@{/js/book/book-detail.js}"></script>
     <script th:src="@{/js/like.js}"></script>
+    <script th:src="@{/js/review/review-removal.js}"></script>
 
 </section>
 </body>

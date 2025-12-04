@@ -28,6 +28,7 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/actuator/**").permitAll()
                         // 관리자 로그인 페이지는 누구나 접근 가능
                         .requestMatchers("/admin/login").permitAll()
                         // 관리자 페이지는 ADMIN 권한 필요

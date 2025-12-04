@@ -1,6 +1,6 @@
 (function ($) {
     "use strict";
-    
+
     // Dropdown on mouse hover
     $(document).ready(function () {
         function toggleNavbarMethod() {
@@ -17,8 +17,8 @@
         toggleNavbarMethod();
         $(window).resize(toggleNavbarMethod);
     });
-    
-    
+
+
     // Back to top button
     $(window).scroll(function () {
         if ($(this).scrollTop() > 100) {
@@ -59,34 +59,28 @@
         }
     });
 
+    $('.related-carousel').each(function () {
+        let itemCount = $(this).find('.product-item').length;
 
-    // Related carousel
-    $('.related-carousel').owlCarousel({
-        loop: true,
-        margin: 29,
-        nav: false,
-        autoplay: true,
-        smartSpeed: 1000,
-        responsive: {
-            0:{
-                items:1
-            },
-            576:{
-                items:2
-            },
-            768:{
-                items:3
-            },
-            992:{
-                items:4
+        $(this).owlCarousel({
+            loop: itemCount > 5,  // 아이템 5개 초과일 때만 loop 켜기
+            margin: 29,
+            nav: false,
+            autoplay: true,
+            smartSpeed: 1000,
+            responsive: {
+                0:{ items:3 },
+                576:{ items:4 },
+                768:{ items:4 },
+                992:{ items:5 }
             }
-        }
+        });
     });
 
 
     // Product Quantity
     $('.quantity button').on('click', function () {
-        var button = $(this);
+        let button = $(this);
         var oldValue = button.parent().parent().find('input').val();
         if (button.hasClass('btn-plus')) {
             var newVal = parseFloat(oldValue) + 1;
