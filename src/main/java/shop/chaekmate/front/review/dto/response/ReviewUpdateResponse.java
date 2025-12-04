@@ -1,6 +1,6 @@
 package shop.chaekmate.front.review.dto.response;
 
-public record ReviewCreateResponse(
+public record ReviewUpdateResponse(
         Long id,
         Long memberId,
         Long orderedBookId,
@@ -8,3 +8,4 @@ public record ReviewCreateResponse(
         Integer rating
 ) {
 }
+
