@@ -16,7 +16,7 @@ public class ImageUploadController {
     // MINIO 이미지 등록을 위한 Controller
     private final MinioService minioService;
 
-    @PostMapping("/images/upload")
+    @PostMapping("/image-upload")
     public ResponseEntity<Map<String, String>> uploadImage(@RequestParam("image") MultipartFile file) {
 
         try {

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             statusElement.style.color = 'blue';
 
             // Assuming a non-admin endpoint exists for image uploads
-            fetch('/images/upload', {
+            fetch('/image-upload', {
                 method: 'POST',
                 body: formData
             })
