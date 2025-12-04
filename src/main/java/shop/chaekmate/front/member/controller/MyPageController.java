@@ -11,15 +11,22 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
+import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
+import shop.chaekmate.front.member.dto.response.GradeResponse;
+import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
+import shop.chaekmate.front.member.service.MemberService;
 import shop.chaekmate.front.point.dto.response.MemberPointHistoryResponse;
 import shop.chaekmate.front.point.dto.response.PointResponse;
 import shop.chaekmate.front.point.service.PointHistoryService;
+
+import java.util.List;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 public class MyPageController {
     private final PointHistoryService pointHistoryService;
+    private final MemberService memberService;
 
     @GetMapping("/mypage")
     public String mypage(@AuthenticationPrincipal CustomPrincipal principal, Model model) {
@@ -36,6 +43,17 @@ public class MyPageController {
         // 회원 정보
         model.addAttribute("memberId", principal.getMemberId());
         model.addAttribute("memberName", principal.getName());
+
+        // 주소 정보
+        List<MemberAddressResponse> addresses = memberService.getAddressesByMemberId(principal.getMemberId());
+        model.addAttribute("addresses", addresses == null ? List.of() : addresses);
+        model.addAttribute("addressCreateRequest", new AddressCreateRequest("", "", "", 0));
+
+        // 등급 정보
+        GradeResponse memberGrade = memberService.getGradeByMemberId(principal.getMemberId());
+        List<GradeResponse> grades = memberService.getAllGrades();
+        model.addAttribute("memberGrade", memberGrade);
+        model.addAttribute("grades", grades);
 
         return "member/mypage";
     }

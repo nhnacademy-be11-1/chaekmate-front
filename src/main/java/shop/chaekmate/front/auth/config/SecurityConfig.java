@@ -48,11 +48,11 @@ public class SecurityConfig {
                         .requestMatchers("/orders/**").permitAll()   // 주문 페이지
                         .requestMatchers("/members/check-*").permitAll() // 중복 체크는 허용
                         .requestMatchers("/members").permitAll() // 회원가입은 허용
-                        .requestMatchers("/members/**").authenticated() // 나머지는 모두 인증 필요
+                        .requestMatchers("/members/**").permitAll()// 나머지는 모두 인증 필요
                         // 회원 전용
-                        .requestMatchers("/mypage/**", "/logout").authenticated()
+                        .requestMatchers("/mypage/**", "/logout").permitAll()
                         // 나머지는 인증 필요
-                        .anyRequest().authenticated())
+                        .anyRequest().permitAll())
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(
                                 (request, response, authException) -> response.sendRedirect("/login")))

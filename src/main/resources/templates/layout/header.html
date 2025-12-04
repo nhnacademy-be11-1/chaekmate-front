@@ -83,7 +83,7 @@
                                 </div>
 
                                 <div sec:authorize="isAuthenticated()" class="d-flex align-items-center">
-                                    <a th:href="@{/members/{memberId}/mypage(memberId=${#authentication.principal.memberId})}"
+                                    <a th:href="@{/mypage}"
                                        class="nav-item nav-link me-3">마이페이지</a>
                                     <form action="/logout" method="post" style="display: inline;">
                                         <button type="submit" class="nav-item nav-link border-0 bg-transparent me-3" style="cursor: pointer;">로그아웃</button>
