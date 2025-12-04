@@ -2,7 +2,6 @@ package shop.chaekmate.front.coupon.adaptor;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
-import shop.chaekmate.front.auth.config.AuthFeignClientConfig;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.coupon.dto.request.CouponIssueRequest;
 import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
@@ -14,7 +13,7 @@ import java.util.List;
 import shop.chaekmate.front.order.dto.request.BooksAvailableCouponsRequest;
 import shop.chaekmate.front.order.dto.response.BooksAvailableCouponsDetailResponse;
 
-@FeignClient(name = "coupon-client", url = "${chaekmate.gateway.url}", configuration = AuthFeignClientConfig.class)
+@FeignClient(name = "coupon-client", url = "${chaekmate.gateway.url}")
 public interface CouponAdaptor {
 
     @GetMapping("/coupon-policies/books/{bookId}")

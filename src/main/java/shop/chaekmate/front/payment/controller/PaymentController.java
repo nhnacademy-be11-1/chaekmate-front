@@ -14,19 +14,19 @@ import shop.chaekmate.front.payment.dto.request.PaymentApproveRequest;
 import shop.chaekmate.front.payment.dto.request.PaymentCallbackRequest;
 import shop.chaekmate.front.payment.dto.request.PaymentCancelRequest;
 import shop.chaekmate.front.payment.dto.request.PointPaymentRequest;
+import shop.chaekmate.front.payment.dto.request.ReturnBooksRequest;
 import shop.chaekmate.front.payment.dto.response.PaymentAbortedResponse;
 import shop.chaekmate.front.payment.dto.response.PaymentApproveResponse;
+import shop.chaekmate.front.payment.dto.response.ReturnBooksResponse;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
-@RequestMapping("/payments")
 public class PaymentController {
 
     private final PaymentAdaptor paymentAdaptor;
 
-    //주문서 -> PaymentReadyRequest
-    @PostMapping("/point")
+    @PostMapping("/payments/point")
     public String point(@ModelAttribute PointPaymentRequest request, Model model) {
 
         CommonResponse<?> response =
@@ -74,7 +74,7 @@ public class PaymentController {
     }
 
 
-    @GetMapping("/success")
+    @GetMapping("/payments/success")
     public String success(@ModelAttribute PaymentCallbackRequest request, Model model) {
         CommonResponse<?> response = paymentAdaptor.approve(
                 new PaymentApproveRequest("TOSS", request.paymentKey(),
@@ -116,7 +116,8 @@ public class PaymentController {
         }
         return "payment/payment-fail";
     }
-        @GetMapping("/fail")
+
+    @GetMapping("/payments/fail")
     public String failToss(@ModelAttribute PaymentCallbackRequest request, Model model) {
 
         log.warn("[TOSS 결제 실패 콜백] orderId={}, code={}, message={}",
@@ -128,9 +129,21 @@ public class PaymentController {
         return "payment/payment-fail";
     }
 
-    @PostMapping("/cancel")
+    @PostMapping("/payments/cancel")
     public ResponseEntity<Void> cancel(@RequestBody PaymentCancelRequest request) {
         paymentAdaptor.cancel(request);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/payments/return-request")
+    public ResponseEntity<CommonResponse<ReturnBooksResponse>> returnRequest(@RequestBody ReturnBooksRequest request) {
+        CommonResponse<ReturnBooksResponse> response = paymentAdaptor.returnRequest(request);
+        return ResponseEntity.ok(response);
+    }
+
+    @ResponseBody
+    @PostMapping("/admin/payments/return-approve")
+    public CommonResponse<ReturnBooksResponse> approveRefund(@RequestBody ReturnBooksRequest request) {
+        return paymentAdaptor.returnApprove(request);
     }
 }
