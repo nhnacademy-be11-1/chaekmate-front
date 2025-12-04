@@ -509,6 +509,10 @@
             $("#returnOrderNumber").val(orderNumber);
             $("#returnQuantity").val(quantity);
 
+            // 개별 반품 플래그 설정
+            $("#returnModal").data('is-full-return', false);
+            $("#returnModal").removeData('order-data');
+
             $("#returnReason").val('');
             $("#returnModal").modal("show");
         }
@@ -524,16 +528,37 @@
                 return;
             }
 
-            const payload = {
-                orderNumber: orderNumber,
-                returnReason: reason,
-                returnBooks: [
-                    {
-                        orderedBookId: Number(orderedBookId),
-                        canceledQuantity: Number(quantity)
-                    }
-                ]
-            };
+            let payload;
+
+            // 전체 반품인지 확인
+            const isFullReturn = $("#returnModal").data('is-full-return');
+            if (isFullReturn) {
+                const orderDataStr = $("#returnModal").data('order-data');
+                const order = JSON.parse(orderDataStr);
+
+                const returnBooks = order.orderedBooks.map(b => ({
+                    orderedBookId: b.orderedBookId,
+                    canceledQuantity: b.quantity
+                }));
+
+                payload = {
+                    orderNumber: order.orderNumber,
+                    returnReason: reason,
+                    returnBooks: returnBooks
+                };
+            } else {
+                // 개별 반품
+                payload = {
+                    orderNumber: orderNumber,
+                    returnReason: reason,
+                    returnBooks: [
+                        {
+                            orderedBookId: Number(orderedBookId),
+                            canceledQuantity: Number(quantity)
+                        }
+                    ]
+                };
+            }
 
             try {
                 await postJson("/payments/return-request", payload);
@@ -556,30 +581,17 @@
 
         // 전체 반품
         async function returnAll(order) {
-            const reason = prompt("전체 반품 사유를 입력하세요:");
-            if (!reason || !reason.trim()) {
-                alert("반품 사유를 입력해야 합니다.");
-                return;
-            }
+            // 반품 사유 선택을 위한 모달 표시
+            $("#returnOrderedBookId").val(''); // 전체 반품이므로 빈 값
+            $("#returnOrderNumber").val(order.orderNumber);
+            $("#returnQuantity").val(''); // 전체 반품이므로 빈 값
 
-            const returnBooks = order.orderedBooks.map(b => ({
-                orderedBookId: b.orderedBookId,
-                canceledQuantity: b.quantity
-            }));
+            // 전체 반품용 플래그 설정
+            $("#returnModal").data('is-full-return', true);
+            $("#returnModal").data('order-data', JSON.stringify(order));
 
-            const payload = {
-                orderNumber: order.orderNumber,
-                returnReason: reason,
-                returnBooks: returnBooks
-            };
-
-            try {
-                await postJson("/payments/return-request", payload);
-                alert("전체 반품 요청 완료되었습니다.");
-                location.reload();
-            } catch (e) {
-                alert(e.message);
-            }
+            $("#returnReason").val('');
+            $("#returnModal").modal("show");
         }
     </script>
 </section>
