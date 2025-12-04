@@ -1,8 +1,6 @@
 package shop.chaekmate.front.book.controller;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +28,8 @@ import shop.chaekmate.front.review.dto.response.ReviewResponse;
 import shop.chaekmate.front.review.service.ReviewService;
 
 import java.util.List;
+import java.util.Objects;
+
 
 @Slf4j
 @Controller
