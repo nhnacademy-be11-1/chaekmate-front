@@ -20,13 +20,13 @@ public class MemberService {
         memberAdaptor.createMember(memberCreateRequest);
     }
 
-    public List<MemberAddressResponse> getAddressesByMemberId(String memberId) {
-        CommonResponse<List<MemberAddressResponse>> wrappedResponse = memberAdaptor.getAddresses(Long.valueOf(memberId));
+    public List<MemberAddressResponse> getAddressesByMemberId(Long memberId) {
+        CommonResponse<List<MemberAddressResponse>> wrappedResponse = memberAdaptor.getAddresses(memberId);
         return wrappedResponse.data();
     }
 
-    public GradeResponse getGradeByMemberId(String memberId) {
-        CommonResponse<GradeResponse> wrappedResponse = memberAdaptor.getMemberGrade(Long.valueOf(memberId));
+    public GradeResponse getGradeByMemberId(Long memberId) {
+        CommonResponse<GradeResponse> wrappedResponse = memberAdaptor.getMemberGrade(memberId);
         return wrappedResponse.data();
     }
 
