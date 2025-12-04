@@ -348,6 +348,20 @@
                                                 </small>
                                             </div>
                                             <small class="text-muted" th:text="${#temporals.format(review.createdAt(), 'yyyy-MM-dd HH:mm')}">2024-01-01 12:00</small>
+                                            <!-- 리뷰 수정 버튼 (본인이 작성한 리뷰인 경우에만 표시) -->
+                                            <div sec:authorize="isAuthenticated()"
+                                                 th:if="${currentMemberId != null and currentMemberId == review.memberId()}">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-outline-primary"
+                                                        data-toggle="modal"
+                                                        data-target="#reviewEditModal"
+                                                        th:data-review-id="${review.id()}"
+                                                        th:data-review-comment="${review.comment()}"
+                                                        th:data-review-rating="${review.rating()}"
+                                                        th:data-review-images="${review.images != null ? #strings.listJoin(review.images.![imageUrl()], ',') : ''}">
+                                                    수정
+                                                </button>
+                                            </div>
                                         </div>
 
                                         <p class="mb-0" th:text="${review.comment()}"></p>
@@ -360,6 +374,7 @@
                                                          style="height:100px; width:auto; border-radius:8px; object-fit:cover;">
                                                 </div>
                                             </div>
+
                                         </div>
 
                                     </div>
@@ -429,9 +444,197 @@
         }
         /* ]]> */
     </script>
+    <!-- 리뷰 수정 모달 -->
+    <div class="modal fade" id="reviewEditModal" tabindex="-1" role="dialog" aria-labelledby="reviewEditModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="reviewEditModalLabel">리뷰 수정</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="reviewEditForm" method="post">
+                    <input type="hidden" name="_method" value="PUT" />
+                    <input type="hidden" id="edit-review-id" name="reviewId" />
+                    <input type="hidden" id="edit-book-id" th:value="${bookId}" name="bookId" />
+                    
+                    <div class="modal-body">
+                        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
+                        
+                        <!-- Review Image Management -->
+                        <div class="form-group">
+                            <label for="edit-review-image-upload-input">리뷰 이미지 추가</label>
+                            <input type="file" class="form-control-file" id="edit-review-image-upload-input" accept="image/*">
+                            <small id="edit-review-image-status" class="form-text"></small>
+                        </div>
+                        <div id="edit-review-images-preview-container" class="row mt-3 mb-3"></div>
+                        <div id="edit-review-image-urls-container">
+                            <!-- Hidden inputs for image URLs will be added here by JS -->
+                        </div>
+
+                        <div class="form-group">
+                            <label>별점</label>
+                            <div class="star-rating">
+                                <input type="radio" id="edit-5-stars" name="rating" value="5" /><label for="edit-5-stars" class="star">&#9733;</label>
+                                <input type="radio" id="edit-4-stars" name="rating" value="4" /><label for="edit-4-stars" class="star">&#9733;</label>
+                                <input type="radio" id="edit-3-stars" name="rating" value="3" /><label for="edit-3-stars" class="star">&#9733;</label>
+                                <input type="radio" id="edit-2-stars" name="rating" value="2" /><label for="edit-2-stars" class="star">&#9733;</label>
+                                <input type="radio" id="edit-1-star" name="rating" value="1" /><label for="edit-1-star" class="star">&#9733;</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="edit-comment">리뷰 내용</label>
+                            <textarea id="edit-comment" class="form-control" rows="5" name="comment" required></textarea>
+                        </div>
+                    </div>
+                    
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+                        <button type="submit" class="btn btn-primary">수정</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <link th:href="@{/css/review/review-add.css}" rel="stylesheet">
     <script th:src="@{/js/book/book-detail.js}"></script>
     <script th:src="@{/js/like.js}"></script>
     <script th:src="@{/js/review/review-removal.js}"></script>
+    <script th:src="@{/js/review-image-upload.js}"></script>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        $(document).ready(function() {
+            // 모달이 열릴 때 리뷰 데이터 채우기
+            $('#reviewEditModal').on('show.bs.modal', function (event) {
+                const button = $(event.relatedTarget);
+                const reviewId = button.data('review-id');
+                const reviewComment = button.data('review-comment');
+                const reviewRating = button.data('review-rating');
+                const reviewImages = button.data('review-images');
+                
+                const modal = $(this);
+                modal.find('#edit-review-id').val(reviewId);
+                modal.find('#edit-comment').val(reviewComment);
+                modal.find('#edit-review-image-urls-container').empty();
+                modal.find('#edit-review-images-preview-container').empty();
+                
+                // 별점 선택
+                modal.find('input[name="rating"]').prop('checked', false);
+                modal.find('input[name="rating"][value="' + reviewRating + '"]').prop('checked', true);
+                
+                // 기존 이미지 표시
+                if (reviewImages && reviewImages.length > 0) {
+                    const imageUrls = reviewImages.split(',');
+                    imageUrls.forEach(function(url) {
+                        if (url.trim()) {
+                            const imageInput = $('<input>').attr({
+                                type: 'hidden',
+                                name: 'imageUrls',
+                                value: url.trim()
+                            });
+                            modal.find('#edit-review-image-urls-container').append(imageInput);
+                            
+                            const previewDiv = $('<div>').addClass('col-md-3 mb-2 position-relative');
+                            const img = $('<img>').attr({
+                                src: url.trim(),
+                                style: 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;'
+                            });
+                            const removeBtn = $('<button>').attr({
+                                type: 'button',
+                                class: 'btn btn-sm btn-danger position-absolute remove-edit-image-btn',
+                                style: 'top: 5px; right: 5px;',
+                                'data-image-url': url.trim()
+                            }).html('&times;');
+                            previewDiv.append(img);
+                            previewDiv.append(removeBtn);
+                            modal.find('#edit-review-images-preview-container').append(previewDiv);
+                        }
+                    });
+                }
+                
+                // 폼 action 설정
+                modal.find('#reviewEditForm').attr('action', '/reviews/' + reviewId + '?bookId=' + modal.find('#edit-book-id').val());
+            });
+            
+            // 모달 내부 이미지 삭제 버튼
+            $(document).on('click', '.remove-edit-image-btn', function() {
+                const imageUrl = $(this).data('image-url');
+                $(this).closest('.col-md-3').remove();
+                $('#edit-review-image-urls-container input[value="' + imageUrl + '"]').remove();
+            });
+            
+            // 모달 내부 이미지 업로드
+            $('#edit-review-image-upload-input').on('change', function(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const status = $('#edit-review-image-status');
+                const formData = new FormData();
+                formData.append('image', file);
+                
+                status.text('업로드 중...').css('color', 'blue');
+                
+                fetch('/images/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.error || '이미지 업로드 실패'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.imageUrl) {
+                        status.text('이미지 준비 완료!').css('color', 'green');
+                        
+                        // Hidden input 추가
+                        const imageInput = $('<input>').attr({
+                            type: 'hidden',
+                            name: 'imageUrls',
+                            value: data.imageUrl
+                        });
+                        $('#edit-review-image-urls-container').append(imageInput);
+                        
+                        // Preview 추가
+                        const previewDiv = $('<div>').addClass('col-md-3 mb-2 position-relative');
+                        const img = $('<img>').attr({
+                            src: data.imageUrl,
+                            style: 'width: 100%; height: 150px; object-fit: cover; border-radius: 8px;'
+                        });
+                        const removeBtn = $('<button>').attr({
+                            type: 'button',
+                            class: 'btn btn-sm btn-danger position-absolute remove-edit-image-btn',
+                            style: 'top: 5px; right: 5px;',
+                            'data-image-url': data.imageUrl
+                        }).html('&times;');
+                        previewDiv.append(img);
+                        previewDiv.append(removeBtn);
+                        $('#edit-review-images-preview-container').append(previewDiv);
+                        
+                        event.target.value = '';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error uploading image:', error);
+                    status.text('오류: ' + error.message).css('color', 'red');
+                    event.target.value = '';
+                });
+            });
+            
+            // 모달이 닫힐 때 초기화
+            $('#reviewEditModal').on('hidden.bs.modal', function () {
+                $(this).find('#reviewEditForm')[0].reset();
+                $(this).find('#edit-review-images-preview-container').empty();
+                $(this).find('#edit-review-image-urls-container').empty();
+                $(this).find('#edit-review-image-status').text('');
+            });
+        });
+        /*]]>*/
+    </script>
 
 </section>
 </body>

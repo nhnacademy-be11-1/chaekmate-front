@@ -10,8 +10,10 @@ import shop.chaekmate.front.book.dto.BookDetailResponse;
 import shop.chaekmate.front.review.adaptor.ReviewAddAdaptor;
 import shop.chaekmate.front.review.dto.request.ReviewCreateRequest;
 import shop.chaekmate.front.review.dto.request.ReviewImageAddRequest;
+import shop.chaekmate.front.review.dto.request.ReviewUpdateRequest;
 import shop.chaekmate.front.review.dto.response.ReviewCreateResponse;
 import shop.chaekmate.front.review.dto.response.ReviewImageResponse;
+import shop.chaekmate.front.review.dto.response.ReviewUpdateResponse;
 
 @Service
 @Slf4j
@@ -45,8 +47,7 @@ public class ReviewAddService {
 
     public List<ReviewImageResponse> addReviewImages(Long reviewId, List<String> imageUrls){
 
-        ReviewImageAddRequest request = new ReviewImageAddRequest();
-        request.setImageUrls(imageUrls);
+        ReviewImageAddRequest request = new ReviewImageAddRequest(imageUrls);
         List<ReviewImageResponse> response;
 
         try {
@@ -56,6 +57,17 @@ public class ReviewAddService {
             response = null;
         }
 
+        return response;
+    }
+
+    public ReviewUpdateResponse updateReview(Long reviewId, ReviewUpdateRequest request){
+        ReviewUpdateResponse response;
+        try{
+            response = reviewAddAdaptor.updateReview(reviewId, request).data();
+        } catch (FeignException e){
+            log.warn("리뷰 수정 중 에러가 발생했습니다. {}",e.getMessage());
+            response = null;
+        }
         return response;
     }
 

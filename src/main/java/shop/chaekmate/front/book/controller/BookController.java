@@ -121,11 +121,17 @@ public class BookController {
 
         model.addAttribute("likedBookIds", likedBookIds);
         model.addAttribute("book", bookDetailResponse);
+        model.addAttribute("bookId", bookId);
         model.addAttribute("thumbnail", thumbnail);
         model.addAttribute("detailImages", detailImages);
         model.addAttribute("reviews", reviews);
         model.addAttribute("coupons", coupons);
         model.addAttribute("title", bookDetailResponse.title());
+        
+        // 현재 로그인한 사용자 정보 추가 (리뷰 수정 버튼 표시용)
+        if(Objects.nonNull(principal) && Objects.nonNull(principal.getRole())) {
+            model.addAttribute("currentMemberId", principal.getMemberId());
+        }
 
         return "book/book-detail";
     }
