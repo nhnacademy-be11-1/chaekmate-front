@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +12,8 @@ import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.payment.adaptor.PaymentAdaptor;
 import shop.chaekmate.front.payment.dto.request.PaymentApproveRequest;
 import shop.chaekmate.front.payment.dto.request.PaymentCallbackRequest;
+import shop.chaekmate.front.payment.dto.request.PaymentCancelRequest;
+import shop.chaekmate.front.payment.dto.request.PointPaymentRequest;
 import shop.chaekmate.front.payment.dto.response.PaymentAbortedResponse;
 import shop.chaekmate.front.payment.dto.response.PaymentApproveResponse;
 
@@ -24,7 +27,7 @@ public class PaymentController {
 
     //주문서 -> PaymentReadyRequest
     @PostMapping("/point")
-    public String point(@ModelAttribute PaymentCallbackRequest request, Model model) {
+    public String point(@ModelAttribute PointPaymentRequest request, Model model) {
 
         CommonResponse<?> response =
                 paymentAdaptor.approve(new PaymentApproveRequest(
@@ -36,16 +39,38 @@ public class PaymentController {
                 ));
         Object data = response.data();
 
-        // 실패
-        if (data instanceof PaymentAbortedResponse aborted) {
-            model.addAttribute("code", aborted.code());
-            model.addAttribute("message", aborted.message());
-            return "payment/payment-fail";
-        }
-        PaymentApproveResponse approve = (PaymentApproveResponse) data;
+        // 응답이 LinkedHashMap 형태일 때 처리
+        if (data instanceof LinkedHashMap<?, ?> map) {
 
-        model.addAttribute("approveResponse", approve);
-        return "payment/payment-success";
+            // 실패
+            if (map.containsKey("code") && map.containsKey("message") && !map.containsKey("orderId")) {
+
+                PaymentAbortedResponse aborted = new PaymentAbortedResponse(
+                        map.get("code").toString(),
+                        map.get("message").toString(),
+                        LocalDateTime.now()   // POINT는 approvedAt이 없으므로 현재시간 사용
+                );
+
+                model.addAttribute("code", aborted.code());
+                model.addAttribute("message", aborted.message());
+                return "payment/payment-fail";
+            }
+
+            // 성공
+            PaymentApproveResponse approve = new PaymentApproveResponse(
+                    map.get("orderId").toString(),
+                    Long.parseLong(map.get("totalAmount").toString()),
+                    Integer.parseInt(map.get("pointUsed").toString()),
+                    map.get("status").toString(),
+                    LocalDateTime.parse(map.get("approvedAt").toString())
+            );
+
+            model.addAttribute("approveResponse", approve);
+            return "payment/payment-success";
+        }
+
+        // data가 LinkedHashMap이 아닌 경우 실패
+        return "payment/payment-fail";
     }
 
 
@@ -101,5 +126,11 @@ public class PaymentController {
         model.addAttribute("message", request.message());
 
         return "payment/payment-fail";
+    }
+
+    @PostMapping("/cancel")
+    public ResponseEntity<Void> cancel(@RequestBody PaymentCancelRequest request) {
+        paymentAdaptor.cancel(request);
+        return ResponseEntity.ok().build();
     }
 }

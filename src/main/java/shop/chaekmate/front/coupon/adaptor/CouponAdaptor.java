@@ -8,6 +8,8 @@ import shop.chaekmate.front.coupon.dto.response.BookCouponPolicyResponse;
 import shop.chaekmate.front.coupon.dto.response.CouponIssueResponse;
 
 import java.util.List;
+import shop.chaekmate.front.order.dto.request.BooksAvailableCouponsRequest;
+import shop.chaekmate.front.order.dto.response.BooksAvailableCouponsDetailResponse;
 
 @FeignClient(name = "coupon-client", url = "${chaekmate.gateway.url}")
 public interface CouponAdaptor {
@@ -24,4 +26,11 @@ public interface CouponAdaptor {
             @RequestHeader("X-Member-Id") Long memberId,
             @RequestBody CouponIssueRequest request
     );
+
+    @PostMapping("/issued-coupons/for-books/detail")
+    CommonResponse<BooksAvailableCouponsDetailResponse> getAvailableCouponsForBooksDetail(
+            @RequestHeader("X-Member-Id") Long memberId,
+            @RequestBody BooksAvailableCouponsRequest request
+    );
+
 }

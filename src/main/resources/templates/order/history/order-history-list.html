@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <section>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
     <div class="container-fluid">
         <div class="row px-xl-5">
             <div class="col-12">
@@ -48,8 +50,16 @@
                                             th:text="${#numbers.formatInteger(book.finalUnitPrice, 3, 'COMMA')} + '원'"></td>
                                         <td class="align-middle" th:text="${book.unitStatus}"></td>
                                         <td class="align-middle">
-                                            <button th:if="${book.unitStatus == 'PAYMENT_COMPLETE'}" class="btn btn-warning btn-sm">취소</button>
+                                            <button th:if="${book.unitStatus == 'PAYMENT_COMPLETE'}"
+                                                    class="btn btn-warning btn-sm open-cancel-btn"
+                                                    th:attr="
+                                                    data-ordered-book-id=${book.orderedBookId},
+                                                    data-order-number=${order.orderNumber},
+                                                    data-unit-price=${book.finalUnitPrice},
+                                                    data-quantity=${book.quantity}"> 취소 </button>
+
                                             <button th:if="${book.unitStatus == 'SHIPPING'}" class="btn btn-info btn-sm">배송조회</button>
+
                                             <button th:if="${book.unitStatus == 'DELIVERED'}" class="btn btn-danger btn-sm">반품</button>
 
                                             <a sec:authorize="isAuthenticated()"
@@ -101,5 +111,118 @@
             </div>
         </div>
     </div>
+
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">취소 사유 입력</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+                    <textarea id="cancelReason" class="form-control" rows="4"
+                              placeholder="취소 사유를 입력해주세요"></textarea>
+
+                    <input type="hidden" id="cancelOrderedBookId">
+                    <input type="hidden" id="cancelOrderNumber">
+                    <input type="hidden" id="cancelAmount">
+                    <input type="hidden" id="cancelQuantity">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    <button class="btn btn-danger" id="submitCancelBtn">취소하기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+
+        // 버튼 → 모달 오픈 이벤트 등록
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".open-cancel-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    const orderedBookId = btn.dataset.orderedBookId;
+                    const orderNumber   = btn.dataset.orderNumber;
+                    const unitPrice     = btn.dataset.unitPrice;
+                    const quantity      = btn.dataset.quantity;
+
+                    openCancelModal(orderedBookId, orderNumber, unitPrice, quantity);
+                });
+            });
+        });
+
+        // 모달 열기 + 값 세팅
+        function openCancelModal(orderedBookId, orderNumber, unitPrice, quantity) {
+
+            const cancelAmount = Number(unitPrice) * Number(quantity);
+
+            $("#cancelOrderedBookId").val(orderedBookId);
+            $("#cancelOrderNumber").val(orderNumber);
+            $("#cancelAmount").val(cancelAmount);
+            $("#cancelQuantity").val(quantity);
+
+            $("#cancelReason").val('');
+            $("#cancelModal").modal("show");
+        }
+
+        // 취소 요청 제출
+        $("#submitCancelBtn").on("click", function () {
+
+            const orderedBookId = $("#cancelOrderedBookId").val();
+            const orderNumber   = $("#cancelOrderNumber").val();
+            const cancelReason  = $("#cancelReason").val();
+            const cancelAmount  = $("#cancelAmount").val();
+            const quantity = $("#cancelQuantity").val();
+
+
+            if (!cancelReason.trim()) {
+                alert("취소 사유를 입력해주세요.");
+                return;
+            }
+
+            const payload = {
+                paymentKey: null,
+                orderId: orderNumber,
+                cancelReason: cancelReason,
+                cancelAmount: Number(cancelAmount),
+                canceledBooks: [
+                    {
+                        orderedBookId: Number(orderedBookId),
+                        canceledQuantity: Number(quantity)
+                    }
+                ]
+            };
+
+            fetch("/payments/cancel", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            })
+                .then(async res => {
+
+                    const data = await res.json().catch(() => null);
+
+                    if (res.ok) {
+                        alert("주문이 취소되었습니다.");
+                        location.reload();
+                        return;
+                    }
+
+                    const errorMsg = data?.message || "취소 처리 중 오류가 발생했습니다.";
+                    alert(errorMsg);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("네트워크 오류가 발생했습니다.");
+                });
+        });
+
+    </script>
+
 </section>
 </html>
