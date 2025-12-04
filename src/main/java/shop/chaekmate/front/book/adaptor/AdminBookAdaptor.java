@@ -1,6 +1,5 @@
 package shop.chaekmate.front.book.adaptor;
 
-import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,8 +9,11 @@ import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
 import shop.chaekmate.front.book.dto.response.AdminBookCreateResponse;
 import shop.chaekmate.front.book.dto.response.AdminBookResponse;
+import shop.chaekmate.front.book.dto.response.AdminBookSearchResponse;
 import shop.chaekmate.front.book.dto.response.AladinBookResponse;
 import shop.chaekmate.front.common.CommonResponse;
+
+import java.util.List;
 
 @FeignClient(name = "admin-book-adaptor", url = "${chaekmate.gateway.url}")
 public interface AdminBookAdaptor {
@@ -51,4 +53,11 @@ public interface AdminBookAdaptor {
             @PageableDefault(size=5) Pageable pageable
     );
 
+    // 쿠폰 등록용 도서 검색
+    @GetMapping("/books")
+    CommonResponse<Page<AdminBookSearchResponse>> searchBooks(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "0") int page
+    );
 }

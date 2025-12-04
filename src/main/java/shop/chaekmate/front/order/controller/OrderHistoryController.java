@@ -1,5 +1,7 @@
 package shop.chaekmate.front.order.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import shop.chaekmate.front.auth.principal.CustomPrincipal;
 import shop.chaekmate.front.order.dto.request.OrderHistoryRequest;
 import shop.chaekmate.front.order.dto.response.OrderHistoryResponse;
+import shop.chaekmate.front.order.dto.response.OrderedBookHistoryResponse;
 import shop.chaekmate.front.order.service.OrderHistoryService;
+import shop.chaekmate.front.review.service.ReviewService;
 
 @Controller
 @Slf4j
@@ -22,6 +26,7 @@ import shop.chaekmate.front.order.service.OrderHistoryService;
 public class OrderHistoryController {
 
     private final OrderHistoryService orderHistoryService;
+    private final ReviewService reviewService;
 
     // 주문 내역 클릭 시
     // 회원 -> 주문내역 리다이렉트 반환
@@ -58,7 +63,26 @@ public class OrderHistoryController {
             pagedResponse = orderHistoryService.getMemberOrderHistory(pageable);
         }
 
+        // 리뷰 작성 여부 확인 (DELIVERED 상태인 orderedBook만)
+        Map<Long, Boolean> reviewExistsMap = new HashMap<>();
+        if (!pagedResponse.isEmpty()) {
+            Map<Long, Long> orderedBookIdToBookIdMap = new HashMap<>();
+
+            for (OrderHistoryResponse order : pagedResponse.getContent()) {
+                for (OrderedBookHistoryResponse book : order.getOrderedBooks()) {
+                    if ("DELIVERED".equals(book.getUnitStatus())) {
+                        orderedBookIdToBookIdMap.put(book.getOrderedBookId(), book.getBookId());
+                    }
+                }
+            }
+
+            if (!orderedBookIdToBookIdMap.isEmpty()) {
+                reviewExistsMap = reviewService.checkReviewExistsByOrderedBookIds(orderedBookIdToBookIdMap);
+            }
+        }
+
         model.addAttribute("pagedResponse", pagedResponse);
+        model.addAttribute("reviewExistsMap", reviewExistsMap);
 
         return "order/history/order-history-list";
     }

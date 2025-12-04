@@ -1,6 +1,5 @@
 package shop.chaekmate.front.book.service;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,13 +9,12 @@ import shop.chaekmate.front.book.dto.request.BookCreateRequest;
 import shop.chaekmate.front.book.dto.request.BookCreationRequest;
 import shop.chaekmate.front.book.dto.request.BookModificationRequest;
 import shop.chaekmate.front.book.dto.request.BookModifyRequest;
-import shop.chaekmate.front.book.dto.response.AdminBookCreateResponse;
-import shop.chaekmate.front.book.dto.response.AdminBookResponse;
-import shop.chaekmate.front.book.dto.response.AdminBookDetail;
-import shop.chaekmate.front.book.dto.response.AladinBookResponse;
+import shop.chaekmate.front.book.dto.response.*;
 import shop.chaekmate.front.category.service.CategoryService;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.tag.service.TagService;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -108,4 +106,10 @@ public class AdminBookService {
 
     }
 
+    // 쿠폰 등록용 도서 검색
+    public Page<AdminBookSearchResponse> searchBooks(String keyword, int size, int page) {
+        CommonResponse<Page<AdminBookSearchResponse>> wrappedResponse = adminBookAdaptor.searchBooks(keyword, size, page);
+
+        return wrappedResponse.data();
+    }
 }

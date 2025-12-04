@@ -173,7 +173,8 @@ public class OrderController {
         // 기본 배송일 (오늘 +3일)
         model.addAttribute("defaultDeliveryDate", LocalDate.now().plusDays(3));
 
-        return "order/orderPage";
+//        return "order/orderPage";
+        return "order/orderTest";
     }
 
     @PostMapping("/orders/save")
