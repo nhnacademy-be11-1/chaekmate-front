@@ -52,8 +52,13 @@
                                             <button th:if="${book.unitStatus == 'SHIPPING'}" class="btn btn-info btn-sm">배송조회</button>
                                             <button th:if="${book.unitStatus == 'DELIVERED'}" class="btn btn-danger btn-sm">반품</button>
 
-                                            <a sec:authorize="isAuthenticated()" th:if="${book.unitStatus == 'DELIVERED'}" th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
+                                            <a sec:authorize="isAuthenticated()"
+                                               th:if="${book.unitStatus == 'DELIVERED' and (reviewExistsMap == null or !reviewExistsMap.get(book.orderedBookId))}"
+                                               th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
                                                class="btn btn-info btn-sm">리뷰작성</a>
+                                            <span sec:authorize="isAuthenticated()"
+                                                  th:if="${book.unitStatus == 'DELIVERED' and reviewExistsMap != null and reviewExistsMap.get(book.orderedBookId)}"
+                                                  class="btn btn-secondary btn-sm" style="cursor: default;">리뷰 작성 완료</span>
                                         </td>
                                     </tr>
                                     </tbody>
