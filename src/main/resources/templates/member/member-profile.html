@@ -48,7 +48,7 @@
 
                             <!-- LOCAL 계정만 수정 버튼 노출 -->
                             <button type="button"
-                                    class="btn btn-outline-primary btn-sm"
+                                    class=" btn btn-primary btn-sm"
                                     id="btnStartEdit"
                                     th:if="${member.platformType == 'LOCAL'}">
                                 회원 정보 수정
@@ -81,7 +81,7 @@
                          id="editSection"
                          style="display:none;"
                          th:if="${member.platformType == 'LOCAL'}">
-                        <h4 class="mb-3 btn btn-primary" >회원 정보 수정</h4>
+                        <h4 class="mb-3" >회원 정보 수정</h4>
                         <div class="p-3 border rounded bg-white">
                             <form id="profileForm"
                                   method="post"
@@ -162,6 +162,22 @@
                                 </div>
                             </form>
                         </div>
+                    </div>
+
+
+                    <div class="p-3 border rounded bg-white">
+                        <p class="mb-3">
+                            탈퇴 시 계정이 비활성화(또는 삭제)되며 복구가 불가할 수 있습니다.
+                        </p>
+                        <form method="post"
+                              th:action="@{|/members/${memberId}/withdraw|}"
+                              onsubmit="return confirm('정말 탈퇴하시겠습니까? 이 작업은 되돌릴 수 없습니다.');">
+                            <input type="hidden"
+                                   th:if="${_csrf != null}"
+                                   th:name="${_csrf.parameterName}"
+                                   th:value="${_csrf.token}"/>
+                            <button type="submit" class="btn btn-outline-danger">회원 탈퇴</button>
+                        </form>
                     </div>
 
                 </div>
