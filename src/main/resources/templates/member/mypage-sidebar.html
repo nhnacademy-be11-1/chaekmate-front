@@ -1,18 +1,27 @@
 <div th:fragment="mypageSidebar">
 
-    <h5 class="font-weight-bold mb-3">내 쿠폰함</h5> <div class="d-flex flex-column justify-content-start">
+    <h5 class="font-weight-bold mb-3">내 정보</h5>
+    <div class="d-flex flex-column justify-content-start">
+        <a th:href="@{/profile}"
+           class="text-dark mb-2"
+           th:classappend="${currentPage == 'member-profile' ? ' text-primary font-weight-bold' : ' text-secondary'}">
+            <i class="fa fa-angle-right mr-2"></i>회원 정보 수정
+        </a>
+    </div>
 
-    <a th:href="@{/coupon-box}"
-       class="text-dark mb-2"
-       th:classappend="${currentPage == 'coupon-available' ? 'text-primary font-weight-bold' : 'text-secondary'}">
-        <i class="fa fa-angle-right mr-2"></i>사용 가능한 쿠폰
-    </a>
+    <h5 class="font-weight-bold mb-3 mt-4">내 쿠폰함</h5>
+    <div class="d-flex flex-column justify-content-start">
+        <a th:href="@{/coupon-box}"
+           class="text-dark mb-2"
+           th:classappend="${currentPage == 'coupon-available' ? ' text-primary font-weight-bold' : ' text-secondary'}">
+            <i class="fa fa-angle-right mr-2"></i>사용 가능한 쿠폰
+        </a>
 
-    <a th:href="@{/coupon-history}"
-       class="text-dark"
-       th:classappend="${currentPage == 'coupon-history' ? 'text-primary font-weight-bold' : 'text-secondary'}">
-        <i class="fa fa-angle-right mr-2"></i>사용한 쿠폰 내역
-    </a>
+        <a th:href="@{/coupon-history}"
+           class="text-dark"
+           th:classappend="${currentPage == 'coupon-history' ? ' text-primary font-weight-bold' : ' text-secondary'}">
+            <i class="fa fa-angle-right mr-2"></i>사용한 쿠폰 내역
+        </a>
+    </div>
 
-</div>
 </div>

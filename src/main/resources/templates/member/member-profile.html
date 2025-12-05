@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{layout/layout :: html(~{::section})}">
+
+<head>
+    <title>회원 정보</title>
+</head>
+
+<section>
+    <div class="container-fluid">
+        <div class="row px-xl-5">
+            <!-- 마이페이지 사이드바 -->
+            <div class="col-lg-3 col-md-4 mb-5">
+                <div th:replace="~{member/mypage-sidebar :: mypageSidebar}"></div>
+            </div>
+
+            <!-- 메인 컨텐츠 -->
+            <div class="col-lg-9 col-md-8 mb-5">
+                <div class="bg-light p-30">
+                    <h2 class="mb-4">회원 정보</h2>
+
+                    <!-- 시스템 메시지 (알림창으로 사용) -->
+                    <div id="systemMsg"
+                         th:if="${msg != null}"
+                         th:text="${msg}"
+                         style="display:none;"></div>
+
+                    <!-- 0. PAYCO 등 외부 계정 안내 -->
+                    <div th:if="${member.platformType != 'LOCAL'}" class="mb-4">
+                        <div class="p-3 border rounded bg-white">
+                            <p class="mb-1">
+                                <strong>계정 유형:</strong>
+                                <span th:text="${member.platformType}">PAYCO</span>
+                            </p>
+                            <p class="mb-2 text-muted">
+                                외부 계정(PAYCO 등)으로 가입하신 회원은 사이트에서 직접 정보를 수정할 수 없습니다.
+                            </p>
+                            <p class="mb-0 text-muted">
+                                정보 변경이 필요하신 경우 고객센터로 문의해 주세요.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 1. 기본 정보 카드 (조회용) -->
+                    <div class="mb-4">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h4 class="mb-0">내 기본 정보</h4>
+
+                            <!-- LOCAL 계정만 수정 버튼 노출 -->
+                            <button type="button"
+                                    class="btn btn-outline-primary btn-sm"
+                                    id="btnStartEdit"
+                                    th:if="${member.platformType == 'LOCAL'}">
+                                회원 정보 수정
+                            </button>
+                        </div>
+
+                        <div class="p-3 border rounded bg-white">
+                            <!-- 로그인 아이디는 조회 화면에서 제거 -->
+                            <p class="mb-2">
+                                <strong>이름:</strong>
+                                <span th:text="${member.name}">홍길동</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>이메일:</strong>
+                                <span th:text="${member.email}">user@example.com</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong>전화번호:</strong>
+                                <span th:text="${member.phone}">010-1234-5678</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong>생년월일:</strong>
+                                <span th:text="${member.birthDate}">2000-01-01</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- 2. 회원 정보 수정 폼 (비밀번호 검증 성공 시에만 노출) -->
+                    <div class="mb-4"
+                         id="editSection"
+                         style="display:none;"
+                         th:if="${member.platformType == 'LOCAL'}">
+                        <h4 class="mb-3">회원 정보 수정</h4>
+                        <div class="p-3 border rounded bg-white">
+                            <form id="profileForm"
+                                  method="post"
+                                  th:action="@{/profile}">
+
+                                <input type="hidden" name="memberId" th:value="${memberId}"/>
+
+                                <!-- CSRF -->
+                                <input type="hidden"
+                                       th:if="${_csrf != null}"
+                                       th:name="${_csrf.parameterName}"
+                                       th:value="${_csrf.token}"/>
+
+                                <!-- 이름 -->
+                                <div class="form-group">
+                                    <label for="name">이름</label>
+                                    <input type="text"
+                                           id="name"
+                                           name="name"
+                                           class="form-control"
+                                           maxlength="50"
+                                           th:value="${member.name}"
+                                           placeholder="이름을 입력해주세요"
+                                           required>
+                                </div>
+
+                                <!-- 전화번호 -->
+                                <div class="form-group">
+                                    <label for="phone">전화번호</label>
+                                    <input type="tel"
+                                           id="phone"
+                                           name="phone"
+                                           class="form-control"
+                                           th:value="${member.phone}"
+                                           inputmode="numeric"
+                                           pattern="^[0-9\\-]{9,20}$"
+                                           maxlength="20"
+                                           placeholder="010-1234-5678"
+                                           required>
+                                    <small class="form-text text-muted">
+                                        숫자와 하이픈(-)만 입력 가능합니다.
+                                    </small>
+                                </div>
+
+                                <!-- 이메일 (중복확인 사용) -->
+                                <div class="form-group">
+                                    <label for="email">이메일</label>
+                                    <div class="input-group">
+                                        <input type="email"
+                                               id="email"
+                                               name="email"
+                                               class="form-control"
+                                               maxlength="50"
+                                               th:value="${member.email}"
+                                               placeholder="user@example.com"
+                                               required>
+                                        <button type="button"
+                                                class="btn btn-primary"
+                                                id="btnCheckEmail">
+                                            중복확인
+                                        </button>
+                                    </div>
+                                    <small id="emailMsg"
+                                           class="d-block mt-1"
+                                           aria-live="polite"></small>
+                                </div>
+
+                                <!-- 버튼 -->
+                                <div class="d-flex justify-content-end">
+                                    <button type="button"
+                                            class="btn btn-secondary me-2"
+                                            id="btnCancelEdit">
+                                        취소
+                                    </button>
+                                    <button type="submit" class="btn btn-primary">
+                                        저장
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. 비밀번호 확인 모달 -->
+    <div class="modal" tabindex="-1" role="dialog" id="passwordVerifyModal" style="display:none;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">본인 확인</h5>
+                    <button type="button" class="close" id="btnClosePwModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group mb-2">
+                        <label for="verifyPasswordInput">현재 비밀번호</label>
+                        <input type="password"
+                               id="verifyPasswordInput"
+                               class="form-control"
+                               placeholder="정보 수정을 위해 현재 비밀번호를 입력해주세요">
+                    </div>
+                    <small id="verifyPasswordMsg"
+                           class="d-block mb-2 text-muted"
+                           aria-live="polite"></small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button"
+                            class="btn btn-secondary"
+                            id="btnCancelVerify">
+                        취소
+                    </button>
+                    <button type="button"
+                            class="btn btn-primary"
+                            id="btnVerifyPassword">
+                        비밀번호 확인
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- (선택) 간단한 모달 백드롭 -->
+    <div id="passwordVerifyBackdrop"
+         style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.3); z-index:1040;"></div>
+
+    <!-- 시스템 메시지를 alert로 표시 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const msgEl = document.getElementById('systemMsg');
+            if (msgEl) {
+                const text = msgEl.textContent.trim();
+                if (text.length > 0) {
+                    alert(text);
+                }
+            }
+        });
+    </script>
+
+    <!-- 이메일 중복 확인 + 폰 포맷 + 비밀번호 검증 + submit 제어 -->
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const $form = document.getElementById('profileForm');
+            const $editSection = document.getElementById('editSection');
+            const $btnStartEdit = document.getElementById('btnStartEdit');
+
+            const $pwModal = document.getElementById('passwordVerifyModal');
+            const $pwBackdrop = document.getElementById('passwordVerifyBackdrop');
+            const $pwInput = document.getElementById('verifyPasswordInput');
+            const $pwMsg = document.getElementById('verifyPasswordMsg');
+            const $btnVerifyPassword = document.getElementById('btnVerifyPassword');
+            const $btnCancelVerify = document.getElementById('btnCancelVerify');
+            const $btnClosePwModal = document.getElementById('btnClosePwModal');
+
+            const $name = document.getElementById('name');
+            const $phone = document.getElementById('phone');
+            const $email = document.getElementById('email');
+            const $btnCheckEmail = document.getElementById('btnCheckEmail');
+            const $emailMsg = document.getElementById('emailMsg');
+            const $btnCancelEdit = document.getElementById('btnCancelEdit');
+
+            // LOCAL 계정이 아니면 form이 없음
+            if (!$form) {
+                return;
+            }
+
+            // 서버에서 내려온 기존 값들
+            const originalName = /*[[${member.name}]]*/ '';
+            const originalPhone = /*[[${member.phone}]]*/ '';
+            const originalEmail = /*[[${member.email}]]*/ '';
+
+            let emailChecked = true;          // 처음에는 "변경 안 한 상태"이므로 true
+            let lastCheckedEmail = originalEmail;
+            let passwordVerified = false;
+
+            // CSRF (메타 태그 또는 hidden input에서 가져오기)
+            let csrfHeaderName = 'X-CSRF-TOKEN';
+            let csrfToken = null;
+
+            const csrfMeta = document.querySelector('meta[name="_csrf"]');
+            const csrfHeaderMeta = document.querySelector('meta[name="_csrf_header"]');
+            if (csrfMeta && csrfHeaderMeta) {
+                csrfToken = csrfMeta.getAttribute('content');
+                csrfHeaderName = csrfHeaderMeta.getAttribute('content');
+            } else {
+                const csrfInput = document.querySelector('input[name="_csrf"]');
+                if (csrfInput) {
+                    csrfToken = csrfInput.value;
+                }
+            }
+
+            function setMsg($el, text, type) {
+                if (!$el) return;
+                $el.textContent = text || '';
+                $el.classList.remove('text-success', 'text-danger', 'text-muted');
+
+                if (!text) {
+                    $el.classList.add('text-muted');
+                } else if (type === 'ok') {
+                    $el.classList.add('text-success');
+                } else if (type === 'err') {
+                    $el.classList.add('text-danger');
+                }
+            }
+
+            // 전화번호 포맷
+            function formatPhone(value) {
+                const digits = value.replaceAll(/\D/g, '');
+                if (digits.startsWith('02')) {
+                    if (digits.length <= 2) return digits;
+                    if (digits.length <= 5) return digits.replace(/(\d{2})(\d+)/, '$1-$2');
+                    if (digits.length <= 9) return digits.replace(/(\d{2})(\d{3,4})(\d{1,4})/, '$1-$2-$3');
+                    return digits.slice(0, 10).replace(/(\d{2})(\d{4})(\d{4})/, '$1-$2-$3');
+                } else {
+                    if (digits.length <= 3) return digits;
+                    if (digits.length <= 7) return digits.replace(/(\d{3})(\d+)/, '$1-$2');
+                    return digits.slice(0, 11).replace(/(\d{3})(\d{3,4})(\d{1,4})/, '$1-$2-$3');
+                }
+            }
+
+            if ($phone) {
+                $phone.addEventListener('input', (e) => {
+                    e.target.value = formatPhone(e.target.value);
+                });
+            }
+
+            // 이메일 UI 업데이트
+            function updateEmailUI() {
+                const v = $email.value.trim();
+
+                if (!v) {
+                    setMsg($emailMsg, '', null);
+                    emailChecked = false;
+                    $btnCheckEmail.disabled = true;
+                    return;
+                }
+
+                if (!$email.validity.valid) {
+                    setMsg($emailMsg, '이메일 형식이 올바르지 않습니다.', 'err');
+                    emailChecked = false;
+                    $btnCheckEmail.disabled = true;
+                    return;
+                }
+
+                // 원래 이메일과 동일하면 중복확인 없이 OK
+                if (v === originalEmail) {
+                    setMsg($emailMsg, '', null);
+                    emailChecked = true;
+                    lastCheckedEmail = v;
+                    $btnCheckEmail.disabled = true;
+                    return;
+                }
+
+                // 이메일을 수정한 경우: 형식만 맞으면 버튼 활성화, 중복확인 요구
+                $btnCheckEmail.disabled = false;
+                if (v !== lastCheckedEmail) {
+                    emailChecked = false;
+                    setMsg($emailMsg, '이메일 중복확인을 해주세요.', 'err');
+                }
+            }
+
+            if ($email) {
+                $email.addEventListener('input', updateEmailUI);
+                $email.addEventListener('blur', updateEmailUI);
+            }
+
+            // 이메일 중복확인
+            async function checkEmail() {
+                const v = $email.value.trim();
+                if (!v) {
+                    setMsg($emailMsg, '이메일을 입력하세요.', 'err');
+                    emailChecked = false;
+                    return false;
+                }
+                if (!$email.validity.valid) {
+                    setMsg($emailMsg, '이메일 형식이 올바르지 않습니다.', 'err');
+                    emailChecked = false;
+                    return false;
+                }
+
+                if (v === originalEmail) {
+                    setMsg($emailMsg, '', null);
+                    emailChecked = true;
+                    lastCheckedEmail = v;
+                    return true;
+                }
+
+                $btnCheckEmail.disabled = true;
+                setMsg($emailMsg, '확인 중...', null);
+
+                try {
+                    const res = await fetch(`/members/check-email?email=${encodeURIComponent(v)}`, {
+                        method: 'GET',
+                        headers: { 'Accept': 'application/json' }
+                    });
+                    const data = await res.json();
+
+                    if (res.ok && data.available) {
+                        setMsg($emailMsg, '사용 가능한 이메일입니다.', 'ok');
+                        emailChecked = true;
+                        lastCheckedEmail = v;
+                    } else {
+                        setMsg($emailMsg, '이미 사용 중인 이메일입니다.', 'err');
+                        emailChecked = false;
+                    }
+                } catch (e) {
+                    setMsg($emailMsg, '중복 확인 실패', 'err');
+                    emailChecked = false;
+                } finally {
+                    $btnCheckEmail.disabled = false;
+                }
+                return emailChecked;
+            }
+
+            if ($btnCheckEmail) {
+                $btnCheckEmail.addEventListener('click', checkEmail);
+            }
+
+            // ====== 모달 열고 닫기 ======
+            function openPwModal() {
+                if ($pwModal) {
+                    $pwModal.style.display = 'block';
+                    $pwModal.classList.add('show');
+                }
+                if ($pwBackdrop) {
+                    $pwBackdrop.style.display = 'block';
+                }
+                passwordVerified = false;
+                setMsg($pwMsg, '정보 수정을 위해 비밀번호를 입력해 주세요.', null);
+                if ($pwInput) {
+                    $pwInput.value = '';
+                    $pwInput.focus();
+                }
+            }
+
+            function closePwModal() {
+                if ($pwModal) {
+                    $pwModal.style.display = 'none';
+                    $pwModal.classList.remove('show');
+                }
+                if ($pwBackdrop) {
+                    $pwBackdrop.style.display = 'none';
+                }
+            }
+
+            // "회원 정보 수정" 버튼 클릭 시 비밀번호 확인 모달 오픈
+            if ($btnStartEdit) {
+                $btnStartEdit.addEventListener('click', openPwModal);
+            }
+
+            // 모달 닫기 버튼/취소 버튼
+            if ($btnCancelVerify) {
+                $btnCancelVerify.addEventListener('click', closePwModal);
+            }
+            if ($btnClosePwModal) {
+                $btnClosePwModal.addEventListener('click', closePwModal);
+            }
+
+            // 비밀번호 검증 AJAX
+            async function doVerifyPassword() {
+                const pw = $pwInput.value.trim();
+                if (!pw) {
+                    setMsg($pwMsg, '비밀번호를 입력해 주세요.', 'err');
+                    if ($pwInput) $pwInput.focus();
+                    return;
+                }
+
+                setMsg($pwMsg, '확인 중입니다...', null);
+
+                const headers = { 'Content-Type': 'application/json' };
+                if (csrfToken) {
+                    headers[csrfHeaderName] = csrfToken;
+                }
+
+                try {
+                    const res = await fetch('/api/profile/verify-password', {
+                        method: 'POST',
+                        headers,
+                        body: JSON.stringify({ password: pw })
+                    });
+
+                    if (!res.ok) {
+                        setMsg($pwMsg, '비밀번호 확인 중 오류가 발생했습니다.', 'err');
+                        return;
+                    }
+
+                    const data = await res.json();
+                    if (data.valid) {
+                        passwordVerified = true;
+                        setMsg($pwMsg, '비밀번호 확인이 완료되었습니다.', 'ok');
+
+                        // 모달 닫고 수정 폼 노출
+                        closePwModal();
+                        if ($editSection) {
+                            $editSection.style.display = 'block';
+                            if ($name) $name.focus();
+                        }
+                    } else {
+                        passwordVerified = false;
+                        setMsg($pwMsg, '비밀번호가 일치하지 않습니다.', 'err');
+                        if ($pwInput) {
+                            $pwInput.focus();
+                            $pwInput.select();
+                        }
+                    }
+                } catch (e) {
+                    setMsg($pwMsg, '비밀번호 확인 요청 실패', 'err');
+                    passwordVerified = false;
+                }
+            }
+
+            if ($btnVerifyPassword) {
+                $btnVerifyPassword.addEventListener('click', doVerifyPassword);
+            }
+            if ($pwInput) {
+                $pwInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        doVerifyPassword();
+                    }
+                });
+            }
+
+            // 수정 폼 취소 버튼: 값 원복 + 폼 숨김
+            function resetEditForm() {
+                if ($name) $name.value = originalName;
+                if ($phone) $phone.value = originalPhone;
+                if ($email) $email.value = originalEmail;
+
+                emailChecked = true;
+                lastCheckedEmail = originalEmail;
+                setMsg($emailMsg, '', null);
+                updateEmailUI();
+            }
+
+            if ($btnCancelEdit) {
+                $btnCancelEdit.addEventListener('click', () => {
+                    resetEditForm();
+                    if ($editSection) {
+                        $editSection.style.display = 'none';
+                    }
+                    passwordVerified = false;
+                });
+            }
+
+            // 폼 submit 제어
+            $form.addEventListener('submit', (e) => {
+                // 1) 비밀번호 검증 여부 확인
+                if (!passwordVerified) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    alert('회원 정보 수정을 위해 먼저 비밀번호를 확인해 주세요.');
+                    openPwModal();
+                    return;
+                }
+
+                // 2) 기본 HTML5 검증
+                if (!$form.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    $form.reportValidity();
+                    return;
+                }
+
+                // 3) 이메일 변경 시 중복 확인 여부 체크
+                const currentEmail = $email.value.trim();
+                if (currentEmail !== originalEmail) {
+                    if (!emailChecked || currentEmail !== lastCheckedEmail) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setMsg($emailMsg, '이메일 중복확인을 해주세요.', 'err');
+                        return;
+                    }
+                }
+            });
+
+            // 초기 상태 세팅
+            setMsg($emailMsg, '', null);
+            updateEmailUI();
+        });
+    </script>
+</section>
+</html>

@@ -5,6 +5,9 @@ import org.springframework.web.bind.annotation.*;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.member.dto.request.AddressCreateRequest;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
+import shop.chaekmate.front.member.dto.request.UpdateMemberRequest;
+import shop.chaekmate.front.member.dto.request.VerifyPasswordRequest;
+import shop.chaekmate.front.member.dto.response.AvailabilityResponse;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.member.dto.response.GradeResponse;
 
@@ -44,4 +47,10 @@ public interface MemberAdaptor {
 
     @GetMapping(value = "/members/{memberId}")
     CommonResponse<MemberResponse> getMember(@PathVariable Long memberId);
+
+    @PostMapping("/members/{memberId}")
+    CommonResponse<Void> updateMember(@PathVariable Long memberId, @RequestBody UpdateMemberRequest updateMemberRequest);
+
+    @PostMapping("/members/{memberId}/verify-password")
+    CommonResponse<AvailabilityResponse> verifyPassword(@PathVariable Long memberId, @RequestBody VerifyPasswordRequest verifyPasswordRequest);
 }
