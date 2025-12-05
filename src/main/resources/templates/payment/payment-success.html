@@ -30,7 +30,7 @@
     </div>
 
     <div class="p-grid typography--p" style="margin-top: 10px">
-        <div class="p-grid-col text--left"><b>결제 승인 시e각</b></div>
+        <div class="p-grid-col text--left"><b>결제 승인 시각</b></div>
         <div class="p-grid-col text--right"
              th:text="${#temporals.format(approveResponse.approvedAt, 'yyyy-MM-dd HH:mm:ss')}"></div>
     </div>
@@ -38,7 +38,7 @@
 
 <div class="box_section" style="width: 600px; text-align: left; margin-top: 40px;">
     <button onclick="location.href='/'">홈으로 가기</button>
-    <button onclick="location.href='/mypage'">주문 내역 보기</button>
+    <button onclick="location.href='/orders/history'">주문 내역 보기</button>
 </div>
 </body>
 </html>
