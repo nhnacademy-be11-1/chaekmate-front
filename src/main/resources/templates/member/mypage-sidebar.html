@@ -1,5 +1,14 @@
 <div th:fragment="mypageSidebar">
 
+    <h3 class="font-weight-bolder">
+        <a th:href="@{/mypage}" class="text-dark text-decoration-none">
+            마이페이지
+        </a>
+        <br>
+    </h3>
+
+    <hr class="my-3" style="border-top: 1px solid #e0e0e0;">
+
     <h5 class="font-weight-bold mb-3">내 정보</h5>
     <div class="d-flex flex-column justify-content-start">
         <a th:href="@{/profile}"
