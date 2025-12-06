@@ -2,36 +2,31 @@ package shop.chaekmate.front.order.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.order.adaptor.DeliveryPolicyAdaptor;
 import shop.chaekmate.front.order.dto.request.DeliveryPolicyRequest;
 import shop.chaekmate.front.order.dto.response.DeliveryPolicyHistoryResponse;
 
 @Controller
-@RequestMapping("/admin/delivery-policies")
 @RequiredArgsConstructor
 public class AdminDeliveryPolicyController {
 
     private final DeliveryPolicyAdaptor deliveryPolicyAdaptor;
 
-    @GetMapping
+    @GetMapping("/admin/delivery-policies")
     public String listPolicies(
-            @PageableDefault(size = 15) Pageable pageable,
             Model model) {
         CommonResponse<Page<DeliveryPolicyHistoryResponse>> response = deliveryPolicyAdaptor.getDeliveryPolicies();
         model.addAttribute("policies", response.data());
         return "admin/deliverypolicy/delivery-policy-history";
     }
 
-    @PostMapping
+    @PostMapping("/admin/delivery-policy")
     public String createPolicy(@ModelAttribute DeliveryPolicyRequest request) {
         deliveryPolicyAdaptor.createDeliveryPolicy(request);
         return "redirect:/admin/delivery-policy";
