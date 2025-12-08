@@ -44,7 +44,6 @@ public class MemberProxyController {
 
             redirectAttributes.addFlashAttribute("msg", "배송지가 등록되었습니다.");
         } catch (FeignException e) {
-            // 상태코드로 주소 개수 초과 구분 (400/409 등 프로젝트에 맞게)
             int status = e.status();
 
             if (status == 400 || status == 409) {
@@ -53,7 +52,7 @@ public class MemberProxyController {
                 redirectAttributes.addFlashAttribute("msg", "주소 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
             }
         }
-        return "redirect:/members/" + memberId + "/mypage";
+        return "redirect:/mypage";
     }
 
     @DeleteMapping("/{memberId}/addresses/{addressId}")
@@ -62,7 +61,7 @@ public class MemberProxyController {
                          RedirectAttributes redirectAttributes) {
         memberAdaptor.deleteAddress(Long.valueOf(memberId), Long.valueOf(addressId));
         redirectAttributes.addFlashAttribute("msg", "배송지가 삭제되었습니다.");
-        return "redirect:/members/" + memberId + "/mypage";
+        return "redirect:/mypage";
     }
 
     @PostMapping("/{memberId}/withdraw")

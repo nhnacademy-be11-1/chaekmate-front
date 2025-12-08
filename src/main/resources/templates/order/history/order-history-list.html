@@ -2,6 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="ko"
       th:replace="~{layout/layout :: html(~{::section})}">
 <section>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+
     <div class="container-fluid">
         <div class="row px-xl-5">
             <div class="col-12">
@@ -13,17 +15,43 @@
                 </div>
 
                 <!-- Orders List -->
-                <div th:if="${not pagedResponse.isEmpty()}" >
+                <div th:if="${not pagedResponse.isEmpty()}">
                     <div th:each="order : ${pagedResponse.content}" class="card mb-3">
                         <div class="card-header">
                             <h5 class="mb-0 d-flex justify-content-between align-items-center">
+
+                                <!-- 주문 날짜/번호 -->
                                 <div>
                                     <span th:text="${#temporals.format(order.orderDate, 'yyyy-MM-dd')}"></span>
                                     | <span th:text="'주문번호: ' + ${order.orderNumber}"></span>
                                 </div>
+
+                                <!-- 대표 상태 + 전체취소/전체반품 + 상세보기 버튼 -->
                                 <div>
                                     <span class="badge badge-primary p-2 mr-2" th:text="${order.status}"></span>
-                                    <a th:href="'/orders/' + ${order.orderId} + '/detail'" class="badge-info btn btn-sm">주문 상세</a>
+
+                                    <!-- 전체 취소: 모든 상품 PAYMENT_COMPLETE -->
+                                    <button th:if="${#lists.isEmpty(order.orderedBooks.?[unitStatus != 'PAYMENT_COMPLETE'])}"
+                                            class="btn btn-warning btn-sm mr-2"
+                                            th:attr="data-order-id=${order.orderId}, data-order-number=${order.orderNumber}"
+                                            onclick="openFullCancel(this)">
+                                        전체 취소
+                                    </button>
+
+                                    <!-- 전체 반품: 모든 상품 DELIVERED -->
+                                    <button th:if="${#lists.isEmpty(order.orderedBooks.?[unitStatus != 'DELIVERED'])}"
+                                            class="btn btn-danger btn-sm mr-2"
+                                            th:attr="data-order-id=${order.orderId}, data-order-number=${order.orderNumber}"
+                                            onclick="openFullReturn(this)">
+                                        전체 반품
+                                    </button>
+
+                                    <!-- 상세보기 -->
+                                    <button class="badge-info btn btn-sm"
+                                            th:attr="data-order-id=${order.orderId}"
+                                            onclick="openDetailModal(this)">
+                                        주문 상세
+                                    </button>
                                 </div>
                             </h5>
                         </div>
@@ -48,19 +76,51 @@
                                             th:text="${#numbers.formatInteger(book.finalUnitPrice, 3, 'COMMA')} + '원'"></td>
                                         <td class="align-middle" th:text="${book.unitStatus}"></td>
                                         <td class="align-middle">
-                                            <button th:if="${book.unitStatus == 'PAYMENT_COMPLETE'}" class="btn btn-warning btn-sm">취소</button>
-                                            <button th:if="${book.unitStatus == 'SHIPPING'}" class="btn btn-info btn-sm">배송조회</button>
-                                            <button th:if="${book.unitStatus == 'DELIVERED'}" class="btn btn-danger btn-sm">반품</button>
 
-                                            <a sec:authorize="isAuthenticated()" th:if="${book.unitStatus == 'DELIVERED'}" th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
+                                            <!-- 개별 취소 -->
+                                            <button th:if="${book.unitStatus == 'PAYMENT_COMPLETE'}"
+                                                    class="btn btn-warning btn-sm open-cancel-btn"
+                                                    th:attr="
+                                                            data-ordered-book-id=${book.orderedBookId},
+                                                            data-order-number=${order.orderNumber},
+                                                            data-unit-price=${book.finalUnitPrice},
+                                                            data-quantity=${book.quantity}">
+                                                취소
+                                            </button>
+
+                                            <!-- 배송조회 -->
+                                            <button th:if="${book.unitStatus == 'SHIPPING'}"
+                                                    class="btn btn-info btn-sm">배송조회
+                                            </button>
+
+                                            <!-- 개별 반품 -->
+                                            <button th:if="${book.unitStatus == 'DELIVERED'}"
+                                                    class="btn btn-danger btn-sm open-return-btn"
+                                                    th:attr="
+                                                            data-ordered-book-id=${book.orderedBookId},
+                                                            data-order-number=${order.orderNumber},
+                                                            data-quantity=${book.quantity}">
+                                                반품
+                                            </button>
+
+                                            <a sec:authorize="isAuthenticated()"
+                                               th:if="${book.unitStatus == 'DELIVERED' and (reviewExistsMap == null or !reviewExistsMap.get(book.orderedBookId))}"
+                                               th:href="@{/reviews/{bookId}/add(bookId=${book.bookId}, orderedBookId=${book.orderedBookId})}"
                                                class="btn btn-info btn-sm">리뷰작성</a>
+                                            <span sec:authorize="isAuthenticated()"
+                                                  th:if="${book.unitStatus == 'DELIVERED' and reviewExistsMap != null and reviewExistsMap.get(book.orderedBookId)}"
+                                                  class="btn btn-secondary btn-sm" style="cursor: default;">리뷰 작성 완료</span>
                                         </td>
                                     </tr>
                                     </tbody>
                                 </table>
+
+                                <!-- 총 결제 금액 -->
                                 <div class="text-right">
-                                    <h5>총 결제 금액: <span class="text-primary"
-                                                       th:text="${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')} + '원'"></span>
+                                    <h5>총 결제 금액:
+                                        <span class="text-primary"
+                                              th:text="${#numbers.formatInteger(order.totalPrice, 3, 'COMMA')} + '원'">
+                                            </span>
                                     </h5>
                                 </div>
                             </div>
@@ -74,21 +134,28 @@
                         <!-- Previous Page Link -->
                         <li class="page-item" th:classappend="${pagedResponse.first} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/orders/history/list(page=${pagedResponse.number - 1}, size=${pagedResponse.size}, orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}">이전</a>
+                               th:href="@{/orders/history/list(page=${pagedResponse.number - 1}, size=${pagedResponse.size},
+                    orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}">
+                                이전
+                            </a>
                         </li>
 
-                        <!-- Page Numbers -->
-                        <li class="page-item" th:each="pageNumber : ${#numbers.sequence(0, pagedResponse.totalPages - 1)}"
+                        <li class="page-item"
+                            th:each="pageNumber : ${#numbers.sequence(0, pagedResponse.totalPages - 1)}"
                             th:classappend="${pageNumber == pagedResponse.number} ? 'active'">
                             <a class="page-link"
-                               th:href="@{/orders/history/list(page=${pageNumber}, size=${pagedResponse.size}, orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}"
+                               th:href="@{/orders/history/list(page=${pageNumber}, size=${pagedResponse.size},
+                    orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}"
                                th:text="${pageNumber + 1}"></a>
                         </li>
 
                         <!-- Next Page Link -->
                         <li class="page-item" th:classappend="${pagedResponse.last} ? 'disabled'">
                             <a class="page-link"
-                               th:href="@{/orders/history/list(page=${pagedResponse.number + 1}, size=${pagedResponse.size}, orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}">다음</a>
+                               th:href="@{/orders/history/list(page=${pagedResponse.number + 1}, size=${pagedResponse.size},
+                    orderNumber=${param.orderNumber}, ordererName=${param.ordererName}, ordererPhone=${param.ordererPhone})}">
+                                다음
+                            </a>
                         </li>
                     </ul>
                 </nav>
@@ -96,5 +163,462 @@
             </div>
         </div>
     </div>
+    <!--    주문 상세 모달-->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">주문 상세 정보</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <h5 class="font-weight-bold">기본 정보</h5>
+                    <table class="table table-bordered mb-4">
+                        <tr>
+                            <th>주문번호</th>
+                            <td id="detailOrderNumber"></td>
+                        </tr>
+                        <tr>
+                            <th>주문자명</th>
+                            <td id="detailOrdererName"></td>
+                        </tr>
+                        <tr>
+                            <th>주문일시</th>
+                            <td id="detailCreatedAt"></td>
+                        </tr>
+                        <tr>
+                            <th>상태</th>
+                            <td id="detailOrderStatus"></td>
+                        </tr>
+                    </table>
+
+                    <h5 class="font-weight-bold">상품 목록</h5>
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>상품명</th>
+                            <th>수량</th>
+                            <th>금액</th>
+                            <th>상태</th>
+                        </tr>
+                        </thead>
+                        <tbody id="detailBookList"></tbody>
+                    </table>
+
+                    <h5 class="font-weight-bold">결제 금액</h5>
+                    <table class="table table-bordered mb-4">
+                        <tr><th>총 원가</th><td id="detailOriginalPrice"></td></tr>
+                        <tr><th>할인가</th><td id="detailDiscountPrice"></td></tr>
+                        <tr><th>쿠폰 할인</th><td id="detailCouponDiscount"></td></tr>
+                        <tr><th>사용 포인트</th><td id="detailPointUsed"></td></tr>
+                        <tr><th>포장지 비용</th><td id="detailWrapperPrice"></td></tr>
+                        <tr><th>총 상품 금액</th><td id="detailUnitPrice"></td></tr>
+                        <tr><th>배송비</th><td id="detailDeliveryFee"></td></tr>
+                        <tr><th>최종 결제 금액</th><td id="detailTotalPrice"></td></tr>
+                    </table>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!--취소 모달-->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">취소 사유 입력</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <textarea id="cancelReason" class="form-control" rows="4"
+                              placeholder="취소 사유를 입력해주세요"></textarea>
+
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="cancelOrderedBookId">
+                    <input type="hidden" id="cancelOrderNumber">
+                    <input type="hidden" id="cancelAmount">
+                    <input type="hidden" id="cancelQuantity">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    <button class="btn btn-danger" id="submitCancelBtn">취소하기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!--    반품 모달-->
+    <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">반품 요청</h5>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <label class="font-weight-bold">반품 사유</label>
+                    <select id="returnReason" class="form-control">
+                        <option value="">반품 사유를 선택하세요</option>
+                        <option value="CHANGE_OF_MIND">단순 변심</option>
+                        <option value="ORDER_MISTAKE">주문 실수</option>
+                        <option value="DELIVERY_FAILURE">수령 실패(주소 오류/부재)</option>
+                        <option value="DAMAGED_GOODS">파손/파본</option>
+                        <option value="WRONG_DELIVERY">오배송</option>
+                    </select>
+
+                    <hr/>
+
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="returnOrderedBookId">
+                    <input type="hidden" id="returnOrderNumber">
+                    <input type="hidden" id="returnQuantity">
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                    <button class="btn btn-danger" id="submitReturnBtn">반품 요청하기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        const statusLabelMap = {
+            PAYMENT_READY: "결제 대기",
+            PAYMENT_FAILED: "결제 실패",
+            PAYMENT_COMPLETE: "결제 완료",
+            WAITING: "배송 대기중",
+            SHIPPING: "배송중",
+            DELIVERED: "배송완료",
+            RETURN_REQUEST: "반품 요청",
+            RETURNED: "반품 완료",
+            CANCELED: "취소"
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // 개별 취소 버튼
+            document.querySelectorAll(".open-cancel-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    openCancelModal(
+                        btn.dataset.orderedBookId,
+                        btn.dataset.orderNumber,
+                        btn.dataset.unitPrice,
+                        btn.dataset.quantity
+                    );
+                });
+            });
+
+            // 개별 반품 버튼
+            document.querySelectorAll(".open-return-btn").forEach(btn => {
+                btn.addEventListener("click", () => {
+                    openReturnModal(
+                        btn.dataset.orderedBookId,
+                        btn.dataset.orderNumber,
+                        btn.dataset.quantity
+                    );
+                });
+            });
+
+        });
+
+        // 날짜 포맷
+        function formatDateTime(str) {
+            if (!str) return "-";
+            const d = new Date(str);
+            return `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}
+                -${d.getDate().toString().padStart(2, "0")}
+                ${d.getHours().toString().padStart(2, "0")}
+                :${d.getMinutes().toString().padStart(2, "0")}
+                :${d.getSeconds().toString().padStart(2, "0")}`;
+        }
+
+        // POST 요청 공통 처리
+        async function postJson(url, payload) {
+            const res = await fetch(url, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(payload)
+            });
+
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                throw new Error(data?.message || "요청 처리 중 오류 발생");
+            }
+
+            return data;
+        }
+
+        // 상세 모달
+        async function openDetailModal(btn) {
+            const orderId = btn.dataset.orderId;
+
+            const res = await fetch(`/orders/${orderId}`);
+            const body = await res.json();
+            const o = body.data;
+
+            document.getElementById("detailOrderNumber").innerText = o.orderNumber;
+            document.getElementById("detailOrdererName").innerText = o.ordererName;
+            document.getElementById("detailCreatedAt").innerText = formatDateTime(o.createdAt);
+            document.getElementById("detailOrderStatus").innerText = statusLabelMap[o.status] ?? o.status;
+            document.getElementById("detailTotalPrice").innerText = o.totalPrice.toLocaleString() + ' 원';
+
+            const tbody = document.getElementById("detailBookList");
+            tbody.innerHTML = "";
+
+            let sumOriginal = 0, sumDiscount = 0, sumCoupon = 0, sumPoint = 0,
+                sumWrapper = 0, sumUnitPrice = 0;
+
+            o.orderedBooks.forEach(b => {
+                sumOriginal += (b.originalPrice ?? 0) * b.quantity;
+                sumDiscount += (b.discountPrice ?? 0) * b.quantity;
+                sumCoupon += (b.couponDiscount ?? 0);
+                sumPoint += (b.pointUsed ?? 0);
+                sumWrapper += (b.wrapperPrice ?? 0);
+                sumUnitPrice += (b.totalPrice ?? 0);
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${b.bookTitle}</td>
+                        <td>${b.quantity}</td>
+                        <td>${b.finalUnitPrice.toLocaleString()} 원</td>
+                        <td>${statusLabelMap[b.unitStatus] ?? b.unitStatus}</td>
+                    </tr>
+                `;
+            });
+
+            document.getElementById("detailOriginalPrice").innerText = sumOriginal.toLocaleString() + ' 원';
+            document.getElementById("detailDiscountPrice").innerText = sumDiscount.toLocaleString() + ' 원';
+            document.getElementById("detailCouponDiscount").innerText = sumCoupon.toLocaleString() + ' 원';
+            document.getElementById("detailPointUsed").innerText = sumPoint.toLocaleString() + ' P';
+            document.getElementById("detailWrapperPrice").innerText = sumWrapper.toLocaleString() + ' 원';
+            document.getElementById("detailUnitPrice").innerText = sumUnitPrice.toLocaleString() + ' 원';
+            document.getElementById("detailDeliveryFee").innerText = (o.deliveryFee ?? 0).toLocaleString() + ' 원';
+
+            $('#orderDetailModal').modal('show');
+        }
+
+
+        // 개별 취소 모달
+        function openCancelModal(orderedBookId, orderNumber, unitPrice, quantity) {
+            $("#cancelOrderedBookId").val(orderedBookId);
+            $("#cancelOrderNumber").val(orderNumber);
+            $("#cancelAmount").val(Number(unitPrice) * Number(quantity));
+            $("#cancelQuantity").val(quantity);
+
+            // 개별 취소 플래그 설정
+            $("#cancelModal").data('is-full-cancel', false);
+            $("#cancelModal").removeData('order-data');
+
+            $("#cancelReason").val('');
+            $("#cancelModal").modal("show");
+        }
+
+        document.getElementById("submitCancelBtn").addEventListener("click", async () => {
+            const orderedBookId = $("#cancelOrderedBookId").val();
+            const orderNumber = $("#cancelOrderNumber").val();
+            const cancelReason = $("#cancelReason").val();
+            const quantity = $("#cancelQuantity").val();
+            const cancelAmount = $("#cancelAmount").val();
+
+            if (!cancelReason.trim()) {
+                alert("취소 사유를 입력해주세요.");
+                return;
+            }
+
+            let payload;
+
+            // 전체 취소인지 확인
+            const isFullCancel = $("#cancelModal").data('is-full-cancel');
+            if (isFullCancel) {
+                const orderDataStr = $("#cancelModal").data('order-data');
+                const order = JSON.parse(orderDataStr);
+
+                const canceledBooks = order.orderedBooks.map(b => ({
+                    orderedBookId: b.orderedBookId,
+                    canceledQuantity: b.quantity
+                }));
+
+                payload = {
+                    paymentKey: null,
+                    orderId: order.orderNumber,
+                    cancelReason: cancelReason,
+                    cancelAmount: order.totalPrice,
+                    canceledBooks: canceledBooks
+                };
+            } else {
+                // 개별 취소
+                payload = {
+                    paymentKey: null,
+                    orderId: orderNumber,
+                    cancelReason: cancelReason,
+                    cancelAmount: Number(cancelAmount),
+                    canceledBooks: [
+                        {
+                            orderedBookId: Number(orderedBookId),
+                            canceledQuantity: Number(quantity)
+                        }
+                    ]
+                };
+            }
+
+            try {
+                await postJson("/payments/cancel", payload);
+                alert("주문이 취소되었습니다.");
+                location.reload();
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        async function openFullCancel(btn) {
+            const orderId = btn.dataset.orderId;
+
+            const res = await fetch(`/orders/${orderId}`);
+            const body = await res.json();
+            const order = body.data;
+
+            await cancelAll(order);
+        }
+
+        // 전체 취소
+        async function cancelAll(order) {
+            // 취소 사유 입력을 위한 모달 표시
+            $("#cancelOrderedBookId").val(''); // 전체 취소이므로 빈 값
+            $("#cancelOrderNumber").val(order.orderNumber);
+            $("#cancelQuantity").val(''); // 전체 취소이므로 빈 값
+            $("#cancelAmount").val(order.totalPrice);
+
+            // 전체 취소용 플래그 설정
+            $("#cancelModal").data('is-full-cancel', true);
+            $("#cancelModal").data('order-data', JSON.stringify(order));
+
+            $("#cancelReason").val('');
+            $("#cancelModal").modal("show");
+        }
+
+        // 개별 반품 모달
+        function openReturnModal(orderedBookId, orderNumber, quantity) {
+            $("#returnOrderedBookId").val(orderedBookId);
+            $("#returnOrderNumber").val(orderNumber);
+            $("#returnQuantity").val(quantity);
+
+            // 개별 반품 플래그 설정
+            $("#returnModal").data('is-full-return', false);
+            $("#returnModal").removeData('order-data');
+
+            $("#returnReason").val('');
+            $("#returnModal").modal("show");
+        }
+
+        document.getElementById("submitReturnBtn").addEventListener("click", async () => {
+            const reason = $("#returnReason").val();
+            const orderedBookId = $("#returnOrderedBookId").val();
+            const orderNumber = $("#returnOrderNumber").val();
+            const quantity = $("#returnQuantity").val();
+
+            if (!reason) {
+                alert("반품 사유를 선택해주세요.");
+                return;
+            }
+
+            let payload;
+
+            // 전체 반품인지 확인
+            const isFullReturn = $("#returnModal").data('is-full-return');
+            if (isFullReturn) {
+                const orderDataStr = $("#returnModal").data('order-data');
+                const order = JSON.parse(orderDataStr);
+
+                const returnBooks = order.orderedBooks.map(b => ({
+                    orderedBookId: b.orderedBookId,
+                    canceledQuantity: b.quantity
+                }));
+
+                payload = {
+                    orderNumber: order.orderNumber,
+                    returnReason: reason,
+                    returnBooks: returnBooks
+                };
+            } else {
+                // 개별 반품
+                payload = {
+                    orderNumber: orderNumber,
+                    returnReason: reason,
+                    returnBooks: [
+                        {
+                            orderedBookId: Number(orderedBookId),
+                            canceledQuantity: Number(quantity)
+                        }
+                    ]
+                };
+            }
+
+            try {
+                await postJson("/payments/return-request", payload);
+                alert("반품 요청 완료되었습니다.");
+                location.reload();
+            } catch (e) {
+                alert(e.message);
+            }
+        });
+
+        async function openFullReturn(btn) {
+            const orderId = btn.dataset.orderId;
+
+            const res = await fetch(`/orders/${orderId}`);
+            const body = await res.json();
+            const order = body.data;
+
+            await returnAll(order);
+        }
+
+        // 전체 반품
+        async function returnAll(order) {
+            // 반품 사유 선택을 위한 모달 표시
+            $("#returnOrderedBookId").val(''); // 전체 반품이므로 빈 값
+            $("#returnOrderNumber").val(order.orderNumber);
+            $("#returnQuantity").val(''); // 전체 반품이므로 빈 값
+
+            // 전체 반품용 플래그 설정
+            $("#returnModal").data('is-full-return', true);
+            $("#returnModal").data('order-data', JSON.stringify(order));
+
+            $("#returnReason").val('');
+            $("#returnModal").modal("show");
+        }
+
+        // 모달이 닫힐 때 플래그 초기화
+        $("#returnModal").on('hidden.bs.modal', function () {
+            $(this).removeData('is-full-return');
+            $(this).removeData('order-data');
+            $("#returnReason").val('');
+        });
+
+        $("#cancelModal").on('hidden.bs.modal', function () {
+            $(this).removeData('is-full-cancel');
+            $(this).removeData('order-data');
+            $("#cancelReason").val('');
+        });
+    </script>
 </section>
 </html>

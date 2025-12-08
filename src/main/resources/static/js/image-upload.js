@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
             statusElement.textContent = '업로드 중...';
             statusElement.style.color = 'blue';
 
-            fetch('/images/upload', {
+            fetch('/image-upload', {
                 method: 'POST',
                 body: formData
             })

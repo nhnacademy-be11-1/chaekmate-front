@@ -1,5 +1,6 @@
 package shop.chaekmate.front.order.dto.response;
 
+import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
@@ -20,4 +21,7 @@ public class OrderedBookHistoryResponse {
     private Integer pointUsed;
     private String unitStatus;
     private Long totalPrice;
+    private String returnReason;
+    private LocalDateTime requestAt;
+    private LocalDateTime deliveredAt;
 }

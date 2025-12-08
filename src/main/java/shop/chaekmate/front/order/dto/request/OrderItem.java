@@ -1,5 +1,7 @@
 package shop.chaekmate.front.order.dto.request;
 
+import java.util.List;
+
 public record OrderItem(
         Long bookId,
         String title,
@@ -11,5 +13,6 @@ public record OrderItem(
         int discountAmount,
         int quantity,
         int subtotal,
-        String thumbnailUrl
+        String thumbnailUrl,
+        List<Long> categoryIds
 ) {}

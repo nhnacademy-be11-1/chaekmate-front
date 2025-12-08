@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ko"
+      th:replace="~{admin/layout/admin-layout :: html(~{::section})}">
+
+<section>
+    <div class="container-fluid">
+
+        <!-- 제목 -->
+        <div class="row mt-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h2 class="text-dark font-weight-bold">주문 전체 조회</h2>
+            </div>
+        </div>
+
+        <!-- 필터 영역 -->
+        <div class="row mt-3 mb-4">
+            <div class="col-md-3">
+                <label class="font-weight-bold">대표 주문 상태</label>
+                <select id="orderStatus" class="form-control">
+                    <option value="">전체</option>
+                    <option th:each="os : ${orderStatusList}"
+                            th:value="${os}"
+                            th:text="${os}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="font-weight-bold">개별 상품 상태</label>
+                <select id="unitStatus" class="form-control">
+                    <option value="">전체</option>
+                    <option th:each="us : ${unitStatusList}"
+                            th:value="${us}"
+                            th:text="${us}">
+                    </option>
+                </select>
+            </div>
+
+            <div class="col-md-3 d-flex align-items-end">
+                <button class="btn btn-primary w-100" onclick="fetchOrders()">조회</button>
+            </div>
+        </div>
+
+        <!-- 주문 목록 테이블 -->
+        <div class="row">
+            <div class="col-12">
+                <table class="table table-bordered table-hover">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th>주문번호</th>
+                        <th>주문자명</th>
+                        <th>총 결제금액</th>
+                        <th>대표 상태</th>
+                        <th>주문일시</th>
+                        <th>상세</th>
+                    </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">조회된 주문이 없습니다.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- 페이징 -->
+        <div class="row">
+            <div class="col-12 d-flex justify-content-center mt-3" id="paginationArea"></div>
+        </div>
+
+    </div>
+
+    <!-- 상세 모달 -->
+    <div class="modal fade" id="orderDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+
+                <div class="modal-header bg-dark text-white">
+                    <h5 class="modal-title">주문 상세 정보</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+                </div>
+
+                <div class="modal-body">
+
+                    <h5 class="font-weight-bold">기본 정보</h5>
+                    <table class="table table-bordered mb-4">
+                        <tr>
+                            <th>주문번호</th>
+                            <td id="detailOrderNumber"></td>
+                        </tr>
+                        <tr>
+                            <th>주문자명</th>
+                            <td id="detailOrdererName"></td>
+                        </tr>
+                        <tr>
+                            <th>총 결제금액</th>
+                            <td id="detailTotalPrice"></td>
+                        </tr>
+                        <tr>
+                            <th>대표 상태</th>
+                            <td id="detailOrderStatus"></td>
+                        </tr>
+                        <tr>
+                            <th>주문일시</th>
+                            <td id="detailCreatedAt"></td>
+                        </tr>
+                    </table>
+
+                    <h5 class="font-weight-bold">상품 상세</h5>
+                    <table class="table table-bordered">
+                        <thead class="thead-light">
+                        <tr>
+                            <th>도서명</th>
+                            <th>수량</th>
+                            <th>단가</th>
+                            <th>상태</th>
+                            <th>요청일시</th>
+                            <th>배송완료일시</th>
+                            <th>버튼</th>
+                        </tr>
+                        </thead>
+                        <tbody id="detailBookList"></tbody>
+                    </table>
+
+                    <h5 class="font-weight-bold mt-4">결제 정보</h5>
+                    <table class="table table-bordered mb-4">
+                        <tbody>
+                        <tr>
+                            <th>총 원가</th>
+                            <td id="detailOriginalPrice"></td>
+                        </tr>
+                        <tr>
+                            <th>할인가격</th>
+                            <td id="detailDiscountPrice"></td>
+                        </tr>
+                        <tr>
+                            <th>쿠폰 할인</th>
+                            <td id="detailCouponDiscount"></td>
+                        </tr>
+                        <tr>
+                            <th>사용 포인트</th>
+                            <td id="detailPointUsed"></td>
+                        </tr>
+                        <tr>
+                            <th>포장지 비용</th>
+                            <td id="detailWrapperPrice"></td>
+                        </tr>
+                        <tr>
+                            <th>배송비</th>
+                            <td id="detailDeliveryFee"></td>
+                        </tr>
+                        <tr class="table-dark text-white font-weight-bold">
+                            <th>총 결제 금액</th>
+                            <td id="detailUnitPrice"></td>
+                        </tr>
+                        </tbody>
+                    </table>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-dismiss="modal">닫기</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            // 대표 주문 상태
+            document.querySelectorAll("#orderStatus option").forEach(opt => {
+                if (statusLabelMap[opt.value]) {
+                    opt.textContent = statusLabelMap[opt.value];
+                }
+            });
+
+            // 개별 상품 상태
+            document.querySelectorAll("#unitStatus option").forEach(opt => {
+                if (statusLabelMap[opt.value]) {
+                    opt.textContent = statusLabelMap[opt.value];
+                }
+            });
+
+        });
+
+        const statusLabelMap = {
+            PAYMENT_READY: "결제 대기",
+            PAYMENT_FAILED: "결제 실패",
+            PAYMENT_COMPLETE: "결제 완료",
+            WAITING: "배송 대기중",
+            SHIPPING: "배송중",
+            DELIVERED: "배송완료",
+            RETURN_REQUEST: "반품 요청",
+            RETURNED: "반품 완료",
+            CANCELED: "취소"
+        };
+
+        // 주문 목록 조회
+        function fetchOrders(page = 0) {
+            const orderStatus = document.getElementById("orderStatus").value;
+            const unitStatus = document.getElementById("unitStatus").value;
+
+            let url = `/admin/orders?page=${page}&size=10`;
+
+            if (orderStatus) url += `&orderStatus=${orderStatus}`;
+            if (unitStatus) url += `&unitStatus=${unitStatus}`;
+
+            fetch(url)
+                .then(res => res.json())
+                .then(resBody => {
+                    const page = resBody.data;
+                    renderTable(page);
+                    renderPagination(page);
+                });
+        }
+
+        // 목록 렌더링
+        function renderTable(data) {
+            const tbody = document.getElementById("orderTableBody");
+            tbody.innerHTML = "";
+
+            if (data.content.length === 0) {
+                tbody.innerHTML =
+                    `<tr><td colspan="6" class="text-center text-muted">조회된 주문이 없습니다.</td></tr>`;
+                return;
+            }
+
+            data.content.forEach(o => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                <td>${o.orderNumber}</td>
+                <td>${o.ordererName}</td>
+                <td>${o.totalPrice.toLocaleString()} 원</td>
+                <td>${statusLabelMap[o.status] ?? o.status}</td>
+                <td>${formatDateTime(o.createdAt)}</td>
+                <td>
+                    <button class="btn btn-sm btn-dark" onclick="openDetail(${o.orderId})">
+                        상세
+                    </button>
+                </td>
+            `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // 페이징 렌더링
+        function renderPagination(data) {
+            const area = document.getElementById("paginationArea");
+            area.innerHTML = "";
+
+            for (let i = 0; i < data.totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.className = "btn btn-sm btn-outline-dark mx-1";
+                btn.innerText = i + 1;
+                btn.onclick = () => fetchOrders(i);
+
+                if (i === data.number) {
+                    btn.classList.add("active");
+                }
+
+                area.appendChild(btn);
+            }
+        }
+
+        // 상세 정보 조회
+        function openDetail(orderId) {
+            fetch(`/orders/${orderId}`)
+                .then(res => res.json())
+                .then(resBody => {
+                    const o = resBody.data;
+                    document.getElementById("detailOrderNumber").innerText = o.orderNumber;
+                    document.getElementById("detailOrdererName").innerText = o.ordererName;
+                    document.getElementById("detailTotalPrice").innerText = o.totalPrice.toLocaleString() + ' 원';
+                    document.getElementById("detailOrderStatus").innerText = statusLabelMap[o.status] ?? o.status;
+                    document.getElementById("detailCreatedAt").innerText = formatDateTime(o.createdAt);
+                    document.getElementById("detailDeliveryFee").innerText = o.deliveryFee?.toLocaleString() + ' 원';
+
+                    const tbody = document.getElementById("detailBookList");
+                    tbody.innerHTML = "";
+
+                    let sumOriginal = 0;
+                    let sumDiscount = 0;
+                    let sumCoupon = 0;
+                    let sumPoint = 0;
+                    let sumWrapper = 0;
+                    let sumUnitPrice = 0;
+
+                    o.orderedBooks.forEach(b => {
+                        sumOriginal += (b.originalPrice ?? 0) * (b.quantity ?? 1);
+                        sumDiscount += (b.discountPrice ?? 0) * (b.quantity ?? 1);
+                        sumCoupon += (b.couponDiscount ?? 0);
+                        sumPoint += (b.pointUsed ?? 0);
+                        sumWrapper += (b.wrapperPrice ?? 0);
+                        sumUnitPrice += (b.totalPrice ?? 0);
+
+                        let actionBtn = "";
+
+                        // 환불요청 상태일 때만 버튼 표시
+                        if (b.unitStatus === "RETURN_REQUEST") {
+                            actionBtn = `
+                                <button class="btn btn-sm btn-danger"
+                                    onclick="approveRefund(
+                                        '${o.orderNumber}',
+                                        ${o.orderId},
+                                        ${b.orderedBookId},
+                                        ${b.quantity},
+                                        '${b.returnReason}'
+                                    )">
+                                    환불 승인
+                                </button>
+                            `;
+                        }
+
+                        // 결제 완료 → 배송 시작 버튼
+                        if (b.unitStatus === "PAYMENT_COMPLETE") {
+                            actionBtn += `
+                                <button class="btn btn-info btn-sm mt-1"
+                                    onclick="startShipping(${b.orderedBookId}, ${o.orderId})">
+                                    배송 시작
+                                </button>
+                            `;
+                        }
+
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${b.bookTitle}</td>
+                                <td>${b.quantity}</td>
+                                <td>${b.finalUnitPrice.toLocaleString()} 원</td>
+                                <td>${statusLabelMap[b.unitStatus] ?? b.unitStatus}</td>
+                                <td>${formatDateTime(b.requestAt)}</td>
+                                <td>${formatDateTime(b.deliveredAt)}</td>
+                                <td>${actionBtn}</td>
+                            </tr>
+                        `;
+                    });
+
+                    document.getElementById("detailOriginalPrice").innerText = sumOriginal.toLocaleString() + ' 원';
+                    document.getElementById("detailDiscountPrice").innerText = sumDiscount.toLocaleString() + ' 원';
+                    document.getElementById("detailCouponDiscount").innerText = sumCoupon.toLocaleString() + ' 원';
+                    document.getElementById("detailPointUsed").innerText = sumPoint.toLocaleString() + ' P';
+                    document.getElementById("detailWrapperPrice").innerText = sumWrapper.toLocaleString() + ' 원';
+                    document.getElementById("detailUnitPrice").innerText = sumUnitPrice.toLocaleString() + ' 원';
+
+                    $('#orderDetailModal').modal('show');
+                });
+        }
+
+        function approveRefund(orderNumber, orderId, orderedBookId, quantity, returnReason) {
+
+            const body = {
+                orderNumber: orderNumber,
+                returnReason: returnReason,
+                returnBooks: [
+                    {
+                        orderedBookId: orderedBookId,
+                        canceledQuantity: quantity
+                    }
+                ]
+            };
+
+            fetch(`/admin/payments/return-approve`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(body)
+            })
+                .then(res => res.json())
+                .then(resBody => {
+                    const data = resBody.data
+                    alert("환불 승인 완료");
+                    $('#orderDetailModal').modal('hide');
+
+                    setTimeout(() =>
+                    {openDetail(data.orderId);}, 200);
+
+                    fetchOrders(currentPage);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function startShipping(orderedBookId, orderId) {
+            if (!confirm("해당 상품을 배송중 상태로 변경하시겠습니까?")) return;
+
+            fetch(`/admin/ordered-books/${orderedBookId}/shipping`, {
+                method: "POST"
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error("배송 상태 변경 실패");
+                    alert("배송 상태가 '배송중'으로 변경되었습니다.");
+
+                    // 모달 새로고침
+                    openDetail(orderId);
+
+                    // 목록 업데이트
+                    fetchOrders(currentPage);
+                })
+                .catch(err => console.error(err));
+        }
+
+        function formatDateTime(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+
+            const yyyy = date.getFullYear();
+            const MM = String(date.getMonth() + 1).padStart(2, '0');
+            const dd = String(date.getDate()).padStart(2, '0');
+            const hh = String(date.getHours()).padStart(2, '0');
+            const mm = String(date.getMinutes()).padStart(2, '0');
+            const ss = String(date.getSeconds()).padStart(2, '0');
+
+            return `${yyyy}-${MM}-${dd} ${hh}:${mm}:${ss}`;
+        }
+
+    </script>
+</section>
+</html>

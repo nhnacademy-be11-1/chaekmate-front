@@ -29,8 +29,9 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/**").permitAll()
+                        .requestMatchers("/error/**").permitAll()
                         // 관리자 로그인 페이지는 누구나 접근 가능
-                        .requestMatchers("/admin/login").permitAll()
+                        .requestMatchers("/admin", "/admin/login").permitAll()
                         // 관리자 페이지는 ADMIN 권한 필요
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         // 비회원도 접근 되는 곳들
@@ -51,6 +52,7 @@ public class SecurityConfig {
                         .requestMatchers("/members/**").authenticated() // 나머지는 모두 인증 필요
                         // 회원 전용
                         .requestMatchers("/mypage/**", "/logout").authenticated()
+                        .requestMatchers("/issued-coupons/**").authenticated()
                         // 나머지는 인증 필요
                         .anyRequest().authenticated())
                 .exceptionHandling(ex -> ex

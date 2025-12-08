@@ -1,30 +1,23 @@
 package shop.chaekmate.front.book.controller;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import shop.chaekmate.front.book.dto.request.BookCreationRequest;
 import shop.chaekmate.front.book.dto.request.BookModificationRequest;
-import shop.chaekmate.front.book.dto.response.AdminBookResponse;
-import shop.chaekmate.front.book.dto.response.AdminBookDetail;
-import shop.chaekmate.front.book.dto.response.AladinBookResponse;
-import shop.chaekmate.front.book.dto.response.BookImageResponse;
-import shop.chaekmate.front.book.dto.response.BookThumbnailResponse;
+import shop.chaekmate.front.book.dto.response.*;
 import shop.chaekmate.front.book.service.AdminBookService;
 import shop.chaekmate.front.book.service.BookImageService;
 import shop.chaekmate.front.common.StringToLocalDateTime;
 import shop.chaekmate.front.tag.dto.response.TagResponse;
 import shop.chaekmate.front.tag.service.TagService;
+
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -170,5 +163,17 @@ public class AdminBookController {
     public String deleteBook(@PathVariable Long bookId){
         adminBookService.deleteBookByBookId(bookId);
         return "redirect:/admin/books";
+    }
+
+    // 쿠폰 등록용 도서 검색 API
+    @GetMapping("/admin/books/search")
+    @ResponseBody
+    public ResponseEntity<Page<AdminBookSearchResponse>> searchBooks(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "12") int size,
+            @RequestParam(defaultValue = "0") int page) {
+
+        Page<AdminBookSearchResponse> books = adminBookService.searchBooks(keyword, size, page);
+        return ResponseEntity.ok(books);
     }
 }

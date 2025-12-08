@@ -65,21 +65,30 @@
         this.value = this.value.replace(/[^0-9]/g, '');
       });
 
-      // 1분 타이머 설정
-      let timeLeft = 60; // 60초
       const timerElement = document.getElementById('timer');
       const timerAlert = document.getElementById('timerAlert');
       const submitBtn = document.getElementById('submitBtn');
-      const verifyForm = document.getElementById('verifyForm');
+      const STORAGE_KEY = 'dormant_verify_timer_start';
+      const TIMER_DURATION = 60; // 60초
+
+      // 타이머 시작 시간 가져오기 또는 설정
+      let timerStartTime = localStorage.getItem(STORAGE_KEY);
+      if (!timerStartTime) {
+        // 처음 로드된 경우에만 시작 시간 저장
+        timerStartTime = Date.now();
+        localStorage.setItem(STORAGE_KEY, timerStartTime.toString());
+      } else {
+        // 기존 타이머가 있는 경우 (에러로 인한 리로드)
+        timerStartTime = parseInt(timerStartTime);
+      }
 
       function updateTimer() {
-        const minutes = Math.floor(timeLeft / 60);
-        const seconds = timeLeft % 60;
-        timerElement.textContent =
-                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+        const elapsed = Math.floor((Date.now() - timerStartTime) / 1000);
+        const timeLeft = TIMER_DURATION - elapsed;
 
         if (timeLeft <= 0) {
           // 시간 만료
+          localStorage.removeItem(STORAGE_KEY); // 저장된 타이머 정보 삭제
           timerAlert.className = 'alert alert-danger text-center';
           timerAlert.innerHTML = '<i class="bi bi-exclamation-triangle"></i> <strong>인증번호가 만료되었습니다.</strong>';
 
@@ -96,7 +105,11 @@
           return;
         }
 
-        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent =
+                String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+
         setTimeout(updateTimer, 1000);
       }
 

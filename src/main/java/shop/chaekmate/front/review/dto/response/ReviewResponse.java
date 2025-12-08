@@ -1,6 +1,7 @@
 package shop.chaekmate.front.review.dto.response;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record ReviewResponse(
         Long id,
@@ -9,7 +10,8 @@ public record ReviewResponse(
         String comment,
         Integer rating,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
+        LocalDateTime updatedAt,
+        List<ReviewImageResponse> images
 ) {
 }
 

@@ -5,10 +5,15 @@ import org.springframework.stereotype.Service;
 import shop.chaekmate.front.common.CommonResponse;
 import shop.chaekmate.front.member.adaptor.MemberAdaptor;
 import shop.chaekmate.front.member.dto.request.MemberCreateRequest;
+import shop.chaekmate.front.member.dto.request.UpdateMemberRequest;
+import shop.chaekmate.front.member.dto.request.VerifyPasswordRequest;
+import shop.chaekmate.front.member.dto.response.AvailabilityResponse;
 import shop.chaekmate.front.member.dto.response.MemberAddressResponse;
 import shop.chaekmate.front.member.dto.response.GradeResponse;
+import shop.chaekmate.front.member.dto.response.MemberResponse;
 
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +25,13 @@ public class MemberService {
         memberAdaptor.createMember(memberCreateRequest);
     }
 
-    public List<MemberAddressResponse> getAddressesByMemberId(String memberId) {
-        CommonResponse<List<MemberAddressResponse>> wrappedResponse = memberAdaptor.getAddresses(Long.valueOf(memberId));
+    public List<MemberAddressResponse> getAddressesByMemberId(Long memberId) {
+        CommonResponse<List<MemberAddressResponse>> wrappedResponse = memberAdaptor.getAddresses(memberId);
         return wrappedResponse.data();
     }
 
-    public GradeResponse getGradeByMemberId(String memberId) {
-        CommonResponse<GradeResponse> wrappedResponse = memberAdaptor.getMemberGrade(Long.valueOf(memberId));
+    public GradeResponse getGradeByMemberId(Long memberId) {
+        CommonResponse<GradeResponse> wrappedResponse = memberAdaptor.getMemberGrade(memberId);
         return wrappedResponse.data();
     }
 
@@ -34,4 +39,22 @@ public class MemberService {
         CommonResponse<List<GradeResponse>> wrappedResponse = memberAdaptor.getAllGrades();
         return wrappedResponse.data();
     }
+
+    public MemberResponse getMemberById(Long memberId) {
+        CommonResponse<MemberResponse> wrappedResponse = memberAdaptor.getMember(memberId);
+        return wrappedResponse.data();
+    }
+
+    public void updateMember(Long memberId, UpdateMemberRequest request) {
+        memberAdaptor.updateMember(memberId, request);
+    }
+
+    public boolean verifyPassword(Long memberId, VerifyPasswordRequest request) {
+        CommonResponse<AvailabilityResponse> wrappedResponse =
+                memberAdaptor.verifyPassword(memberId, request);
+
+        AvailabilityResponse data = wrappedResponse.data();
+        return data != null && data.available();
+    }
+
 }
