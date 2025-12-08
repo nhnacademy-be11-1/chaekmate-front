@@ -29,6 +29,6 @@ public class AdminDeliveryPolicyController {
     @PostMapping("/admin/delivery-policy")
     public String createPolicy(@ModelAttribute DeliveryPolicyRequest request) {
         deliveryPolicyAdaptor.createDeliveryPolicy(request);
-        return "redirect:/admin/delivery-policy";
+        return "redirect:/admin/delivery-policies";
     }
 }
